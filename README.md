@@ -44,9 +44,18 @@ curl -X POST http://localhost:3000/api/upload \
 - `/` — **Matchup matrix**: winrate of each archetype vs each other archetype,
   95% Wilson confidence interval per cell, green→red coloring, sortable by
   matches / winrate / alphabetical, filterable by event, date range, and
-  minimum % presence. Draws are excluded from winrate (`wins / (wins+losses)`).
-- `/standings` — player results per event, filterable by event/date.
-- `/admin/upload` — CSV upload (no auth yet — see roadmap).
+  minimum % presence (defaults to the current year and a 1% presence cutoff).
+  Header row + first column stay frozen while scrolling. Draws are excluded
+  from winrate (`wins / (wins+losses)`).
+- `/standings` — three tabbed views:
+  - **Whole year** — per-player win/loss/draw analysis (byes included), ranked
+    by matches. Click a player to drill into their **win rate by deck**.
+  - **Monthly Terça / Sexta** — points standings (win 3 · draw 1 · loss 0) with
+    a ← Older / Newer → month switcher, defaulting to the latest month with data.
+- `/admin/upload` — CSV upload (no auth yet — see next steps).
+
+Counting matches Looker: totals count every match a deck/player played,
+including byes and matches with an unrecorded opponent deck.
 
 ## Data notes / known limitations
 
@@ -60,20 +69,52 @@ curl -X POST http://localhost:3000/api/upload \
 - `historic_rounds` is already contained in `Rounds`, so only `Rounds` +
   `Ranking` are ingested.
 
-## Roadmap
+## Done so far
 
-1. ✅ MVP: matchup matrix + standings + CSV upload.
-2. Admin-only upload (auth).
-3. Multi-store: the `store` column already exists on every row and the UI has a
-   store selector; needs auth scoping + per-store admin.
-4. Automation: port `code.gs` / `Dowloader.gs` (plain JS melee.gg scraping) to a
-   Node job that writes straight to the DB, removing the spreadsheet middle-man.
+- Matchup matrix (Wilson CI, color scale, sort, filters, frozen header/column,
+  fast HTML-string rendering of the large grid).
+- Standings: yearly player analysis, monthly points tables, month switcher.
+- Player → win-rate-by-deck drill-down.
+- CSV upload (full-replace per store) with the messy-date resolver.
+- Counts reconciled to match Looker; verified against the source sheet.
+
+## Next steps (what's missing)
+
+Roughly in priority order:
+
+1. **Deploy / hosting** — currently local-only. Pick a host (Vercel + a hosted
+   Postgres is the natural fit), migrate Prisma from SQLite to Postgres (swap
+   the datasource/adapter), and set up env/secrets. Decide how data gets in
+   (upload vs. sync).
+2. **Admin auth** — `/admin/upload` is unprotected. Add login (NextAuth or a
+   simple admin password) so only admins can upload/replace data.
+3. **Multi-store** — the `store` column exists on every row and the UI has a
+   store selector, but there's no per-store admin or auth scoping yet.
+4. **Automation** — port `code.gs` / `Dowloader.gs` (plain-JS melee.gg scraping)
+   to a Node job that writes straight to the DB, removing the spreadsheet
+   middle-man. Or, as a lighter first step, a **"Sync from Google Sheet"**
+   button (the sheet is public, so the app can pull it directly).
+5. **Archetype icons + name normalization** — show mana-symbol icons and map
+   deck-name variants (e.g. `mono-red` / `mono-red aggro`) to canonical
+   archetypes, to match the reference matrix look.
+6. **Extend drill-down** — offer the win-rate-by-deck drill-down on the monthly
+   Terça/Sexta views too (currently yearly only).
+7. **Polish / smaller items**:
+   - Matrix perf on very low presence cutoffs (large grids are ~2–3 MB of DOM);
+     consider capping columns to the meta while keeping all decks as rows.
+   - Deck drill-down of its own (click a deck → its full matchup spread).
+   - Configurable event→weekday mapping instead of the hardcoded `terca`/`sexta`.
+   - Handle the `historic_rounds` tab if it ever diverges from `Rounds`.
+   - Tests around the date resolver and the stats functions.
 
 ## Key files
 
 - `src/lib/ingest.ts` — CSV parsing + full-replace ingest.
 - `src/lib/dates.ts` — the per-year date-format resolver.
-- `src/lib/stats.ts` — matchup matrix + Wilson interval.
+- `src/lib/stats.ts` — matrix, Wilson interval, player analysis, points
+  standings, deck breakdown.
 - `src/lib/queries.ts` — Prisma queries + filters.
-- `src/app/page.tsx` — matrix page. `src/components/MatrixTable.tsx` — the grid.
+- `src/app/page.tsx` + `src/components/MatrixTable.tsx` — matchup matrix.
+- `src/app/standings/page.tsx` + `PlayerTable` / `StandingsTable` /
+  `DeckBreakdownTable` — standings and drill-down.
 - `prisma/schema.prisma` — `Match` and `Standing` models.
