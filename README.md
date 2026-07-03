@@ -99,7 +99,18 @@ Roughly in priority order:
    archetypes, to match the reference matrix look.
 6. **Extend drill-down** — offer the win-rate-by-deck drill-down on the monthly
    Terça/Sexta views too (currently yearly only).
-7. **Polish / smaller items**:
+7. **Player decklists** — a page (e.g. `/players/[name]/decklists`, or expand the
+   player drill-down) that shows the actual **card lists** a player ran, not just
+   the deck name.
+   - *Needs investigation first:* confirm we can scrape full decklists from
+     melee.gg. The current scraper only reads the decklist **name** via
+     `Player/GetPlayerDetails` (which also returns each decklist's **id**), so
+     the card lists would come from a separate decklist-detail endpoint
+     (something like `melee.gg/Decklist/View/{id}`). Verify the endpoint,
+     response shape, and rate limits before building.
+   - Then: store cards per decklist, link matches to their decklist id, and
+     render the list (mainboard/sideboard) on the player page.
+8. **Polish / smaller items**:
    - Matrix perf on very low presence cutoffs (large grids are ~2–3 MB of DOM);
      consider capping columns to the meta while keeping all decks as rows.
    - Deck drill-down of its own (click a deck → its full matchup spread).
