@@ -52,8 +52,10 @@ export function parseRoundsCsv(csv: string): MatchInput[] {
   const matches: MatchInput[] = [];
   for (const r of rows) {
     const player = str(r["player_1"]);
+    if (!player) continue; // only skip rows with no player (aux/blank rows)
+    // Keep matches even when the deck wasn't recorded: the player still played,
+    // so it must count for player analysis. Deck-based views ignore blanks.
     const deck = str(r["deck_player_1"]);
-    if (!player || !deck) continue; // skip blank/aux rows
     matches.push({
       eventName: str(r["event_name"]),
       date: resolveDate(r["date"]),

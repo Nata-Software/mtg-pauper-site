@@ -27,8 +27,12 @@ export default async function MatchupsPage({
   const store = first(sp.store) || stores[0] || "default";
 
   const event = first(sp.event) || undefined;
-  const from = first(sp.from) || undefined;
-  const to = first(sp.to) || undefined;
+  // Default to the current year; an explicitly-cleared field ("") means all-time.
+  const year = new Date().getUTCFullYear();
+  const fromParam = first(sp.from);
+  const toParam = first(sp.to);
+  const from = fromParam === undefined ? `${year}-01-01` : fromParam || undefined;
+  const to = toParam === undefined ? `${year}-12-31` : toParam || undefined;
   const minPct = Number(first(sp.minPct) ?? 2) || 0;
   const sort = (first(sp.sort) as "matches" | "winrate" | "alpha") || "matches";
 

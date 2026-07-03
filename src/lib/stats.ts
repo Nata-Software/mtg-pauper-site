@@ -112,16 +112,21 @@ export function computeMatrix(
 
   for (const m of matches) {
     const deck = m.deck.trim().toLowerCase();
-    const opp = m.opponentDeck.trim().toLowerCase();
-    if (isByeDeck(deck) || isByeDeck(opp)) continue; // ignore byes in matchups
+    if (isByeDeck(deck)) continue; // can't attribute a blank/bye player deck
 
+    const opp = m.opponentDeck.trim().toLowerCase();
     const row = getRow(deck);
+    // OVERALL counts every match the deck played (incl. byes and matches whose
+    // opponent deck wasn't recorded) — this is how Looker counts "Qtd partidas".
     row.matches++;
     totalRows++;
     tally(row.overall, m.result);
 
-    if (!row.vs[opp]) row.vs[opp] = emptyCell();
-    tally(row.vs[opp], m.result);
+    // Per-opponent cells only exist for known opponents.
+    if (!isByeDeck(opp)) {
+      if (!row.vs[opp]) row.vs[opp] = emptyCell();
+      tally(row.vs[opp], m.result);
+    }
   }
 
   // Presence filter: keep archetypes with >= minPct% of all rows.
@@ -142,6 +147,91 @@ export function computeMatrix(
     totalMatches: totalRows,
     minPct,
   };
+}
+
+export type PlayerStat = {
+  player: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number;
+  lossPct: number;
+  drawPct: number;
+};
+
+export type PlayerRow = {
+  player: string;
+  result: string;
+  opponent: string;
+  opponentDeck: string;
+};
+
+type Tally = { matches: number; wins: number; losses: number; draws: number };
+
+/** Aggregate raw rows into per-player win/loss/draw tallies (byes included,
+ * matching Looker's "Qtd partidas"). */
+function tallyPlayers(rows: PlayerRow[]): Map<string, Tally> {
+  const map = new Map<string, Tally>();
+  for (const r of rows) {
+    const player = r.player.trim().toLowerCase();
+    if (!player) continue;
+    let s = map.get(player);
+    if (!s) {
+      s = { matches: 0, wins: 0, losses: 0, draws: 0 };
+      map.set(player, s);
+    }
+    s.matches++;
+    const res = r.result.trim().toLowerCase();
+    if (res === "win") s.wins++;
+    else if (res === "loss") s.losses++;
+    else s.draws++;
+  }
+  return map;
+}
+
+/**
+ * Per-player win/loss/draw analysis (the "Análise do jogador" view).
+ * Percentages are over total matches (win% + loss% + draw% = 100%).
+ * Byes are included, matching Looker. Sorted by matches desc.
+ */
+export function computePlayerAnalysis(rows: PlayerRow[]): PlayerStat[] {
+  return [...tallyPlayers(rows).entries()]
+    .map(([player, s]) => ({
+      player,
+      matches: s.matches,
+      wins: s.wins,
+      losses: s.losses,
+      draws: s.draws,
+      winPct: s.matches ? s.wins / s.matches : 0,
+      lossPct: s.matches ? s.losses / s.matches : 0,
+      drawPct: s.matches ? s.draws / s.matches : 0,
+    }))
+    .sort((a, b) => b.matches - a.matches || b.winPct - a.winPct);
+}
+
+export type StandingStat = PlayerStat & { points: number };
+
+/**
+ * Points-based league standings: win = 3, draw = 1, loss = 0.
+ * Sorted by points desc, then win% as tiebreaker.
+ */
+export function computePointsStandings(rows: PlayerRow[]): StandingStat[] {
+  return [...tallyPlayers(rows).entries()]
+    .map(([player, s]) => ({
+      player,
+      matches: s.matches,
+      wins: s.wins,
+      losses: s.losses,
+      draws: s.draws,
+      points: s.wins * 3 + s.draws,
+      winPct: s.matches ? s.wins / s.matches : 0,
+      lossPct: s.matches ? s.losses / s.matches : 0,
+      drawPct: s.matches ? s.draws / s.matches : 0,
+    }))
+    .sort(
+      (a, b) => b.points - a.points || b.winPct - a.winPct || b.matches - a.matches,
+    );
 }
 
 /** Title-case a lowercase deck name for display. */

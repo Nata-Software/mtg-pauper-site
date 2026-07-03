@@ -1,0 +1,76 @@
+import type { PlayerStat } from "@/lib/stats";
+
+function pctP(n: number): string {
+  return `${parseFloat((n * 100).toFixed(2))}%`;
+}
+
+export function PlayerTable({
+  title,
+  subtitle,
+  stats,
+  limit = 100,
+}: {
+  title: string;
+  subtitle: string;
+  stats: PlayerStat[];
+  limit?: number;
+}) {
+  const shown = stats.slice(0, limit);
+
+  return (
+    <section className="mb-8">
+      <div className="mb-2">
+        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        <p className="text-xs text-neutral-400">{subtitle}</p>
+      </div>
+
+      {shown.length === 0 ? (
+        <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-4 text-sm text-neutral-400">
+          No matches in this period yet.
+        </p>
+      ) : (
+        <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-800">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-neutral-900 text-left text-xs uppercase tracking-wide text-neutral-400">
+                <th className="px-3 py-2">Player</th>
+                <th className="px-3 py-2 text-right">Matches</th>
+                <th className="px-3 py-2 text-right">Win %</th>
+                <th className="px-3 py-2 text-right">Loss %</th>
+                <th className="px-3 py-2 text-right">Draw %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((s) => (
+                <tr
+                  key={s.player}
+                  className="border-t border-neutral-800/60 odd:bg-neutral-900/30"
+                >
+                  <td className="px-3 py-1.5 font-medium">{s.player}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
+                    {s.matches.toLocaleString()}
+                  </td>
+                  <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-emerald-400">
+                    {pctP(s.winPct)}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
+                    {pctP(s.lossPct)}
+                  </td>
+                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-500">
+                    {pctP(s.drawPct)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {stats.length > shown.length && (
+        <p className="mt-1 text-right text-xs text-neutral-500">
+          Showing top {shown.length} of {stats.length.toLocaleString()} players
+        </p>
+      )}
+    </section>
+  );
+}

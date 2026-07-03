@@ -1,11 +1,12 @@
-import { FilterBar } from "@/components/FilterBar";
-import { prettyDeck } from "@/lib/stats";
-import { toISODate } from "@/lib/dates";
+import Link from "next/link";
+import { PlayerTable } from "@/components/PlayerTable";
+import { StandingsTable } from "@/components/StandingsTable";
+import { computePlayerAnalysis, computePointsStandings } from "@/lib/stats";
 import {
-  dateBounds,
-  getStandings,
-  listEvents,
+  getPlayerRows,
+  listMonths,
   listStores,
+  monthRange,
 } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,13 @@ export const dynamic = "force-dynamic";
 type SP = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) =>
   Array.isArray(v) ? v[0] : v;
+
+type View = "year" | "terca" | "sexta";
+const TABS: { key: View; label: string }[] = [
+  { key: "year", label: "Whole year" },
+  { key: "terca", label: "Monthly — Terça" },
+  { key: "sexta", label: "Monthly — Sexta" },
+];
 
 export default async function StandingsPage({
   searchParams,
@@ -22,15 +30,7 @@ export default async function StandingsPage({
   const sp = await searchParams;
   const stores = await listStores();
   const store = first(sp.store) || stores[0] || "default";
-  const event = first(sp.event) || undefined;
-  const from = first(sp.from) || undefined;
-  const to = first(sp.to) || undefined;
-
-  const [events, bounds, rows] = await Promise.all([
-    listEvents(store),
-    dateBounds(store),
-    getStandings({ store, event, from, to }),
-  ]);
+  const view = (first(sp.view) as View) || "year";
 
   return (
     <div>
@@ -39,62 +39,132 @@ export default async function StandingsPage({
           Standings
         </h1>
         <p className="mt-1 text-sm text-neutral-400">
-          Player results per event. Showing {rows.length.toLocaleString()} rows.
+          Player performance. The yearly view ranks by matches played; the
+          monthly views rank by points (win 3 · draw 1 · loss 0).
         </p>
       </div>
 
-      <FilterBar
-        action="/standings"
-        stores={stores}
-        events={events}
-        store={store}
-        event={event}
-        from={from}
-        to={to}
-        bounds={bounds}
-      />
+      {/* Tabs */}
+      <div className="mb-5 flex flex-wrap gap-2">
+        {TABS.map((t) => {
+          const active = t.key === view;
+          return (
+            <Link
+              key={t.key}
+              href={`/standings?view=${t.key}`}
+              className={
+                active
+                  ? "rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white"
+                  : "rounded-md border border-neutral-700 px-4 py-1.5 text-sm text-neutral-300 hover:bg-neutral-800"
+              }
+            >
+              {t.label}
+            </Link>
+          );
+        })}
+      </div>
 
-      {rows.length === 0 ? (
-        <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
-          No standings for these filters.
-        </p>
+      {view === "year" ? (
+        <YearView store={store} />
       ) : (
-        <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-800">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-neutral-900 text-left text-xs uppercase tracking-wide text-neutral-400">
-                <th className="px-3 py-2">#</th>
-                <th className="px-3 py-2">Player</th>
-                <th className="px-3 py-2">Deck</th>
-                <th className="px-3 py-2 text-right">Points</th>
-                <th className="px-3 py-2">Event</th>
-                <th className="px-3 py-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr
-                  key={i}
-                  className="border-t border-neutral-800/60 odd:bg-neutral-900/30"
-                >
-                  <td className="px-3 py-1.5 text-neutral-400">{r.position}</td>
-                  <td className="px-3 py-1.5 font-medium">{r.nickname}</td>
-                  <td className="px-3 py-1.5 text-neutral-300">
-                    {prettyDeck(r.deck)}
-                  </td>
-                  <td className="px-3 py-1.5 text-right tabular-nums">
-                    {r.points}
-                  </td>
-                  <td className="px-3 py-1.5 text-neutral-400">{r.eventName}</td>
-                  <td className="px-3 py-1.5 text-neutral-400 tabular-nums">
-                    {toISODate(r.date)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <MonthlyView
+          store={store}
+          event={view}
+          selectedMonth={first(sp.month)}
+        />
       )}
+    </div>
+  );
+}
+
+async function YearView({ store }: { store: string }) {
+  const year = new Date().getUTCFullYear();
+  const rows = await getPlayerRows({
+    store,
+    from: `${year}-01-01`,
+    to: `${year}-12-31`,
+  });
+  const stats = computePlayerAnalysis(rows);
+  return (
+    <PlayerTable
+      title={`Whole year — ${year}`}
+      subtitle={`All events. Win / loss / draw rate per player (byes included), ranked by matches played.`}
+      stats={stats}
+    />
+  );
+}
+
+async function MonthlyView({
+  store,
+  event,
+  selectedMonth,
+}: {
+  store: string;
+  event: "terca" | "sexta";
+  selectedMonth?: string;
+}) {
+  const months = await listMonths(store, event);
+  const eventLabel = event === "terca" ? "Terça (Tuesday)" : "Sexta (Friday)";
+
+  if (months.length === 0) {
+    return (
+      <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
+        No {eventLabel} matches recorded yet.
+      </p>
+    );
+  }
+
+  const selected =
+    selectedMonth && months.includes(selectedMonth) ? selectedMonth : months[0];
+  const idx = months.indexOf(selected);
+  const older = months[idx + 1]; // months sorted newest-first
+  const newer = months[idx - 1];
+  const range = monthRange(selected);
+
+  const rows = await getPlayerRows({
+    store,
+    event,
+    from: range.from,
+    to: range.to,
+  });
+  const stats = computePointsStandings(rows);
+
+  const linkFor = (m: string) => `/standings?view=${event}&month=${m}`;
+  const navBtn =
+    "rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-800";
+  const navBtnOff =
+    "rounded-md border border-neutral-800 px-3 py-1.5 text-sm text-neutral-600 cursor-default";
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-white">
+            {eventLabel} — {range.label}
+          </h2>
+          <p className="text-xs text-neutral-400">
+            Ranked by points (win 3 · draw 1 · loss 0).
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {older ? (
+            <Link href={linkFor(older)} className={navBtn}>
+              ← Older
+            </Link>
+          ) : (
+            <span className={navBtnOff}>← Older</span>
+          )}
+          {newer ? (
+            <Link href={linkFor(newer)} className={navBtn}>
+              Newer →
+            </Link>
+          ) : (
+            <span className={navBtnOff}>Newer →</span>
+          )}
+        </div>
+      </div>
+
+      <StandingsTable stats={stats} />
     </div>
   );
 }
