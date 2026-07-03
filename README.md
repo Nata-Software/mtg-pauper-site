@@ -94,9 +94,18 @@ Roughly in priority order:
    to a Node job that writes straight to the DB, removing the spreadsheet
    middle-man. Or, as a lighter first step, a **"Sync from Google Sheet"**
    button (the sheet is public, so the app can pull it directly).
-5. **Archetype icons + name normalization** — show mana-symbol icons and map
-   deck-name variants (e.g. `mono-red` / `mono-red aggro`) to canonical
-   archetypes, to match the reference matrix look.
+5. **Archetype icons + name normalization / classification** — show mana-symbol
+   icons and resolve deck names to canonical archetypes.
+   - Deck names today are **free-text from the players**, so they're unreliable.
+     Simple aliasing handles obvious variants (`mono-red` / `mono-red aggro`),
+     but the real problem is **genuine ambiguity**: a bare `mono red` could be
+     Mono-Red Madness/Burn *or* Mono-Red Rally / Red Deck Wins — different decks
+     we can't tell apart from the name alone. Players also just type `mono red`
+     and leave us guessing.
+   - Proper fix needs the **card lists** (depends on #7): classify each deck by
+     its actual cards, the way mtgtop8.com does (match against archetype
+     signatures / key cards), and fall back to the typed name only when no
+     decklist is available. This makes the matrix and meta share trustworthy.
 6. **Extend drill-down** — offer the win-rate-by-deck drill-down on the monthly
    Terça/Sexta views too (currently yearly only).
 7. **Player decklists** — a page (e.g. `/players/[name]/decklists`, or expand the
