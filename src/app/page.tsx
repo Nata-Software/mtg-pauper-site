@@ -33,7 +33,7 @@ export default async function MatchupsPage({
   const toParam = first(sp.to);
   const from = fromParam === undefined ? `${year}-01-01` : fromParam || undefined;
   const to = toParam === undefined ? `${year}-12-31` : toParam || undefined;
-  const minPct = Number(first(sp.minPct) ?? 2) || 0;
+  const minPct = Number(first(sp.minPct) ?? 1) || 0;
   const sort = (first(sp.sort) as "matches" | "winrate" | "alpha") || "matches";
 
   const [events, bounds, matchRows] = await Promise.all([
@@ -59,8 +59,8 @@ export default async function MatchupsPage({
         </h1>
         <p className="mt-1 text-sm text-neutral-400">
           Winrate against the most present archetypes (at least {matrix.minPct}%
-          of the matches){event ? ` in "${event}"` : ""} between {rangeLabel}.
-          Draws are excluded from winrate.
+          of the matches){event ? ` in "${event}"` : ""} between {rangeLabel} —{" "}
+          {matrix.archetypes.length} archetypes. Draws are excluded from winrate.
         </p>
       </div>
 

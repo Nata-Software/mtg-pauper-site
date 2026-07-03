@@ -11,6 +11,104 @@ body {
     Arial, sans-serif;
 }
 
+/* Matchup matrix — short classes so the (potentially 160x160) grid doesn't
+   repeat long utility strings across ~26k cells (keeps the payload small). */
+.mx {
+  /* separate (not collapse) so position:sticky works on the header/first col */
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #f5f5f5;
+  font-size: 13px;
+}
+.mx th,
+.mx td {
+  border-right: 1px solid rgba(38, 38, 38, 0.6);
+  border-bottom: 1px solid rgba(38, 38, 38, 0.6);
+}
+.mx-corner {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  min-width: 150px;
+  background: #171717;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #a3a3a3;
+}
+.mx-colhead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-width: 86px;
+  background: #171717;
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #d4d4d4;
+}
+.mx-colhead.ov {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+.mx-rowhead {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  min-width: 150px;
+  background: #171717;
+  padding: 4px 12px;
+  text-align: left;
+}
+.mx-rowhead b {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.mx-rowhead span {
+  font-size: 10px;
+  color: #737373;
+}
+.mx-odd {
+  background: rgba(23, 23, 23, 0.3);
+}
+.mx-cell {
+  padding: 4px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+.mx-cell .r {
+  font-size: 10px;
+  line-height: 1.1;
+  opacity: 0.8;
+}
+.mx-cell .w {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.mx-cell .m {
+  font-size: 10px;
+  line-height: 1.1;
+  opacity: 0.7;
+}
+.mx-e {
+  text-align: center;
+  color: #3f3f3f;
+}
+.mx-e::after {
+  content: "–";
+  font-size: 12px;
+}
+
 /* Thin scrollbars for the wide matrix */
 .matrix-scroll {
   scrollbar-width: thin;

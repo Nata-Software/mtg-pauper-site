@@ -70,8 +70,6 @@ export function FilterBar(props: Props) {
           type="date"
           name="from"
           defaultValue={from ?? ""}
-          min={bounds.min || undefined}
-          max={bounds.max || undefined}
           className={inputCls}
         />
       </label>
@@ -82,8 +80,6 @@ export function FilterBar(props: Props) {
           type="date"
           name="to"
           defaultValue={to ?? ""}
-          min={bounds.min || undefined}
-          max={bounds.max || undefined}
           className={inputCls}
         />
       </label>
@@ -97,7 +93,7 @@ export function FilterBar(props: Props) {
             step="0.5"
             min="0"
             max="100"
-            defaultValue={minPct ?? 2}
+            defaultValue={minPct ?? 1}
             className={`${inputCls} w-24`}
           />
         </label>

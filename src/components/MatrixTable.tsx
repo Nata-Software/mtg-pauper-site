@@ -1,43 +1,68 @@
 import { winrateColor, pct } from "@/lib/colors";
-import { prettyDeck, type Matrix, type CellStat } from "@/lib/stats";
+import { prettyDeck, type Matrix, type ArchetypeRow, type CellStat } from "@/lib/stats";
 
 type SortKey = "matches" | "winrate" | "alpha";
 
-function sortedRows(matrix: Matrix, sort: SortKey) {
+function sortedRows(matrix: Matrix, sort: SortKey): ArchetypeRow[] {
   const rows = [...matrix.rows];
   if (sort === "winrate") {
-    rows.sort(
-      (a, b) => (b.overall.winrate ?? -1) - (a.overall.winrate ?? -1),
-    );
+    rows.sort((a, b) => (b.overall.winrate ?? -1) - (a.overall.winrate ?? -1));
   } else if (sort === "alpha") {
     rows.sort((a, b) => a.deck.localeCompare(b.deck));
   } // "matches" is already the default order
   return rows;
 }
 
-function Cell({ stat }: { stat: CellStat | undefined }) {
-  if (!stat || stat.matches === 0) {
-    return (
-      <td className="border border-neutral-800/60 px-2 py-1 text-center text-neutral-700">
-        <span className="text-xs">–</span>
-      </td>
-    );
-  }
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function cellHtml(stat: CellStat | undefined): string {
+  if (!stat || stat.matches === 0) return '<td class="mx-e"></td>';
   const { bg, fg } = winrateColor(stat.winrate, stat.wins + stat.losses);
   return (
-    <td
-      className="border border-neutral-800/60 px-2 py-1 text-center align-middle"
-      style={{ backgroundColor: bg, color: fg }}
-    >
-      <div className="text-[10px] leading-tight opacity-80">
-        {pct(stat.ciLow)} – {pct(stat.ciHigh)}
-      </div>
-      <div className="text-sm font-bold leading-tight">{pct(stat.winrate)}</div>
-      <div className="text-[10px] leading-tight opacity-70">
-        {stat.matches.toLocaleString()} matches
-      </div>
-    </td>
+    `<td class="mx-cell" style="background-color:${bg};color:${fg}">` +
+    `<div class="r">${pct(stat.ciLow)}–${pct(stat.ciHigh)}</div>` +
+    `<div class="w">${pct(stat.winrate)}</div>` +
+    `<div class="m">${stat.matches.toLocaleString()}</div></td>`
   );
+}
+
+/**
+ * The grid can be ~160x160 (26k cells). Building it as an HTML string instead
+ * of React elements avoids serializing tens of thousands of nodes, which keeps
+ * server render fast. Injected via dangerouslySetInnerHTML.
+ */
+function buildTableHtml(rows: ArchetypeRow[], cols: string[]): string {
+  const head =
+    "<thead><tr>" +
+    '<th class="mx-corner">Archetype</th>' +
+    '<th class="mx-colhead ov">Overall</th>' +
+    cols.map((c) => `<th class="mx-colhead">${esc(prettyDeck(c))}</th>`).join("") +
+    "</tr></thead>";
+
+  const body =
+    "<tbody>" +
+    rows
+      .map((row, i) => {
+        const cells = cols.map((c) => cellHtml(row.vs[c])).join("");
+        return (
+          `<tr${i % 2 ? ' class="mx-odd"' : ""}>` +
+          `<th class="mx-rowhead"><b>${esc(prettyDeck(row.deck))}</b>` +
+          `<span>${row.matches.toLocaleString()} matches</span></th>` +
+          cellHtml(row.overall) +
+          cells +
+          "</tr>"
+        );
+      })
+      .join("") +
+    "</tbody>";
+
+  return `<table class="mx">${head}${body}</table>`;
 }
 
 export function MatrixTable({
@@ -48,7 +73,6 @@ export function MatrixTable({
   sort: SortKey;
 }) {
   const rows = sortedRows(matrix, sort);
-  const cols = matrix.archetypes;
 
   if (rows.length === 0) {
     return (
@@ -58,46 +82,14 @@ export function MatrixTable({
     );
   }
 
+  const html = buildTableHtml(rows, matrix.archetypes);
+
+  // Sticky header row + sticky first column keep deck names visible while
+  // scrolling this large grid in both directions.
   return (
-    <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-800">
-      <table className="border-collapse text-neutral-100">
-        <thead>
-          <tr>
-            <th className="sticky left-0 z-20 min-w-[150px] border border-neutral-800 bg-neutral-900 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-400">
-              Archetype
-            </th>
-            <th className="border border-neutral-800 bg-neutral-900 px-2 py-2 text-center text-xs font-semibold uppercase tracking-wide text-neutral-300">
-              Overall
-            </th>
-            {cols.map((c) => (
-              <th
-                key={c}
-                className="min-w-[86px] border border-neutral-800 bg-neutral-900 px-2 py-2 text-center text-[11px] font-medium leading-tight text-neutral-300"
-              >
-                {prettyDeck(c)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.deck} className="odd:bg-neutral-900/30">
-              <th className="sticky left-0 z-10 min-w-[150px] border border-neutral-800 bg-neutral-900 px-3 py-1 text-left">
-                <div className="text-xs font-semibold leading-tight">
-                  {prettyDeck(row.deck)}
-                </div>
-                <div className="text-[10px] text-neutral-500">
-                  {row.matches.toLocaleString()} matches
-                </div>
-              </th>
-              <Cell stat={row.overall} />
-              {cols.map((c) => (
-                <Cell key={c} stat={row.vs[c]} />
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <div
+      className="matrix-scroll max-h-[82vh] overflow-auto rounded-lg border border-neutral-800"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }
