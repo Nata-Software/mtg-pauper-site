@@ -158,6 +158,27 @@ export function monthRange(yyyymm: string): {
   return { from: toISODate(from), to: toISODate(to), label };
 }
 
+/** One player's matches (deck they piloted + result) in a scope. */
+export async function getPlayerDeckRows(opts: {
+  store: string;
+  player: string;
+  from?: string;
+  to?: string;
+  event?: string;
+}): Promise<{ deck: string; result: string }[]> {
+  return prisma.match.findMany({
+    where: {
+      store: opts.store,
+      player: opts.player,
+      ...(opts.event ? { eventName: opts.event } : {}),
+      ...(dateWhere(opts.from, opts.to)
+        ? { date: dateWhere(opts.from, opts.to) }
+        : {}),
+    },
+    select: { deck: true, result: true },
+  });
+}
+
 /** The calendar month (from/to + label) of the most recent match with a date. */
 export async function latestDataMonth(
   store: string,

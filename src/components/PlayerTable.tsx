@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { PlayerStat } from "@/lib/stats";
 
 function pctP(n: number): string {
@@ -9,11 +10,17 @@ export function PlayerTable({
   subtitle,
   stats,
   limit = 100,
+  hrefFor,
+  selected,
 }: {
   title: string;
   subtitle: string;
   stats: PlayerStat[];
   limit?: number;
+  /** When provided, player names link here (for the per-deck drill-down). */
+  hrefFor?: (player: string) => string;
+  /** Currently drilled-into player, highlighted in the list. */
+  selected?: string;
 }) {
   const shown = stats.slice(0, limit);
 
@@ -41,26 +48,44 @@ export function PlayerTable({
               </tr>
             </thead>
             <tbody>
-              {shown.map((s) => (
-                <tr
-                  key={s.player}
-                  className="border-t border-neutral-800/60 odd:bg-neutral-900/30"
-                >
-                  <td className="px-3 py-1.5 font-medium">{s.player}</td>
-                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
-                    {s.matches.toLocaleString()}
-                  </td>
-                  <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-emerald-400">
-                    {pctP(s.winPct)}
-                  </td>
-                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
-                    {pctP(s.lossPct)}
-                  </td>
-                  <td className="px-3 py-1.5 text-right tabular-nums text-neutral-500">
-                    {pctP(s.drawPct)}
-                  </td>
-                </tr>
-              ))}
+              {shown.map((s) => {
+                const isSel = selected === s.player;
+                return (
+                  <tr
+                    key={s.player}
+                    className={
+                      isSel
+                        ? "border-t border-neutral-800/60 bg-emerald-950/40"
+                        : "border-t border-neutral-800/60 odd:bg-neutral-900/30"
+                    }
+                  >
+                    <td className="px-3 py-1.5 font-medium">
+                      {hrefFor ? (
+                        <Link
+                          href={hrefFor(s.player)}
+                          className="text-emerald-400 hover:underline"
+                        >
+                          {s.player}
+                        </Link>
+                      ) : (
+                        s.player
+                      )}
+                    </td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
+                      {s.matches.toLocaleString()}
+                    </td>
+                    <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-emerald-400">
+                      {pctP(s.winPct)}
+                    </td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
+                      {pctP(s.lossPct)}
+                    </td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-neutral-500">
+                      {pctP(s.drawPct)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

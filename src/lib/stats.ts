@@ -210,6 +210,52 @@ export function computePlayerAnalysis(rows: PlayerRow[]): PlayerStat[] {
     .sort((a, b) => b.matches - a.matches || b.winPct - a.winPct);
 }
 
+export type DeckBreakdown = {
+  deck: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number;
+  lossPct: number;
+  drawPct: number;
+};
+
+/**
+ * One player's win/loss/draw record broken down by the deck they piloted.
+ * Byes included (matching the player-analysis view). Sorted by matches desc.
+ */
+export function computeDeckBreakdown(
+  rows: { deck: string; result: string }[],
+): DeckBreakdown[] {
+  const map = new Map<string, Tally>();
+  for (const r of rows) {
+    const deck = r.deck.trim().toLowerCase() || "(no deck recorded)";
+    let s = map.get(deck);
+    if (!s) {
+      s = { matches: 0, wins: 0, losses: 0, draws: 0 };
+      map.set(deck, s);
+    }
+    s.matches++;
+    const res = r.result.trim().toLowerCase();
+    if (res === "win") s.wins++;
+    else if (res === "loss") s.losses++;
+    else s.draws++;
+  }
+  return [...map.entries()]
+    .map(([deck, s]) => ({
+      deck,
+      matches: s.matches,
+      wins: s.wins,
+      losses: s.losses,
+      draws: s.draws,
+      winPct: s.matches ? s.wins / s.matches : 0,
+      lossPct: s.matches ? s.losses / s.matches : 0,
+      drawPct: s.matches ? s.draws / s.matches : 0,
+    }))
+    .sort((a, b) => b.matches - a.matches);
+}
+
 export type StandingStat = PlayerStat & { points: number };
 
 /**

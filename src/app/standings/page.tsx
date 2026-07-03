@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { PlayerTable } from "@/components/PlayerTable";
 import { StandingsTable } from "@/components/StandingsTable";
-import { computePlayerAnalysis, computePointsStandings } from "@/lib/stats";
+import { DeckBreakdownTable } from "@/components/DeckBreakdownTable";
 import {
+  computeDeckBreakdown,
+  computePlayerAnalysis,
+  computePointsStandings,
+} from "@/lib/stats";
+import {
+  getPlayerDeckRows,
   getPlayerRows,
   listMonths,
   listStores,
@@ -65,7 +71,7 @@ export default async function StandingsPage({
       </div>
 
       {view === "year" ? (
-        <YearView store={store} />
+        <YearView store={store} player={first(sp.player)} />
       ) : (
         <MonthlyView
           store={store}
@@ -77,20 +83,45 @@ export default async function StandingsPage({
   );
 }
 
-async function YearView({ store }: { store: string }) {
+async function YearView({
+  store,
+  player,
+}: {
+  store: string;
+  player?: string;
+}) {
   const year = new Date().getUTCFullYear();
-  const rows = await getPlayerRows({
-    store,
-    from: `${year}-01-01`,
-    to: `${year}-12-31`,
-  });
+  const from = `${year}-01-01`;
+  const to = `${year}-12-31`;
+
+  const rows = await getPlayerRows({ store, from, to });
   const stats = computePlayerAnalysis(rows);
+
+  // Drill-down: a specific player's win rate by deck.
+  const selected = player && stats.some((s) => s.player === player)
+    ? player
+    : undefined;
+
   return (
-    <PlayerTable
-      title={`Whole year — ${year}`}
-      subtitle={`All events. Win / loss / draw rate per player (byes included), ranked by matches played.`}
-      stats={stats}
-    />
+    <div>
+      {selected && (
+        <DeckBreakdownTable
+          player={selected}
+          rows={computeDeckBreakdown(
+            await getPlayerDeckRows({ store, player: selected, from, to }),
+          )}
+          backHref="/standings?view=year"
+        />
+      )}
+
+      <PlayerTable
+        title={`Whole year — ${year}`}
+        subtitle="All events. Win / loss / draw rate per player (byes included), ranked by matches played. Click a name for their per-deck breakdown."
+        stats={stats}
+        hrefFor={(p) => `/standings?view=year&player=${encodeURIComponent(p)}`}
+        selected={selected}
+      />
+    </div>
   );
 }
 
