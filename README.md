@@ -13,15 +13,20 @@ which is fed by the melee.gg scraper (`code.gs` / `Dowloader.gs`).
 
 ## Running it
 
-Node is installed at `~/.local/node`. Make it available, then start the dev server:
+First time setup:
 
 ```bash
-export PATH="$HOME/.local/node/bin:$PATH"   # or add to ~/.bashrc
-cd ~/mtg-pauper-site
+npm install                 # also runs `prisma generate` via postinstall
+cp .env.example .env        # DATABASE_URL="file:./dev.db"
+npx prisma migrate deploy   # creates dev.db and applies all migrations
 npm run dev
 ```
 
 Open http://localhost:3000 (works from Windows too — WSL2 forwards localhost).
+
+If `npm run dev` errors with `The table main.Match does not exist`, it means
+`.env` is missing or migrations haven't been applied — rerun the last two
+steps above.
 
 ## Loading data
 

@@ -54,10 +54,10 @@ export default async function MatchupsPage({
   return (
     <div>
       <div className="mb-4">
-        <h1 className="text-xl font-bold uppercase tracking-tight text-white">
+        <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-950 dark:text-white">
           Top MTG Pauper Archetypes Winrates
         </h1>
-        <p className="mt-1 text-sm text-neutral-400">
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
           Winrate against the most present archetypes (at least {matrix.minPct}%
           of the matches){event ? ` in "${event}"` : ""} between {rangeLabel} —{" "}
           {matrix.archetypes.length} archetypes. Draws are excluded from winrate.
@@ -80,9 +80,9 @@ export default async function MatchupsPage({
       />
 
       {matchRows.length === 0 ? (
-        <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
+        <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           No data yet. Go to{" "}
-          <a href="/admin/upload" className="text-emerald-400 underline">
+          <a href="/admin/upload" className="text-emerald-600 underline dark:text-emerald-400">
             Upload
           </a>{" "}
           to import the Ranking and Rounds CSVs.

@@ -14,8 +14,8 @@ type Props = {
 };
 
 const inputCls =
-  "rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1.5 text-sm text-neutral-100 focus:border-emerald-500 focus:outline-none";
-const labelCls = "flex flex-col gap-1 text-xs text-neutral-400";
+  "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
+const labelCls = "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
 
 export function FilterBar(props: Props) {
   const {
@@ -37,7 +37,7 @@ export function FilterBar(props: Props) {
     <form
       method="get"
       action={action}
-      className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-neutral-800 bg-neutral-900/50 p-3"
+      className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50/70 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
     >
       {stores.length > 1 && (
         <label className={labelCls}>
@@ -118,7 +118,7 @@ export function FilterBar(props: Props) {
       </button>
       <a
         href={action}
-        className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-800"
+        className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
         Reset
       </a>
