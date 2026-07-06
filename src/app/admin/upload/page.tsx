@@ -69,10 +69,10 @@ export default function UploadPage() {
         className="mt-4 space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/70 p-5 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
         <label className="block">
-          <span className={labelSpan}>Tournament URL</span>
+          <span className={labelSpan}>Melee URL</span>
           <input
             name="url"
-            placeholder="https://melee.gg/Tournament/View/440596"
+            placeholder="https://melee.gg/Tournament/View/…"
             className={inputCls}
           />
         </label>
