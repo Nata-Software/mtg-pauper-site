@@ -5,6 +5,9 @@ a better-looking, more flexible replacement for the current Looker Studio
 dashboard. Data comes from the same Google Sheet (`Ranking` + `Rounds` tabs),
 which is fed by the melee.gg scraper (`code.gs` / `Dowloader.gs`).
 
+> **Maintaining or updating the site (refresh data, deploy, env vars)?**
+> See [MAINTENANCE.md](./MAINTENANCE.md).
+
 ## Stack
 
 - **Next.js 16** (App Router, TypeScript, Tailwind v4)
