@@ -1,7 +1,27 @@
 @import "tailwindcss";
 
+/* Drive Tailwind's `dark:` variant off a `data-theme` attribute (set by the
+   theme toggle) instead of the OS `prefers-color-scheme`. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  color-scheme: dark;
+  --mx-header-bg: #f5f5f5;
+  --mx-header-fg: #525252;
+  --mx-header-fg-strong: #262626;
+  --mx-border: rgba(212, 212, 212, 0.8);
+  --mx-odd-bg: rgba(0, 0, 0, 0.03);
+  --mx-empty-fg: #d4d4d4;
+  --mx-scrollbar: #cbd5e1;
+}
+
+[data-theme="dark"] {
+  --mx-header-bg: #171717;
+  --mx-header-fg: #d4d4d4;
+  --mx-header-fg-strong: #a3a3a3;
+  --mx-border: rgba(38, 38, 38, 0.6);
+  --mx-odd-bg: rgba(23, 23, 23, 0.3);
+  --mx-empty-fg: #3f3f3f;
+  --mx-scrollbar: #404040;
 }
 
 html,
@@ -17,13 +37,12 @@ body {
   /* separate (not collapse) so position:sticky works on the header/first col */
   border-collapse: separate;
   border-spacing: 0;
-  color: #f5f5f5;
   font-size: 13px;
 }
 .mx th,
 .mx td {
-  border-right: 1px solid rgba(38, 38, 38, 0.6);
-  border-bottom: 1px solid rgba(38, 38, 38, 0.6);
+  border-right: 1px solid var(--mx-border);
+  border-bottom: 1px solid var(--mx-border);
 }
 .mx-corner {
   position: sticky;
@@ -31,27 +50,27 @@ body {
   top: 0;
   z-index: 30;
   min-width: 150px;
-  background: #171717;
+  background: var(--mx-header-bg);
   padding: 8px 12px;
   text-align: left;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: #a3a3a3;
+  color: var(--mx-header-fg-strong);
 }
 .mx-colhead {
   position: sticky;
   top: 0;
   z-index: 20;
   min-width: 86px;
-  background: #171717;
+  background: var(--mx-header-bg);
   padding: 8px;
   text-align: center;
   font-size: 11px;
   font-weight: 500;
   line-height: 1.1;
-  color: #d4d4d4;
+  color: var(--mx-header-fg);
 }
 .mx-colhead.ov {
   text-transform: uppercase;
@@ -63,7 +82,7 @@ body {
   left: 0;
   z-index: 10;
   min-width: 150px;
-  background: #171717;
+  background: var(--mx-header-bg);
   padding: 4px 12px;
   text-align: left;
 }
@@ -75,10 +94,10 @@ body {
 }
 .mx-rowhead span {
   font-size: 10px;
-  color: #737373;
+  color: var(--mx-header-fg-strong);
 }
 .mx-odd {
-  background: rgba(23, 23, 23, 0.3);
+  background: var(--mx-odd-bg);
 }
 .mx-cell {
   padding: 4px 8px;
@@ -102,7 +121,7 @@ body {
 }
 .mx-e {
   text-align: center;
-  color: #3f3f3f;
+  color: var(--mx-empty-fg);
 }
 .mx-e::after {
   content: "–";
@@ -112,13 +131,13 @@ body {
 /* Thin scrollbars for the wide matrix */
 .matrix-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #404040 transparent;
+  scrollbar-color: var(--mx-scrollbar) transparent;
 }
 .matrix-scroll::-webkit-scrollbar {
   height: 10px;
   width: 10px;
 }
 .matrix-scroll::-webkit-scrollbar-thumb {
-  background: #404040;
+  background: var(--mx-scrollbar);
   border-radius: 5px;
 }

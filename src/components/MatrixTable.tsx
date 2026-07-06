@@ -76,7 +76,7 @@ export function MatrixTable({
 
   if (rows.length === 0) {
     return (
-      <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
+      <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
         No matches for these filters yet.
       </p>
     );
@@ -88,7 +88,7 @@ export function MatrixTable({
   // scrolling this large grid in both directions.
   return (
     <div
-      className="matrix-scroll max-h-[82vh] overflow-auto rounded-lg border border-neutral-800"
+      className="matrix-scroll max-h-[82vh] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

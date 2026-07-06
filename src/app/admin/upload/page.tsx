@@ -27,14 +27,14 @@ export default function UploadPage() {
   }
 
   const inputCls =
-    "block w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-neutral-800 file:px-3 file:py-1.5 file:text-neutral-200";
+    "block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 file:mr-3 file:rounded file:border-0 file:bg-neutral-200 file:px-3 file:py-1.5 file:text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:file:bg-neutral-800 dark:file:text-neutral-200";
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-xl font-bold uppercase tracking-tight text-white">
+      <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-950 dark:text-white">
         Upload data
       </h1>
-      <p className="mt-1 text-sm text-neutral-400">
+      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
         Export the <strong>Ranking</strong> and <strong>Rounds</strong> tabs
         from the Google Sheet as CSV and upload them here. Uploading replaces the
         existing data for the chosen store.
@@ -42,10 +42,10 @@ export default function UploadPage() {
 
       <form
         onSubmit={onSubmit}
-        className="mt-6 space-y-4 rounded-lg border border-neutral-800 bg-neutral-900/50 p-5"
+        className="mt-6 space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/70 p-5 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
         <label className="block">
-          <span className="mb-1 block text-xs text-neutral-400">Store</span>
+          <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">Store</span>
           <input
             name="store"
             defaultValue="default"
@@ -54,7 +54,7 @@ export default function UploadPage() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs text-neutral-400">
+          <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">
             Upload password
           </span>
           <input
@@ -67,7 +67,7 @@ export default function UploadPage() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs text-neutral-400">
+          <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">
             Rounds CSV
           </span>
           <input
@@ -79,7 +79,7 @@ export default function UploadPage() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs text-neutral-400">
+          <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">
             Ranking CSV
           </span>
           <input
@@ -103,8 +103,8 @@ export default function UploadPage() {
         <div
           className={`mt-4 rounded-md border p-4 text-sm ${
             result.ok
-              ? "border-emerald-800 bg-emerald-950/40 text-emerald-200"
-              : "border-red-800 bg-red-950/40 text-red-200"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+              : "border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"
           }`}
         >
           {result.ok ? (

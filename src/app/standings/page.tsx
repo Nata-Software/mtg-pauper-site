@@ -41,10 +41,10 @@ export default async function StandingsPage({
   return (
     <div>
       <div className="mb-4">
-        <h1 className="text-xl font-bold uppercase tracking-tight text-white">
+        <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-950 dark:text-white">
           Standings
         </h1>
-        <p className="mt-1 text-sm text-neutral-400">
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
           Player performance. The yearly view ranks by matches played; the
           monthly views rank by points (win 3 · draw 1 · loss 0).
         </p>
@@ -61,7 +61,7 @@ export default async function StandingsPage({
               className={
                 active
                   ? "rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white"
-                  : "rounded-md border border-neutral-700 px-4 py-1.5 text-sm text-neutral-300 hover:bg-neutral-800"
+                  : "rounded-md border border-neutral-300 px-4 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
               }
             >
               {t.label}
@@ -139,7 +139,7 @@ async function MonthlyView({
 
   if (months.length === 0) {
     return (
-      <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-6 text-neutral-400">
+      <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
         No {eventLabel} matches recorded yet.
       </p>
     );
@@ -162,18 +162,18 @@ async function MonthlyView({
 
   const linkFor = (m: string) => `/standings?view=${event}&month=${m}`;
   const navBtn =
-    "rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-800";
+    "rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800";
   const navBtnOff =
-    "rounded-md border border-neutral-800 px-3 py-1.5 text-sm text-neutral-600 cursor-default";
+    "rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-400 cursor-default dark:border-neutral-800 dark:text-neutral-600";
 
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">
             {eventLabel} — {range.label}
           </h2>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Ranked by points (win 3 · draw 1 · loss 0).
           </p>
         </div>

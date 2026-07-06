@@ -7,17 +7,17 @@ function pctP(n: number): string {
 export function StandingsTable({ stats }: { stats: StandingStat[] }) {
   if (stats.length === 0) {
     return (
-      <p className="rounded-lg border border-neutral-800 bg-neutral-900 p-4 text-sm text-neutral-400">
+      <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
         No matches in this month yet.
       </p>
     );
   }
 
   return (
-    <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-800">
+    <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="bg-neutral-900 text-left text-xs uppercase tracking-wide text-neutral-400">
+          <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
             <th className="px-3 py-2 text-right">#</th>
             <th className="px-3 py-2">Player</th>
             <th className="px-3 py-2 text-right">Points</th>
@@ -30,22 +30,22 @@ export function StandingsTable({ stats }: { stats: StandingStat[] }) {
           {stats.map((s, i) => (
             <tr
               key={s.player}
-              className="border-t border-neutral-800/60 odd:bg-neutral-900/30"
+              className="border-t border-neutral-200 odd:bg-neutral-50 dark:border-neutral-800/60 dark:odd:bg-neutral-900/30"
             >
-              <td className="px-3 py-1.5 text-right tabular-nums text-neutral-500">
+              <td className="px-3 py-1.5 text-right tabular-nums text-neutral-400 dark:text-neutral-500">
                 {i + 1}
               </td>
               <td className="px-3 py-1.5 font-medium">{s.player}</td>
-              <td className="px-3 py-1.5 text-right font-bold tabular-nums text-emerald-400">
+              <td className="px-3 py-1.5 text-right font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
                 {s.points}
               </td>
-              <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
+              <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
                 {s.matches}
               </td>
-              <td className="px-3 py-1.5 text-center tabular-nums text-neutral-400">
+              <td className="px-3 py-1.5 text-center tabular-nums text-neutral-500 dark:text-neutral-400">
                 {s.wins}–{s.losses}–{s.draws}
               </td>
-              <td className="px-3 py-1.5 text-right tabular-nums text-neutral-300">
+              <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
                 {pctP(s.winPct)}
               </td>
             </tr>
