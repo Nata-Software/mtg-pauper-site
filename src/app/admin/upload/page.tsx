@@ -55,6 +55,19 @@ export default function UploadPage() {
 
         <label className="block">
           <span className="mb-1 block text-xs text-neutral-400">
+            Upload password
+          </span>
+          <input
+            type="password"
+            name="password"
+            autoComplete="off"
+            placeholder="Required on the live site"
+            className={inputCls.replace("file:mr-3", "")}
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-xs text-neutral-400">
             Rounds CSV
           </span>
           <input
