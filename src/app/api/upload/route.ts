@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadPasswordOk } from "@/lib/auth";
+import { limitAdmin } from "@/lib/ratelimit";
 import {
   parseRankingCsv,
   parseRoundsCsv,
@@ -10,6 +11,14 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = await limitAdmin(req, "upload");
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { ok: false, error: `Too many attempts. Try again in ${rl.retryAfterSec}s.` },
+        { status: 429, headers: { "retry-after": String(rl.retryAfterSec) } },
+      );
+    }
+
     const form = await req.formData();
 
     if (!uploadPasswordOk(String(form.get("password") || ""))) {

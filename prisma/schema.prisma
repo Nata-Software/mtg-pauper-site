@@ -34,6 +34,14 @@ model Match {
   @@index([store, tournamentId])
 }
 
+// Fixed-window rate limiting for admin endpoints, keyed by "action:ip".
+// DB-backed so it holds across serverless instances (in-memory would not).
+model RateLimit {
+  id          String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
+}
+
 // One row per player per event (standings). Source: Ranking CSV.
 model Standing {
   id             Int      @id @default(autoincrement())
