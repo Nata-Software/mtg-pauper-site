@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import { buildDateResolver } from "./dates";
+import type { ScrapedMatch, ScrapedStanding } from "./melee";
 import { prisma } from "./prisma";
 
 export type MatchInput = {
@@ -131,4 +132,66 @@ export async function replaceStoreData(opts: {
   }
 
   return { matches: matches?.length ?? 0, standings: standings?.length ?? 0 };
+}
+
+/**
+ * Add one scraped melee tournament to a store, tagged with the chosen event
+ * (e.g. "Tuesday"). Re-importing the same tournament replaces just its rows,
+ * so it's idempotent and never touches other tournaments' data.
+ */
+export async function addTournamentData(opts: {
+  store: string;
+  event: string;
+  tournamentId: string;
+  tournamentName: string;
+  date: Date | null;
+  matches: ScrapedMatch[];
+  standings: ScrapedStanding[];
+}): Promise<{ matches: number; standings: number }> {
+  const { store, event, tournamentId, tournamentName, date, matches, standings } =
+    opts;
+
+  await prisma.$transaction([
+    prisma.match.deleteMany({ where: { store, tournamentId } }),
+    prisma.standing.deleteMany({ where: { store, tournamentId } }),
+  ]);
+
+  await chunkedCreate(matches, (chunk) =>
+    prisma.match.createMany({
+      data: chunk.map((m) => ({
+        store,
+        eventName: event,
+        date,
+        round: m.round,
+        player: m.player,
+        deck: m.deck,
+        playerScore: m.playerScore,
+        result: m.result,
+        opponent: m.opponent,
+        opponentDeck: m.opponentDeck,
+        opponentScore: m.opponentScore,
+        tournamentId,
+        tournamentName,
+      })),
+    }),
+  );
+
+  await chunkedCreate(standings, (chunk) =>
+    prisma.standing.createMany({
+      data: chunk.map((s) => ({
+        store,
+        eventName: event,
+        date,
+        nickname: s.nickname,
+        fullName: s.fullName,
+        points: s.points,
+        position: s.position,
+        deck: s.deck,
+        tournamentId,
+        tournamentName,
+      })),
+    }),
+  );
+
+  return { matches: matches.length, standings: standings.length };
 }

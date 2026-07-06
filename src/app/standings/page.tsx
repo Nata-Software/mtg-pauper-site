@@ -21,11 +21,11 @@ type SP = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) =>
   Array.isArray(v) ? v[0] : v;
 
-type View = "year" | "terca" | "sexta";
+type View = "year" | "tuesday" | "friday";
 const TABS: { key: View; label: string }[] = [
   { key: "year", label: "Whole year" },
-  { key: "terca", label: "Monthly — Terça" },
-  { key: "sexta", label: "Monthly — Sexta" },
+  { key: "tuesday", label: "Tuesday" },
+  { key: "friday", label: "Friday" },
 ];
 
 export default async function StandingsPage({
@@ -75,7 +75,7 @@ export default async function StandingsPage({
       ) : (
         <MonthlyView
           store={store}
-          event={view}
+          view={view}
           selectedMonth={first(sp.month)}
         />
       )}
@@ -127,15 +127,17 @@ async function YearView({
 
 async function MonthlyView({
   store,
-  event,
+  view,
   selectedMonth,
 }: {
   store: string;
-  event: "terca" | "sexta";
+  view: "tuesday" | "friday";
   selectedMonth?: string;
 }) {
+  // Event label as stored in the DB (capitalized), and the display label.
+  const event = view === "tuesday" ? "Tuesday" : "Friday";
   const months = await listMonths(store, event);
-  const eventLabel = event === "terca" ? "Terça (Tuesday)" : "Sexta (Friday)";
+  const eventLabel = event;
 
   if (months.length === 0) {
     return (
@@ -160,7 +162,7 @@ async function MonthlyView({
   });
   const stats = computePointsStandings(rows);
 
-  const linkFor = (m: string) => `/standings?view=${event}&month=${m}`;
+  const linkFor = (m: string) => `/standings?view=${view}&month=${m}`;
   const navBtn =
     "rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800";
   const navBtnOff =
