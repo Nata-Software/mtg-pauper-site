@@ -1,9 +1,9 @@
 -- CreateTable
 CREATE TABLE "Match" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "store" TEXT NOT NULL DEFAULT 'default',
     "eventName" TEXT NOT NULL,
-    "date" DATETIME,
+    "date" TIMESTAMP(3),
     "round" INTEGER NOT NULL,
     "player" TEXT NOT NULL,
     "deck" TEXT NOT NULL,
@@ -12,21 +12,25 @@ CREATE TABLE "Match" (
     "opponent" TEXT NOT NULL,
     "opponentDeck" TEXT NOT NULL,
     "opponentScore" INTEGER NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Match_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Standing" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "store" TEXT NOT NULL DEFAULT 'default',
     "eventName" TEXT NOT NULL,
-    "date" DATETIME,
+    "date" TIMESTAMP(3),
     "nickname" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "points" INTEGER NOT NULL,
     "position" INTEGER NOT NULL,
     "deck" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Standing_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -36,10 +40,7 @@ CREATE INDEX "Match_store_deck_opponentDeck_idx" ON "Match"("store", "deck", "op
 CREATE INDEX "Match_store_date_idx" ON "Match"("store", "date");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Match_store_eventName_round_player_opponent_key" ON "Match"("store", "eventName", "round", "player", "opponent");
+CREATE INDEX "Standing_store_eventName_idx" ON "Standing"("store", "eventName");
 
 -- CreateIndex
 CREATE INDEX "Standing_store_date_idx" ON "Standing"("store", "date");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Standing_store_eventName_nickname_key" ON "Standing"("store", "eventName", "nickname");
