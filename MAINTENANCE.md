@@ -7,30 +7,39 @@ the roadmap, see [README.md](./README.md).
 
 | Piece | Service | Notes |
 |---|---|---|
+| Site | **https://liga-pauper-mont.vercel.app** | Live URL |
 | Code | GitHub — `Nata-Software/mtg-pauper-site` (public) | Source of truth |
 | Hosting | **Vercel** (free Hobby plan) | Auto-deploys on every push to `main` |
-| Database | **Neon** (free Postgres) | Connection string = `DATABASE_URL` env var |
-| Source data | **Google Sheet** (`Ranking` + `Rounds` tabs) | Fed by the melee.gg Apps Script scraper (`code.gs` / `Dowloader.gs`) |
+| Database | **Neon** (free Postgres, São Paulo) | Connection string = `DATABASE_URL` env var |
+| Source data | **melee.gg** tournaments | Scraped live by the app |
 
-**Data flow:** melee.gg → Apps Script (Sheet menu **MTGMelee → Run All**) →
-Google Sheet tabs → export CSV → upload to the site → Neon → site reads Neon.
+**Data flow:** melee.gg tournament → app scrapes it (`/admin/upload`) → Neon →
+site reads Neon.
 
 ## Updating the data (the routine task)
 
-Do this after each event (or batch of events):
+After each Tuesday/Friday event:
 
-1. In the Google Sheet, refresh the tournament data (Sheet menu
-   **MTGMelee → Run All**) so the **Ranking** and **Rounds** tabs are current.
-2. Export **both** tabs as CSV: for each tab, **File → Download →
-   Comma-separated values (.csv)**. You'll get two files (Ranking, Rounds).
-3. Open the live site's **`/admin/upload`**.
-4. Enter the **upload password** (the `UPLOAD_PASSWORD` value — ask an admin;
-   it's stored in Vercel, not in this repo), choose the two CSVs, and upload.
+1. Open **`/admin/upload`** on the live site.
+2. Paste the **melee.gg tournament URL** (e.g.
+   `https://melee.gg/Tournament/View/440596`).
+3. Choose the **league** it belongs to (**Tuesday** or **Friday**).
+4. Enter the **password** (the `UPLOAD_PASSWORD` value — ask an admin; it's in
+   Vercel, not this repo) and click **Import**.
 5. Done — the site updates immediately.
 
-> **Uploading is a full replace, not incremental.** The sheet export is the
-> entire history, so each upload wipes and reloads that store's data. Always
-> upload the **complete** Ranking + Rounds exports, not a partial slice.
+> **Re-importing is safe.** Each tournament is keyed by its melee id, so
+> importing the same URL again just refreshes it — it never duplicates. If you
+> pick the wrong league, just re-import into the right one (last import wins).
+
+### Bulk CSV upload (fallback only)
+
+`/admin/upload` also has a collapsible **CSV upload** (the sheet's `Ranking` +
+`Rounds` tabs). This **replaces the entire store's data** — use it only to
+reload full history, never for a single event, or it will wipe the tournaments
+you imported.
+
+Both admin actions are **rate-limited** (20 requests / 10 min per IP).
 
 ## Environment variables
 
