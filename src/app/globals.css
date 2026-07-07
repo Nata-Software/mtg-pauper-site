@@ -4,6 +4,11 @@
    theme toggle) instead of the OS `prefers-color-scheme`. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* `pt:` variant applies when the page locale is Portuguese (set by the
+   locale toggle), used to swap static bilingual UI strings via CSS only —
+   keeps the root layout free of per-request locale reads (see LocaleToggle). */
+@custom-variant pt (&:where([data-locale="pt-BR"], [data-locale="pt-BR"] *));
+
 :root {
   --mx-header-bg: #f5f5f5;
   --mx-header-fg: #525252;

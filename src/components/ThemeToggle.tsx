@@ -1,29 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 const STORAGE_KEY = "theme";
 
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot(): Theme {
+  return document.documentElement.getAttribute("data-theme") === "light"
+    ? "light"
+    : "dark";
+}
+
+// Must match the server-rendered default in layout.tsx exactly ("dark"),
+// even though the init script may have already flipped the DOM's
+// data-theme attribute by the time this hydrates on the client.
+function getServerSnapshot(): Theme {
+  return "dark";
+}
+
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem(STORAGE_KEY, theme);
+  listeners.forEach((listener) => listener());
 }
 
 export function ThemeToggle() {
-  // Lazy initializer reads the same source as the inline script in layout.tsx,
-  // so this always agrees with what's already in the DOM (no hydration flash).
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof document === "undefined") return "dark";
-    return document.documentElement.getAttribute("data-theme") === "light"
-      ? "light"
-      : "dark";
-  });
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   function toggle() {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    applyTheme(next);
+    // Read the live DOM instead of the `theme` closure: right after a
+    // reload, this component briefly renders the SSR-safe default ("dark")
+    // before self-correcting to the real stored value. A click during that
+    // window must still flip the *actual* current theme, not the stale
+    // rendered one — otherwise it silently no-ops until the next click.
+    applyTheme(getSnapshot() === "dark" ? "light" : "dark");
   }
 
   return (
