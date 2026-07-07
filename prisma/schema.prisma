@@ -7,43 +7,57 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // One row per player per match (mirrored: each match stored twice, once per side).
 // Source: Rounds CSV.
 model Match {
-  id            Int      @id @default(autoincrement())
-  store         String   @default("default")
-  eventName     String
-  date          DateTime?
-  round         Int
-  player        String
-  deck          String
-  playerScore   Int
-  result        String // "win" | "loss" | "draw"
-  opponent      String
-  opponentDeck  String
-  opponentScore Int
-  createdAt     DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  store          String   @default("default")
+  eventName      String
+  date           DateTime?
+  round          Int
+  player         String
+  deck           String
+  playerScore    Int
+  result         String // "win" | "loss" | "draw"
+  opponent       String
+  opponentDeck   String
+  opponentScore  Int
+  tournamentId   String? // melee tournament id (null for CSV-imported history)
+  tournamentName String?
+  createdAt      DateTime @default(now())
 
   @@index([store, deck, opponentDeck])
   @@index([store, date])
+  @@index([store, tournamentId])
+}
+
+// Fixed-window rate limiting for admin endpoints, keyed by "action:ip".
+// DB-backed so it holds across serverless instances (in-memory would not).
+model RateLimit {
+  id          String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
 }
 
 // One row per player per event (standings). Source: Ranking CSV.
 model Standing {
-  id        Int      @id @default(autoincrement())
-  store     String   @default("default")
-  eventName String
-  date      DateTime?
-  nickname  String
-  fullName  String
-  points    Int
-  position  Int
-  deck      String
-  createdAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  store          String   @default("default")
+  eventName      String
+  date           DateTime?
+  nickname       String
+  fullName       String
+  points         Int
+  position       Int
+  deck           String
+  tournamentId   String?
+  tournamentName String?
+  createdAt      DateTime @default(now())
 
   @@index([store, eventName])
   @@index([store, date])
+  @@index([store, tournamentId])
 }
