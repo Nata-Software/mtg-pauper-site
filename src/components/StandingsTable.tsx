@@ -1,14 +1,21 @@
 import type { StandingStat } from "@/lib/stats";
+import { t, type Locale } from "@/lib/i18n";
 
 function pctP(n: number): string {
   return `${parseFloat((n * 100).toFixed(2))}%`;
 }
 
-export function StandingsTable({ stats }: { stats: StandingStat[] }) {
+export function StandingsTable({
+  stats,
+  locale,
+}: {
+  stats: StandingStat[];
+  locale: Locale;
+}) {
   if (stats.length === 0) {
     return (
       <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        No matches in this month yet.
+        {t(locale, "table.noMatchesMonth")}
       </p>
     );
   }
@@ -19,11 +26,11 @@ export function StandingsTable({ stats }: { stats: StandingStat[] }) {
         <thead>
           <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
             <th className="px-3 py-2 text-right">#</th>
-            <th className="px-3 py-2">Player</th>
-            <th className="px-3 py-2 text-right">Points</th>
-            <th className="px-3 py-2 text-right">Matches</th>
-            <th className="px-3 py-2 text-center">W–L–D</th>
-            <th className="px-3 py-2 text-right">Win %</th>
+            <th className="px-3 py-2">{t(locale, "table.player")}</th>
+            <th className="px-3 py-2 text-right">{t(locale, "table.points")}</th>
+            <th className="px-3 py-2 text-right">{t(locale, "table.matches")}</th>
+            <th className="px-3 py-2 text-center">{t(locale, "table.wld")}</th>
+            <th className="px-3 py-2 text-right">{t(locale, "table.winPct")}</th>
           </tr>
         </thead>
         <tbody>

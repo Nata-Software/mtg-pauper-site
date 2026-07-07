@@ -1,5 +1,6 @@
 import { winrateColor, pct } from "@/lib/colors";
 import { prettyDeck, type Matrix, type ArchetypeRow, type CellStat } from "@/lib/stats";
+import { t, type Locale } from "@/lib/i18n";
 
 type SortKey = "matches" | "winrate" | "alpha";
 
@@ -37,11 +38,16 @@ function cellHtml(stat: CellStat | undefined): string {
  * of React elements avoids serializing tens of thousands of nodes, which keeps
  * server render fast. Injected via dangerouslySetInnerHTML.
  */
-function buildTableHtml(rows: ArchetypeRow[], cols: string[]): string {
+function buildTableHtml(
+  rows: ArchetypeRow[],
+  cols: string[],
+  locale: Locale,
+): string {
+  const matchesSuffix = t(locale, "matrix.matchesSuffix");
   const head =
     "<thead><tr>" +
-    '<th class="mx-corner">Archetype</th>' +
-    '<th class="mx-colhead ov">Overall</th>' +
+    `<th class="mx-corner">${esc(t(locale, "matrix.archetype"))}</th>` +
+    `<th class="mx-colhead ov">${esc(t(locale, "matrix.overall"))}</th>` +
     cols.map((c) => `<th class="mx-colhead">${esc(prettyDeck(c))}</th>`).join("") +
     "</tr></thead>";
 
@@ -53,7 +59,7 @@ function buildTableHtml(rows: ArchetypeRow[], cols: string[]): string {
         return (
           `<tr${i % 2 ? ' class="mx-odd"' : ""}>` +
           `<th class="mx-rowhead"><b>${esc(prettyDeck(row.deck))}</b>` +
-          `<span>${row.matches.toLocaleString()} matches</span></th>` +
+          `<span>${row.matches.toLocaleString()}${esc(matchesSuffix)}</span></th>` +
           cellHtml(row.overall) +
           cells +
           "</tr>"
@@ -68,21 +74,23 @@ function buildTableHtml(rows: ArchetypeRow[], cols: string[]): string {
 export function MatrixTable({
   matrix,
   sort,
+  locale,
 }: {
   matrix: Matrix;
   sort: SortKey;
+  locale: Locale;
 }) {
   const rows = sortedRows(matrix, sort);
 
   if (rows.length === 0) {
     return (
       <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        No matches for these filters yet.
+        {t(locale, "matrix.noMatches")}
       </p>
     );
   }
 
-  const html = buildTableHtml(rows, matrix.archetypes);
+  const html = buildTableHtml(rows, matrix.archetypes, locale);
 
   // Sticky header row + sticky first column keep deck names visible while
   // scrolling this large grid in both directions.

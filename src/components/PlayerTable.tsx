@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PlayerStat } from "@/lib/stats";
+import { t, type Locale } from "@/lib/i18n";
 
 function pctP(n: number): string {
   return `${parseFloat((n * 100).toFixed(2))}%`;
@@ -12,6 +13,7 @@ export function PlayerTable({
   limit = 100,
   hrefFor,
   selected,
+  locale,
 }: {
   title: string;
   subtitle: string;
@@ -21,6 +23,7 @@ export function PlayerTable({
   hrefFor?: (player: string) => string;
   /** Currently drilled-into player, highlighted in the list. */
   selected?: string;
+  locale: Locale;
 }) {
   const shown = stats.slice(0, limit);
 
@@ -33,18 +36,18 @@ export function PlayerTable({
 
       {shown.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          No matches in this period yet.
+          {t(locale, "table.noMatchesPeriod")}
         </p>
       ) : (
         <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
-                <th className="px-3 py-2">Player</th>
-                <th className="px-3 py-2 text-right">Matches</th>
-                <th className="px-3 py-2 text-right">Win %</th>
-                <th className="px-3 py-2 text-right">Loss %</th>
-                <th className="px-3 py-2 text-right">Draw %</th>
+                <th className="px-3 py-2">{t(locale, "table.player")}</th>
+                <th className="px-3 py-2 text-right">{t(locale, "table.matches")}</th>
+                <th className="px-3 py-2 text-right">{t(locale, "table.winPct")}</th>
+                <th className="px-3 py-2 text-right">{t(locale, "table.lossPct")}</th>
+                <th className="px-3 py-2 text-right">{t(locale, "table.drawPct")}</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +96,10 @@ export function PlayerTable({
 
       {stats.length > shown.length && (
         <p className="mt-1 text-right text-xs text-neutral-400 dark:text-neutral-500">
-          Showing top {shown.length} of {stats.length.toLocaleString()} players
+          {t(locale, "table.showingTop", {
+            shown: shown.length,
+            total: stats.length.toLocaleString(),
+          })}
         </p>
       )}
     </section>
