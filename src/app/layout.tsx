@@ -47,7 +47,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: INIT_SCRIPT }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      <body className="min-h-full flex flex-col bg-neutral-100 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <header className="border-b border-neutral-200 bg-neutral-50/60 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/60">
           <nav className="mx-auto flex max-w-[1400px] items-center gap-6 px-4 py-3">
             <Link href="/" className="font-semibold tracking-tight text-neutral-950 dark:text-white">
