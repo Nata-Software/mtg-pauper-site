@@ -2,11 +2,11 @@
  * Parse the messy date values coming from the Google Sheet tabs.
  *
  * Two shapes appear in the source data:
- *  - Excel/Sheets serial numbers (e.g. 45986) — used in the Ranking tab.
- *  - Slash strings — used in the Rounds tabs. These are inconsistent:
- *    older rows are DD/MM/YYYY, newer rows are M/D/YYYY. We disambiguate by
- *    the parts (day > 12 or month > 12); when both are <= 12 it is genuinely
- *    ambiguous and we default to DD/MM/YYYY (the majority of the history).
+ * - Excel/Sheets serial numbers (e.g. 45986) — used in the Ranking tab.
+ * - Slash strings — used in the Rounds tabs. These are inconsistent:
+ *   older rows are DD/MM/YYYY, newer rows are M/D/YYYY. We disambiguate by
+ *   the parts (day > 12 or month > 12); when both are <= 12 it is genuinely
+ *   ambiguous and we default to DD/MM/YYYY (the majority of the history).
  *
  * Returns a UTC Date at midnight, or null when unparseable.
  */
@@ -28,8 +28,9 @@ export function parseSheetDate(value: unknown): Date | null {
 
   // Slash / dash separated date.
   const m = s.match(/^(\d{1,4})[/\-.](\d{1,2})[/\-.](\d{1,4})$/);
+
   if (m) {
-    let a = Number(m[1]);
+    const a = Number(m[1]);
     const b = Number(m[2]);
     let year = Number(m[3]);
 
@@ -43,6 +44,7 @@ export function parseSheetDate(value: unknown): Date | null {
 
     let day: number;
     let month: number;
+
     if (a > 12) {
       // first part must be the day -> DD/MM/YYYY
       day = a;
@@ -56,6 +58,7 @@ export function parseSheetDate(value: unknown): Date | null {
       day = a;
       month = b;
     }
+
     return makeUTC(year, month, day);
   }
 
@@ -66,14 +69,17 @@ export function parseSheetDate(value: unknown): Date | null {
 
 function excelSerialToDate(serial: number): Date | null {
   if (!Number.isFinite(serial) || serial <= 0) return null;
+
   // Excel epoch 1899-12-30 (accounts for the 1900 leap-year bug).
   const ms = Math.round((serial - 25569) * 86400 * 1000);
   const d = new Date(ms);
+
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
 function makeUTC(year: number, month: number, day: number): Date | null {
   if (!year || !month || !day) return null;
+
   const d = new Date(Date.UTC(year, month - 1, day));
   return Number.isNaN(d.getTime()) ? null : d;
 }
@@ -82,10 +88,13 @@ type Parts = { a: number; b: number; year: number } | null;
 
 function splitSlash(s: string): Parts {
   const m = s.match(/^(\d{1,4})[/\-.](\d{1,2})[/\-.](\d{1,4})$/);
+
   if (!m) return null;
   if (String(m[1]).length === 4) return null; // ISO-ish, unambiguous elsewhere
+
   let year = Number(m[3]);
   if (year < 100) year += year < 70 ? 2000 : 1900;
+
   return { a: Number(m[1]), b: Number(m[2]), year };
 }
 
@@ -100,30 +109,40 @@ export function buildDateResolver(
   rawValues: Iterable<unknown>,
 ): (v: unknown) => Date | null {
   const votes = new Map<number, { dmy: number; mdy: number }>();
+
   for (const raw of rawValues) {
     if (typeof raw === "number") continue;
+
     const p = splitSlash(String(raw ?? "").trim());
     if (!p) continue;
+
     const v = votes.get(p.year) ?? { dmy: 0, mdy: 0 };
+
     if (p.a > 12) v.dmy++; // first part must be day
     else if (p.b > 12) v.mdy++; // second part must be day
+
     votes.set(p.year, v);
   }
 
   const orientation = (year: number): "DMY" | "MDY" => {
     const v = votes.get(year);
+
     if (!v) return "DMY";
+
     return v.mdy > v.dmy ? "MDY" : "DMY";
   };
 
   return (raw: unknown): Date | null => {
     if (typeof raw === "number") return parseSheetDate(raw);
+
     const s = String(raw ?? "").trim();
     const p = splitSlash(s);
+
     if (!p) return parseSheetDate(raw); // serials, ISO, etc.
 
     let day: number;
     let month: number;
+
     if (p.a > 12) {
       day = p.a;
       month = p.b;
@@ -137,6 +156,7 @@ export function buildDateResolver(
       day = p.a;
       month = p.b;
     }
+
     return makeUTC(p.year, month, day);
   };
 }
@@ -144,5 +164,6 @@ export function buildDateResolver(
 /** yyyy-mm-dd for a Date (UTC), or "" for null. */
 export function toISODate(d: Date | null | undefined): string {
   if (!d) return "";
+
   return d.toISOString().slice(0, 10);
 }
