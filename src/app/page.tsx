@@ -9,6 +9,8 @@ import {
   listEvents,
   listStores,
 } from "@/lib/queries";
+import { t } from "@/lib/i18n";
+import { getLocale } from "@/lib/i18n.server";
 
 export const dynamic = "force-dynamic";
 
@@ -32,11 +34,12 @@ export default async function MatchupsPage({
 }: {
   searchParams: Promise<SP>;
 }) {
+  const locale = await getLocale();
   const sp = await searchParams;
   const stores = await listStores();
   const store = first(sp.store) || stores[0] || "default";
-  const event = first(sp.event) || undefined;
 
+  const event = first(sp.event) || undefined;
   // Default to the current year; an explicitly-cleared field ("") means all-time.
   const year = new Date().getUTCFullYear();
   const fromParam = first(sp.from);
@@ -55,12 +58,13 @@ export default async function MatchupsPage({
 
   const matrix = computeMatrix(matchRows, { minPct });
 
+  const rangeConnector = t(locale, "matchups.rangeTo");
   const rangeLabel =
     from || to
-      ? `${from || bounds.min || "start"} to ${to || bounds.max || "now"}`
+      ? `${from || bounds.min || t(locale, "matchups.rangeStart")} ${rangeConnector} ${to || bounds.max || t(locale, "matchups.rangeNow")}`
       : bounds.min
-        ? `${bounds.min} to ${bounds.max}`
-        : "all time";
+        ? `${bounds.min} ${rangeConnector} ${bounds.max}`
+        : t(locale, "matchups.allTime");
 
   const baseParams = new URLSearchParams({
     store,
@@ -88,21 +92,20 @@ export default async function MatchupsPage({
     <div>
       <div className="mb-4">
         <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-950 dark:text-white">
-          Top MTG Pauper Archetypes Winrates
+          {t(locale, "matchups.title")}
         </h1>
-
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          Winrate against the most present archetypes (at least {matrix.minPct}%
-          of the matches)
-          {event ? ` in "${event}"` : ""} between {rangeLabel} —{" "}
-          {matrix.archetypes.length} archetypes. Draws are excluded from
-          winrate.
+          {t(locale, "matchups.subtitle", {
+            minPct: matrix.minPct,
+            eventClause: event ? t(locale, "matchups.inEvent", { event }) : "",
+            range: rangeLabel,
+            count: matrix.archetypes.length,
+          })}
         </p>
 
         {focus && (
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            One archetype row may be focused at a time. Click the focused row
-            again to return to the original table order.
+            {t(locale, "matrix.focusHint")}
           </p>
         )}
       </div>
@@ -120,15 +123,16 @@ export default async function MatchupsPage({
         minPct={minPct}
         showSort
         sort={sort}
+        locale={locale}
       />
 
       {matchRows.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          No data yet. Go to{" "}
-          <Link href="/admin/upload" className="underline">
-            Upload
-          </Link>{" "}
-          to import the Ranking and Rounds CSVs.
+          {t(locale, "matchups.noDataBefore")}
+          <Link href="/admin/upload" className="text-violet-600 underline dark:text-violet-400">
+            {t(locale, "nav.upload")}
+          </Link>
+          {t(locale, "matchups.noDataAfter")}
         </p>
       ) : (
         <MatrixTable
@@ -136,6 +140,7 @@ export default async function MatchupsPage({
           sort={sort}
           focus={focus}
           baseHref={matrixBaseHref}
+          locale={locale}
         />
       )}
     </div>

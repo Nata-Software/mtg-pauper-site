@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getLocale } from "@/lib/i18n.server";
-import type { Locale } from "@/lib/i18n";
+import { t, type Locale, type TranslationKey } from "@/lib/i18n";
 
 import {
   PlayerTable,
@@ -31,17 +31,15 @@ import {
 export const dynamic = "force-dynamic";
 
 type SP = Record<string, string | string[] | undefined>;
-
 const first = (v: string | string[] | undefined) =>
   Array.isArray(v) ? v[0] : v;
 
 type View = "year" | "tuesday" | "friday" | "tournament-data";
-
-const TABS: { key: View; label: string }[] = [
-  { key: "year", label: "Whole year" },
-  { key: "tuesday", label: "Tuesday" },
-  { key: "friday", label: "Friday" },
-  { key: "tournament-data", label: "Tournament Data" },
+const TABS: { key: View; labelKey: TranslationKey }[] = [
+  { key: "year", labelKey: "standings.tab.year" },
+  { key: "tuesday", labelKey: "standings.tab.tuesday" },
+  { key: "friday", labelKey: "standings.tab.friday" },
+  { key: "tournament-data", labelKey: "standings.tab.tournamentData" },
 ];
 
 const PLAYER_SORT_KEYS: PlayerSortKey[] = [
@@ -131,35 +129,30 @@ export default async function StandingsPage({
     <div>
       <div className="mb-4">
         <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-950 dark:text-white">
-          Standings
+          {t(locale, "standings.title")}
         </h1>
-
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          Player performance. The yearly view ranks by matches played; the
-          monthly views rank by points (win 3 · draw 1 · loss 0). Byes are
-          excluded from standings.
+          {t(locale, "standings.subtitle")}
         </p>
       </div>
 
+      {/* Tabs */}
       <div className="mb-5 flex flex-wrap gap-2">
-        {TABS.map((t) => {
-          const active = t.key === view;
-          const params = new URLSearchParams({
-            view: t.key,
-            store,
-          });
+        {TABS.map((tab) => {
+          const active = tab.key === view;
+          const params = new URLSearchParams({ view: tab.key, store });
 
           return (
             <Link
-              key={t.key}
+              key={tab.key}
               href={`/standings?${params.toString()}`}
               className={
                 active
-                  ? "rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white"
+                  ? "rounded-md bg-violet-600 px-4 py-1.5 text-sm font-medium text-white"
                   : "rounded-md border border-neutral-300 px-4 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
               }
             >
-              {t.label}
+              {t(locale, tab.labelKey)}
             </Link>
           );
         })}
@@ -182,6 +175,7 @@ export default async function StandingsPage({
           selectedMonth={first(sp.month)}
           sort={standingSort}
           dir={dir}
+          locale={locale}
         />
       )}
     </div>
@@ -208,14 +202,12 @@ async function YearView({
   const rows = withoutByes(await getPlayerRows({ store, from, to }));
   const stats = computePlayerAnalysis(rows);
 
-  const selected =
-    player && stats.some((s) => s.player === player) ? player : undefined;
+  // Drill-down: a specific player's win rate by deck.
+  const selected = player && stats.some((s) => s.player === player)
+    ? player
+    : undefined;
 
-  const listParams = new URLSearchParams({
-    view: "year",
-    store,
-  });
-
+  const listParams = new URLSearchParams({ view: "year", store });
   const baseParams = new URLSearchParams(listParams);
 
   if (selected) {
@@ -239,8 +231,8 @@ async function YearView({
       )}
 
       <PlayerTable
-        title={`Whole year — ${year}`}
-        subtitle="All events. Win / loss / draw rate per player, ranked by matches played by default. Byes are excluded. Click a column header to change sorting."
+        title={t(locale, "standings.yearView.title", { year })}
+        subtitle={t(locale, "standings.yearView.subtitle")}
         stats={stats}
         sortKey={sort}
         sortDir={dir}
@@ -257,6 +249,7 @@ async function YearView({
           return `/standings?${params.toString()}`;
         }}
         selected={selected}
+        locale={locale}
       />
     </div>
   );
@@ -268,32 +261,36 @@ async function MonthlyView({
   selectedMonth,
   sort,
   dir,
+  locale,
 }: {
   store: string;
   view: "tuesday" | "friday";
   selectedMonth?: string;
   sort: StandingSortKey;
   dir: StandingSortDir;
+  locale: Locale;
 }) {
+  // Event value as stored in the DB (English, capitalized) vs. the translated display label.
   const event = view === "tuesday" ? "Tuesday" : "Friday";
   const months = await listMonths(store, event);
-  const eventLabel = event;
+  const eventLabel = t(
+    locale,
+    view === "tuesday" ? "standings.tab.tuesday" : "standings.tab.friday",
+  );
 
   if (months.length === 0) {
     return (
       <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        No {eventLabel} matches recorded yet.
+        {t(locale, "standings.noMonthMatches", { event: eventLabel })}
       </p>
     );
   }
 
   const selected =
     selectedMonth && months.includes(selectedMonth) ? selectedMonth : months[0];
-
   const idx = months.indexOf(selected);
-  const older = months[idx + 1];
+  const older = months[idx + 1]; // months sorted newest-first
   const newer = months[idx - 1];
-
   const range = monthRange(selected);
 
   const rows = withoutByes(
@@ -304,32 +301,18 @@ async function MonthlyView({
       to: range.to,
     }),
   );
-
   const stats = computePointsStandings(rows);
 
-  const baseParams = new URLSearchParams({
-    view,
-    store,
-    month: selected,
-  });
-
+  const baseParams = new URLSearchParams({ view, store, month: selected });
   const baseHref = `/standings?${baseParams.toString()}`;
 
   const linkFor = (m: string) => {
-    const params = new URLSearchParams({
-      view,
-      store,
-      month: m,
-      sort,
-      dir,
-    });
-
+    const params = new URLSearchParams({ view, store, month: m, sort, dir });
     return `/standings?${params.toString()}`;
   };
 
   const navBtn =
     "rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800";
-
   const navBtnOff =
     "rounded-md border border-neutral-200 px-3 py-1.5 text-sm text-neutral-400 cursor-default dark:border-neutral-800 dark:text-neutral-600";
 
@@ -340,28 +323,24 @@ async function MonthlyView({
           <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">
             {eventLabel} — {range.label}
           </h2>
-
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Ranked by points by default. Byes are excluded. Click a column
-            header to change sorting.
+            {t(locale, "standings.monthly.subtitle")}
           </p>
         </div>
-
         <div className="flex items-center gap-2">
           {older ? (
             <Link href={linkFor(older)} className={navBtn}>
-              ← Older
+              {t(locale, "standings.older")}
             </Link>
           ) : (
-            <span className={navBtnOff}>← Older</span>
+            <span className={navBtnOff}>{t(locale, "standings.older")}</span>
           )}
-
           {newer ? (
             <Link href={linkFor(newer)} className={navBtn}>
-              Newer →
+              {t(locale, "standings.newer")}
             </Link>
           ) : (
-            <span className={navBtnOff}>Newer →</span>
+            <span className={navBtnOff}>{t(locale, "standings.newer")}</span>
           )}
         </div>
       </div>
@@ -371,6 +350,7 @@ async function MonthlyView({
         sortKey={sort}
         sortDir={dir}
         baseHref={baseHref}
+        locale={locale}
       />
     </div>
   );

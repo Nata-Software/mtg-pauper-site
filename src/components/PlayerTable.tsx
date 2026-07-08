@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { PlayerStat } from "@/lib/stats";
+import { t, type Locale } from "@/lib/i18n";
 
 export type PlayerSortKey =
   | "player"
@@ -80,6 +81,7 @@ export function PlayerTable({
   sortKey = "matches",
   sortDir = "desc",
   baseHref = "/standings?view=year",
+  locale,
 }: {
   title: string;
   subtitle: string;
@@ -93,6 +95,7 @@ export function PlayerTable({
   sortDir?: SortDir;
   /** Base URL used by sortable table headers, without sort/dir params. */
   baseHref?: string;
+  locale: Locale;
 }) {
   const sorted = [...stats].sort((a, b) =>
     comparePlayers(a, b, sortKey, sortDir),
@@ -115,17 +118,13 @@ export function PlayerTable({
   return (
     <section className="mb-8">
       <div className="mb-2">
-        <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">
-          {title}
-        </h2>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-          {subtitle}
-        </p>
+        <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">{title}</h2>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">{subtitle}</p>
       </div>
 
       {shown.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          No matches in this period yet.
+          {t(locale, "table.noMatchesPeriod")}
         </p>
       ) : (
         <div className="matrix-scroll overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
@@ -134,46 +133,45 @@ export function PlayerTable({
               <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
                 <th className="px-3 py-2">
                   <Link href={headerHref("player")} className={headerClass}>
-                    Player{sortIndicator(sortKey, sortDir, "player")}
+                    {t(locale, "table.player")}
+                    {sortIndicator(sortKey, sortDir, "player")}
                   </Link>
                 </th>
-
                 <th className="px-3 py-2 text-right">
                   <Link href={headerHref("matches")} className={headerClass}>
-                    Matches{sortIndicator(sortKey, sortDir, "matches")}
+                    {t(locale, "table.matches")}
+                    {sortIndicator(sortKey, sortDir, "matches")}
                   </Link>
                 </th>
-
                 <th className="px-3 py-2 text-right">
                   <Link href={headerHref("winPct")} className={headerClass}>
-                    Win %{sortIndicator(sortKey, sortDir, "winPct")}
+                    {t(locale, "table.winPct")}
+                    {sortIndicator(sortKey, sortDir, "winPct")}
                   </Link>
                 </th>
-
                 <th className="px-3 py-2 text-right">
                   <Link href={headerHref("lossPct")} className={headerClass}>
-                    Loss %{sortIndicator(sortKey, sortDir, "lossPct")}
+                    {t(locale, "table.lossPct")}
+                    {sortIndicator(sortKey, sortDir, "lossPct")}
                   </Link>
                 </th>
-
                 <th className="px-3 py-2 text-right">
                   <Link href={headerHref("drawPct")} className={headerClass}>
-                    Draw %{sortIndicator(sortKey, sortDir, "drawPct")}
+                    {t(locale, "table.drawPct")}
+                    {sortIndicator(sortKey, sortDir, "drawPct")}
                   </Link>
                 </th>
               </tr>
             </thead>
-
             <tbody>
               {shown.map((s) => {
                 const isSel = selected === s.player;
-
                 return (
                   <tr
                     key={s.player}
                     className={
                       isSel
-                        ? "border-t border-neutral-200 bg-emerald-100/50 dark:border-neutral-800/60 dark:bg-emerald-950/40"
+                        ? "border-t border-neutral-200 bg-violet-100/50 dark:border-neutral-800/60 dark:bg-violet-950/40"
                         : "border-t border-neutral-200 odd:bg-neutral-50 dark:border-neutral-800/60 dark:odd:bg-neutral-900/30"
                     }
                   >
@@ -181,7 +179,7 @@ export function PlayerTable({
                       {hrefFor ? (
                         <Link
                           href={hrefFor(s.player)}
-                          className="text-emerald-600 hover:underline dark:text-emerald-400"
+                          className="text-violet-600 hover:underline dark:text-violet-400"
                         >
                           {s.player}
                         </Link>
@@ -189,19 +187,15 @@ export function PlayerTable({
                         s.player
                       )}
                     </td>
-
                     <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
                       {s.matches.toLocaleString()}
                     </td>
-
-                    <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-violet-600 dark:text-violet-400">
                       {pctP(s.winPct)}
                     </td>
-
                     <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
                       {pctP(s.lossPct)}
                     </td>
-
                     <td className="px-3 py-1.5 text-right tabular-nums text-neutral-400 dark:text-neutral-500">
                       {pctP(s.drawPct)}
                     </td>
@@ -215,7 +209,10 @@ export function PlayerTable({
 
       {stats.length > shown.length && (
         <p className="mt-1 text-right text-xs text-neutral-400 dark:text-neutral-500">
-          Showing top {shown.length} of {stats.length.toLocaleString()} players
+          {t(locale, "table.showingTop", {
+            shown: shown.length,
+            total: stats.length.toLocaleString(),
+          })}
         </p>
       )}
     </section>

@@ -1,50 +1,34 @@
 import { winrateColor, pct } from "@/lib/colors";
-import {
-  prettyDeck,
-  type Matrix,
-  type ArchetypeRow,
-  type CellStat,
-} from "@/lib/stats";
+import { prettyDeck, type Matrix, type ArchetypeRow, type CellStat } from "@/lib/stats";
+import { t, type Locale } from "@/lib/i18n";
 
 export type MatrixSortKey = "matches" | "winrate" | "alpha";
 
 function sortedRows(matrix: Matrix, sort: MatrixSortKey): ArchetypeRow[] {
   const rows = [...matrix.rows];
-
   if (sort === "winrate") {
-    rows.sort(
-      (a, b) => (b.overall.winrate ?? -1) - (a.overall.winrate ?? -1),
-    );
+    rows.sort((a, b) => (b.overall.winrate ?? -1) - (a.overall.winrate ?? -1));
   } else if (sort === "alpha") {
     rows.sort((a, b) => a.deck.localeCompare(b.deck));
-  }
-
-  // "matches" is already the default order.
+  } // "matches" is already the default order
   return rows;
 }
 
+/** Pulls the focused deck's row to the top of the list, if present. */
 function rowsWithFocus(
   rows: ArchetypeRow[],
   focusedDeck: string | undefined,
 ): { rows: ArchetypeRow[]; focusedDeck?: string } {
-  if (!focusedDeck) {
-    return { rows };
-  }
+  if (!focusedDeck) return { rows };
 
   const normalized = focusedDeck.trim().toLowerCase();
   const focusedIndex = rows.findIndex((row) => row.deck === normalized);
-
-  if (focusedIndex === -1) {
-    return { rows };
-  }
+  if (focusedIndex === -1) return { rows };
 
   const nextRows = [...rows];
   const [focused] = nextRows.splice(focusedIndex, 1);
 
-  return {
-    rows: [focused, ...nextRows],
-    focusedDeck: normalized,
-  };
+  return { rows: [focused, ...nextRows], focusedDeck: normalized };
 }
 
 function esc(s: string): string {
@@ -61,37 +45,32 @@ function attrEsc(s: string): string {
 
 function joinUrl(baseHref: string, params: URLSearchParams): string {
   const query = params.toString();
-
-  if (!query) {
-    return baseHref;
-  }
-
+  if (!query) return baseHref;
   const separator = baseHref.includes("?") ? "&" : "?";
   return `${baseHref}${separator}${query}`;
 }
 
 function focusHref(baseHref: string, deck: string): string {
-  const params = new URLSearchParams({ focus: deck });
-  return joinUrl(baseHref, params);
+  return joinUrl(baseHref, new URLSearchParams({ focus: deck }));
 }
 
 function cellHtml(stat: CellStat | undefined, href?: string): string {
-  if (!stat || stat.matches === 0) return "";
-
-  const { bg, fg } = winrateColor(stat.winrate, stat.wins + stat.losses);
-
+  if (!stat || stat.matches === 0) return '<td class="mx-e"></td>';
+  const { bgLight, fgLight, bgDark, fgDark } = winrateColor(
+    stat.winrate,
+    stat.wins + stat.losses,
+  );
+  // Both variants ride along as custom properties; globals.css picks the
+  // right pair via the `[data-theme="dark"]` selector (see .mx-cell).
+  const style = `--cb-l:${bgLight};--cf-l:${fgLight};--cb-d:${bgDark};--cf-d:${fgDark}`;
   const content =
-    `<div class="text-[10px] opacity-70">${pct(stat.ciLow)}–${pct(
-      stat.ciHigh,
-    )}</div>` +
-    `<div class="font-bold">${pct(stat.winrate)}</div>` +
-    `<div class="text-[10px] opacity-70">${stat.matches.toLocaleString()}</div>`;
-
+    `<div class="r">${pct(stat.ciLow)}–${pct(stat.ciHigh)}</div>` +
+    `<div class="w">${pct(stat.winrate)}</div>` +
+    `<div class="m">${stat.matches.toLocaleString()}</div>`;
   const inner = href
-    ? `<a href="${attrEsc(href)}" class="block h-full w-full">${content}</a>`
+    ? `<a href="${attrEsc(href)}" class="mx-cell-link">${content}</a>`
     : content;
-
-  return `<td class="px-2 py-1 text-center align-middle" style="background:${bg};color:${fg}">${inner}</td>`;
+  return `<td class="mx-cell" style="${style}">${inner}</td>`;
 }
 
 /**
@@ -104,61 +83,50 @@ function buildTableHtml({
   cols,
   focusedDeck,
   baseHref,
+  locale,
 }: {
   rows: ArchetypeRow[];
   cols: string[];
   focusedDeck?: string;
   baseHref: string;
+  locale: Locale;
 }): string {
+  const matchesSuffix = t(locale, "matrix.matchesSuffix");
+  const focusedLabel = esc(t(locale, "matrix.focused"));
+  const clickToFocus = t(locale, "matrix.clickToFocus");
+  const clickToUnfocus = t(locale, "matrix.clickToUnfocus");
+
   const head =
     "<thead><tr>" +
-    '<th class="sticky left-0 top-0 z-30 bg-neutral-100 px-3 py-2 text-left dark:bg-neutral-900">Archetype</th>' +
-    '<th class="sticky top-0 z-20 bg-neutral-100 px-3 py-2 text-center dark:bg-neutral-900">Overall</th>' +
-    cols
-      .map(
-        (c) =>
-          `<th class="sticky top-0 z-20 bg-neutral-100 px-3 py-2 text-center dark:bg-neutral-900">${esc(
-            prettyDeck(c),
-          )}</th>`,
-      )
-      .join("") +
+    `<th class="mx-corner">${esc(t(locale, "matrix.archetype"))}</th>` +
+    `<th class="mx-colhead ov">${esc(t(locale, "matrix.overall"))}</th>` +
+    cols.map((c) => `<th class="mx-colhead">${esc(prettyDeck(c))}</th>`).join("") +
     "</tr></thead>";
 
   const body =
     "<tbody>" +
     rows
-      .map((row) => {
+      .map((row, i) => {
         const isFocused = focusedDeck === row.deck;
         const rowHref = isFocused ? baseHref : focusHref(baseHref, row.deck);
 
-        const trClass = isFocused
-          ? "border-t border-neutral-200 bg-emerald-50 dark:border-neutral-800 dark:bg-emerald-950/30"
-          : "border-t border-neutral-200 odd:bg-white even:bg-neutral-50 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900";
-
-        const archetypeClass = isFocused
-          ? "sticky left-0 z-10 border-l-4 border-emerald-500 bg-emerald-100 px-3 py-2 font-semibold text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100"
-          : "sticky left-0 z-10 bg-inherit px-3 py-2 font-medium";
-
-        const focusHint = isFocused
-          ? '<span class="ml-2 rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">focused</span>'
+        const trClasses = [i % 2 ? "mx-odd" : "", isFocused ? "mx-row-focused" : ""]
+          .filter(Boolean)
+          .join(" ");
+        const rowheadClass = `mx-rowhead${isFocused ? " mx-focused" : ""}`;
+        const focusBadge = isFocused
+          ? `<span class="mx-focus-badge">${focusedLabel}</span>`
           : "";
 
-        const cells = cols
-          .map((c) => cellHtml(row.vs[c], rowHref))
-          .join("");
+        const cells = cols.map((c) => cellHtml(row.vs[c], rowHref)).join("");
 
         return (
-          `<tr class="${trClass}">` +
-          `<th class="${archetypeClass}" scope="row">` +
-          `<a href="${attrEsc(
-            rowHref,
-          )}" class="block hover:underline" title="${
-            isFocused ? "Click to remove focus" : "Click to focus this row"
-          }">` +
-          `<span>${esc(prettyDeck(row.deck))}</span>${focusHint}` +
-          `<div class="text-xs font-normal text-neutral-500 dark:text-neutral-400">${row.matches.toLocaleString()} matches</div>` +
-          "</a>" +
-          "</th>" +
+          `<tr${trClasses ? ` class="${trClasses}"` : ""}>` +
+          `<th class="${rowheadClass}"><a href="${attrEsc(rowHref)}" title="${attrEsc(
+            isFocused ? clickToUnfocus : clickToFocus,
+          )}">` +
+          `<b>${esc(prettyDeck(row.deck))}</b>${focusBadge}` +
+          `<span>${row.matches.toLocaleString()}${esc(matchesSuffix)}</span></a></th>` +
           cellHtml(row.overall, rowHref) +
           cells +
           "</tr>"
@@ -167,7 +135,7 @@ function buildTableHtml({
       .join("") +
     "</tbody>";
 
-  return `${head}${body}`;
+  return `<table class="mx">${head}${body}</table>`;
 }
 
 export function MatrixTable({
@@ -175,11 +143,13 @@ export function MatrixTable({
   sort,
   focus,
   baseHref,
+  locale,
 }: {
   matrix: Matrix;
   sort: MatrixSortKey;
   focus?: string;
   baseHref: string;
+  locale: Locale;
 }) {
   const sorted = sortedRows(matrix, sort);
   const { rows, focusedDeck } = rowsWithFocus(sorted, focus);
@@ -187,7 +157,7 @@ export function MatrixTable({
   if (rows.length === 0) {
     return (
       <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        No matches for these filters yet.
+        {t(locale, "matrix.noMatches")}
       </p>
     );
   }
@@ -197,16 +167,15 @@ export function MatrixTable({
     cols: matrix.archetypes,
     focusedDeck,
     baseHref,
+    locale,
   });
 
   // Sticky header row + sticky first column keep deck names visible while
   // scrolling this large grid in both directions.
   return (
-    <div className="matrix-scroll max-h-[75vh] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-      <table
-        className="min-w-full border-collapse text-xs"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    </div>
+    <div
+      className="matrix-scroll max-h-[82vh] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }

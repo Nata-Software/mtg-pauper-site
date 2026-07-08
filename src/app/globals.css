@@ -108,6 +108,12 @@ body {
   padding: 4px 8px;
   text-align: center;
   vertical-align: middle;
+  background-color: var(--cb-l);
+  color: var(--cf-l);
+}
+[data-theme="dark"] .mx-cell {
+  background-color: var(--cb-d);
+  color: var(--cf-d);
 }
 .mx-cell .r {
   font-size: 10px;
@@ -131,6 +137,43 @@ body {
 .mx-e::after {
   content: "–";
   font-size: 12px;
+}
+.mx-cell-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.mx-rowhead a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.mx-rowhead a:hover b {
+  text-decoration: underline;
+}
+.mx-focus-badge {
+  margin-left: 6px;
+  border-radius: 9999px;
+  background: #7c3aed;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fff;
+}
+.mx-rowhead.mx-focused {
+  border-left: 3px solid #7c3aed;
+  background: rgba(124, 58, 237, 0.08);
+}
+[data-theme="dark"] .mx-rowhead.mx-focused {
+  background: rgba(167, 139, 250, 0.15);
+}
+.mx-row-focused {
+  background: rgba(124, 58, 237, 0.04);
+}
+[data-theme="dark"] .mx-row-focused {
+  background: rgba(167, 139, 250, 0.08);
 }
 
 /* Thin scrollbars for the wide matrix */
