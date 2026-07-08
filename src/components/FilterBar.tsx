@@ -1,5 +1,3 @@
-import { t, type Locale } from "@/lib/i18n";
-
 type Props = {
   action: string; // path to submit to, e.g. "/" or "/standings"
   stores: string[];
@@ -13,11 +11,11 @@ type Props = {
   minPct?: number;
   showSort?: boolean;
   sort?: string;
-  locale: Locale;
 };
 
 const inputCls =
   "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
+
 const labelCls = "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
 
 export function FilterBar(props: Props) {
@@ -29,12 +27,10 @@ export function FilterBar(props: Props) {
     event,
     from,
     to,
-    bounds,
     showMinPct,
     minPct,
     showSort,
     sort,
-    locale,
   } = props;
 
   return (
@@ -45,7 +41,7 @@ export function FilterBar(props: Props) {
     >
       {stores.length > 1 && (
         <label className={labelCls}>
-          {t(locale, "filter.store")}
+          Store
           <select name="store" defaultValue={store} className={inputCls}>
             {stores.map((s) => (
               <option key={s} value={s}>
@@ -57,9 +53,9 @@ export function FilterBar(props: Props) {
       )}
 
       <label className={labelCls}>
-        {t(locale, "filter.event")}
+        Event
         <select name="event" defaultValue={event ?? ""} className={inputCls}>
-          <option value="">{t(locale, "filter.allEvents")}</option>
+          <option value="">All events</option>
           {events.map((e) => (
             <option key={e} value={e}>
               {e}
@@ -69,7 +65,7 @@ export function FilterBar(props: Props) {
       </label>
 
       <label className={labelCls}>
-        {t(locale, "filter.from")}
+        From
         <input
           type="date"
           name="from"
@@ -79,7 +75,7 @@ export function FilterBar(props: Props) {
       </label>
 
       <label className={labelCls}>
-        {t(locale, "filter.to")}
+        To
         <input
           type="date"
           name="to"
@@ -90,7 +86,7 @@ export function FilterBar(props: Props) {
 
       {showMinPct && (
         <label className={labelCls}>
-          {t(locale, "filter.minPct")}
+          Min % of matches
           <input
             type="number"
             name="minPct"
@@ -105,11 +101,11 @@ export function FilterBar(props: Props) {
 
       {showSort && (
         <label className={labelCls}>
-          {t(locale, "filter.sortBy")}
+          Sort by
           <select name="sort" defaultValue={sort ?? "matches"} className={inputCls}>
-            <option value="matches">{t(locale, "filter.sort.matches")}</option>
-            <option value="winrate">{t(locale, "filter.sort.winrate")}</option>
-            <option value="alpha">{t(locale, "filter.sort.alpha")}</option>
+            <option value="matches">Number of matches</option>
+            <option value="winrate">Winrate</option>
+            <option value="alpha">Alphabetical</option>
           </select>
         </label>
       )}
@@ -118,13 +114,14 @@ export function FilterBar(props: Props) {
         type="submit"
         className="rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-emerald-500"
       >
-        {t(locale, "filter.apply")}
+        Apply
       </button>
+
       <a
         href={action}
         className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
-        {t(locale, "filter.reset")}
+        Reset
       </a>
     </form>
   );

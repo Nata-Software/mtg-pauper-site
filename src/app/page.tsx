@@ -1,5 +1,7 @@
+import Link from "next/link";
+
 import { FilterBar } from "@/components/FilterBar";
-import { MatrixTable } from "@/components/MatrixTable";
+import { MatrixTable, type MatrixSortKey } from "@/components/MatrixTable";
 import { computeMatrix } from "@/lib/stats";
 import {
   dateBounds,
@@ -7,8 +9,6 @@ import {
   listEvents,
   listStores,
 } from "@/lib/queries";
-import { t } from "@/lib/i18n";
-import { getLocale } from "@/lib/i18n.server";
 
 export const dynamic = "force-dynamic";
 
@@ -19,17 +19,24 @@ function first(v: string | string[] | undefined): string | undefined {
   return v;
 }
 
+function parseMatrixSort(value: string | undefined): MatrixSortKey {
+  if (value === "winrate" || value === "alpha" || value === "matches") {
+    return value;
+  }
+
+  return "matches";
+}
+
 export default async function MatchupsPage({
   searchParams,
 }: {
   searchParams: Promise<SP>;
 }) {
-  const locale = await getLocale();
   const sp = await searchParams;
   const stores = await listStores();
   const store = first(sp.store) || stores[0] || "default";
-
   const event = first(sp.event) || undefined;
+
   // Default to the current year; an explicitly-cleared field ("") means all-time.
   const year = new Date().getUTCFullYear();
   const fromParam = first(sp.from);
@@ -37,7 +44,8 @@ export default async function MatchupsPage({
   const from = fromParam === undefined ? `${year}-01-01` : fromParam || undefined;
   const to = toParam === undefined ? `${year}-12-31` : toParam || undefined;
   const minPct = Number(first(sp.minPct) ?? 1) || 0;
-  const sort = (first(sp.sort) as "matches" | "winrate" | "alpha") || "matches";
+  const sort = parseMatrixSort(first(sp.sort));
+  const focus = first(sp.focus);
 
   const [events, bounds, matchRows] = await Promise.all([
     listEvents(store),
@@ -47,28 +55,56 @@ export default async function MatchupsPage({
 
   const matrix = computeMatrix(matchRows, { minPct });
 
-  const rangeConnector = t(locale, "matchups.rangeTo");
   const rangeLabel =
     from || to
-      ? `${from || bounds.min || t(locale, "matchups.rangeStart")} ${rangeConnector} ${to || bounds.max || t(locale, "matchups.rangeNow")}`
+      ? `${from || bounds.min || "start"} to ${to || bounds.max || "now"}`
       : bounds.min
-        ? `${bounds.min} ${rangeConnector} ${bounds.max}`
-        : t(locale, "matchups.allTime");
+        ? `${bounds.min} to ${bounds.max}`
+        : "all time";
+
+  const baseParams = new URLSearchParams({
+    store,
+    sort,
+    minPct: String(minPct),
+  });
+
+  if (event) {
+    baseParams.set("event", event);
+  }
+
+  // Preserve explicit date choices. If the user cleared date fields for
+  // all-time, preserve the empty params too.
+  if (fromParam !== undefined) {
+    baseParams.set("from", fromParam);
+  }
+
+  if (toParam !== undefined) {
+    baseParams.set("to", toParam);
+  }
+
+  const matrixBaseHref = `/?${baseParams.toString()}`;
 
   return (
     <div>
       <div className="mb-4">
         <h1 className="text-xl font-bold uppercase tracking-tight text-neutral-950 dark:text-white">
-          {t(locale, "matchups.title")}
+          Top MTG Pauper Archetypes Winrates
         </h1>
+
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          {t(locale, "matchups.subtitle", {
-            minPct: matrix.minPct,
-            eventClause: event ? t(locale, "matchups.inEvent", { event }) : "",
-            range: rangeLabel,
-            count: matrix.archetypes.length,
-          })}
+          Winrate against the most present archetypes (at least {matrix.minPct}%
+          of the matches)
+          {event ? ` in "${event}"` : ""} between {rangeLabel} —{" "}
+          {matrix.archetypes.length} archetypes. Draws are excluded from
+          winrate.
         </p>
+
+        {focus && (
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            One archetype row may be focused at a time. Click the focused row
+            again to return to the original table order.
+          </p>
+        )}
       </div>
 
       <FilterBar
@@ -84,19 +120,23 @@ export default async function MatchupsPage({
         minPct={minPct}
         showSort
         sort={sort}
-        locale={locale}
       />
 
       {matchRows.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          {t(locale, "matchups.noDataBefore")}
-          <a href="/admin/upload" className="text-emerald-600 underline dark:text-emerald-400">
-            {t(locale, "nav.upload")}
-          </a>
-          {t(locale, "matchups.noDataAfter")}
+          No data yet. Go to{" "}
+          <Link href="/admin/upload" className="underline">
+            Upload
+          </Link>{" "}
+          to import the Ranking and Rounds CSVs.
         </p>
       ) : (
-        <MatrixTable matrix={matrix} sort={sort} locale={locale} />
+        <MatrixTable
+          matrix={matrix}
+          sort={sort}
+          focus={focus}
+          baseHref={matrixBaseHref}
+        />
       )}
     </div>
   );

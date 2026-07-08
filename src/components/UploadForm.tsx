@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { t, type Locale } from "@/lib/i18n";
 
@@ -156,18 +157,18 @@ export function UploadForm({ locale }: { locale: Locale }) {
               <strong>{result.event}</strong>: {result.matches.toLocaleString()}{" "}
               {t(locale, "upload.matchRows")}, {result.standings.toLocaleString()}{" "}
               {t(locale, "upload.standingsRows")}.{" "}
-              <a href="/" className="underline">
+              <Link href="/" className="underline">
                 {t(locale, "upload.viewMatchups")}
-              </a>
+              </Link>
             </>
           ) : result.ok ? (
             <>
               {t(locale, "upload.uploadedIntoStore")} <strong>{result.store}</strong>:{" "}
               {result.matches.toLocaleString()} {t(locale, "upload.matchRows")},{" "}
               {result.standings.toLocaleString()} {t(locale, "upload.standingsRows")}.{" "}
-              <a href="/" className="underline">
+              <Link href="/" className="underline">
                 {t(locale, "upload.viewMatchups")}
-              </a>
+              </Link>
             </>
           ) : (
             <>
