@@ -90,7 +90,7 @@ export default async function MatchupsPage({
       {matchRows.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           {t(locale, "matchups.noDataBefore")}
-          <a href="/admin/upload" className="text-emerald-600 underline dark:text-emerald-400">
+          <a href="/admin/upload" className="text-violet-600 underline dark:text-violet-400">
             {t(locale, "nav.upload")}
           </a>
           {t(locale, "matchups.noDataAfter")}

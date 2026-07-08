@@ -24,9 +24,15 @@ function esc(s: string): string {
 
 function cellHtml(stat: CellStat | undefined): string {
   if (!stat || stat.matches === 0) return '<td class="mx-e"></td>';
-  const { bg, fg } = winrateColor(stat.winrate, stat.wins + stat.losses);
+  const { bgLight, fgLight, bgDark, fgDark } = winrateColor(
+    stat.winrate,
+    stat.wins + stat.losses,
+  );
+  // Both variants ride along as custom properties; globals.css picks the
+  // right pair via the `[data-theme="dark"]` selector (see .mx-cell).
+  const style = `--cb-l:${bgLight};--cf-l:${fgLight};--cb-d:${bgDark};--cf-d:${fgDark}`;
   return (
-    `<td class="mx-cell" style="background-color:${bg};color:${fg}">` +
+    `<td class="mx-cell" style="${style}">` +
     `<div class="r">${pct(stat.ciLow)}–${pct(stat.ciHigh)}</div>` +
     `<div class="w">${pct(stat.winrate)}</div>` +
     `<div class="m">${stat.matches.toLocaleString()}</div></td>`

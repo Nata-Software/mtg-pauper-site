@@ -43,7 +43,7 @@ export function StandingsTable({
                 {i + 1}
               </td>
               <td className="px-3 py-1.5 font-medium">{s.player}</td>
-              <td className="px-3 py-1.5 text-right font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+              <td className="px-3 py-1.5 text-right font-bold tabular-nums text-violet-600 dark:text-violet-400">
                 {s.points}
               </td>
               <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">

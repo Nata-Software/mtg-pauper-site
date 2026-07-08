@@ -108,6 +108,12 @@ body {
   padding: 4px 8px;
   text-align: center;
   vertical-align: middle;
+  background-color: var(--cb-l);
+  color: var(--cf-l);
+}
+[data-theme="dark"] .mx-cell {
+  background-color: var(--cb-d);
+  color: var(--cf-d);
 }
 .mx-cell .r {
   font-size: 10px;

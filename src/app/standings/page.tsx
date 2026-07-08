@@ -62,7 +62,7 @@ export default async function StandingsPage({
               href={`/standings?view=${tab.key}`}
               className={
                 active
-                  ? "rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white"
+                  ? "rounded-md bg-violet-600 px-4 py-1.5 text-sm font-medium text-white"
                   : "rounded-md border border-neutral-300 px-4 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
               }
             >

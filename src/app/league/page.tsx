@@ -16,7 +16,7 @@ const MONTH_KEYS: TranslationKey[] = [
   "month.07", "month.08", "month.09", "month.10", "month.11", "month.12",
 ];
 
-const btnActive = "rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white";
+const btnActive = "rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white";
 const btnInactive =
   "rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800";
 const btnDisabled =

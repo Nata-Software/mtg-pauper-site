@@ -17,7 +17,7 @@ type Props = {
 };
 
 const inputCls =
-  "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
+  "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-violet-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
 const labelCls = "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
 
 export function FilterBar(props: Props) {
@@ -116,7 +116,7 @@ export function FilterBar(props: Props) {
 
       <button
         type="submit"
-        className="rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-emerald-500"
+        className="rounded-md bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500"
       >
         {t(locale, "filter.apply")}
       </button>

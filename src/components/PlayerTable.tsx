@@ -58,7 +58,7 @@ export function PlayerTable({
                     key={s.player}
                     className={
                       isSel
-                        ? "border-t border-neutral-200 bg-emerald-100/50 dark:border-neutral-800/60 dark:bg-emerald-950/40"
+                        ? "border-t border-neutral-200 bg-violet-100/50 dark:border-neutral-800/60 dark:bg-violet-950/40"
                         : "border-t border-neutral-200 odd:bg-neutral-50 dark:border-neutral-800/60 dark:odd:bg-neutral-900/30"
                     }
                   >
@@ -66,7 +66,7 @@ export function PlayerTable({
                       {hrefFor ? (
                         <Link
                           href={hrefFor(s.player)}
-                          className="text-emerald-600 hover:underline dark:text-emerald-400"
+                          className="text-violet-600 hover:underline dark:text-violet-400"
                         >
                           {s.player}
                         </Link>
@@ -77,7 +77,7 @@ export function PlayerTable({
                     <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
                       {s.matches.toLocaleString()}
                     </td>
-                    <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-violet-600 dark:text-violet-400">
                       {pctP(s.winPct)}
                     </td>
                     <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
