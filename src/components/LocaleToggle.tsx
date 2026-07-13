@@ -23,29 +23,50 @@ function getServerSnapshot(): Locale {
   return "en";
 }
 
+const OPTIONS: { code: Locale; label: string; title: string }[] = [
+  { code: "en", label: "EN", title: "English" },
+  { code: "pt-BR", label: "PT", title: "Português" },
+];
+
 export function LocaleToggle() {
   const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  function toggle() {
+  function select(next: Locale) {
     // Read the live DOM instead of the `locale` closure — see the matching
     // comment in ThemeToggle for why this must not rely on the rendered value.
-    const next: Locale = getSnapshot() === "en" ? "pt-BR" : "en";
+    if (getSnapshot() === next) return;
     applyLocale(next);
     // Full reload: server-rendered page content (headings, tables, forms)
-    // reads the locale cookie per-request, so this is the simplest way to
-    // get it translated without threading locale through every component.
+    // reads the locale cookie per-request, so this is the simplest way to get
+    // it translated without threading locale through every component.
     window.location.reload();
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={locale === "en" ? "Mudar para português" : "Switch to English"}
-      title={locale === "en" ? "Mudar para português" : "Switch to English"}
-      className="flex h-8 items-center justify-center rounded-md border border-neutral-300 px-2 text-xs font-semibold uppercase text-neutral-600 hover:bg-neutral-200 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+    <div
+      role="group"
+      aria-label="Language / Idioma"
+      className="inline-flex items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-800"
     >
-      {locale === "en" ? "EN" : "PT-BR"}
-    </button>
+      {OPTIONS.map((o) => {
+        const active = locale === o.code;
+        return (
+          <button
+            key={o.code}
+            type="button"
+            onClick={() => select(o.code)}
+            aria-pressed={active}
+            title={o.title}
+            className={
+              active
+                ? "rounded px-2 py-1 text-xs font-semibold text-white bg-emerald-600"
+                : "rounded px-2 py-1 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+            }
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
