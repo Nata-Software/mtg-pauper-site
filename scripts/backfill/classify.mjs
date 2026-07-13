@@ -86,6 +86,12 @@ export function cosine(a, b) {
 // --- signature rules (domain knowledge; the "our classification" part) ---
 const RED_MADNESS = ["voldarenepicure", "kessigflamebreather", "fierytemper", "sneakysnacker"];
 
+// Final display renames (cluster labels come from the plurality typed name;
+// override these where we prefer a different name).
+const DISPLAY = {
+  "mono-black aristocrats": "Mono-Black Sacrifice",
+};
+
 function hasName(cards, needle) {
   return cards.some((c) => c.name.toLowerCase().includes(needle));
 }
@@ -139,22 +145,25 @@ export function classifyDeck(cards, typedName, model) {
   const v = vec(cards, idf);
 
   // 1. signature overrides
+  let label = null;
   if (cs.has("U")) {
     const core = blueCore(cards);
-    if (core) return `${colorPrefix(cs)} ${core}`;
+    if (core) label = `${colorPrefix(cs)} ${core}`;
   }
-  if (dcol === "R") return `Mono-Red ${redCore(cards)}`;
-  if (dcol === "R,W") return `Boros ${borosCore(cards)}`;
+  if (label === null && dcol === "R") label = `Mono-Red ${redCore(cards)}`;
+  if (label === null && dcol === "R,W") label = `Boros ${borosCore(cards)}`;
 
   // 2. nearest frozen centroid (small same-color bonus)
-  let best = null, bs = 0;
-  for (const a of model.archetypes) {
-    const s = cosine(v, a.centroid) + (a.col === dcol ? 0.05 : 0);
-    if (s > bs) { bs = s; best = a; }
+  if (label === null) {
+    let best = null, bs = 0;
+    for (const a of model.archetypes) {
+      const s = cosine(v, a.centroid) + (a.col === dcol ? 0.05 : 0);
+      if (s > bs) { bs = s; best = a; }
+    }
+    label = best && bs >= 0.36 ? best.name : `rogue: ${typedName || "unknown"}`;
+    // gruul re-split by signature (color detection under-reads dork/ramp decks)
+    if (/gruul/i.test(label)) label = `Gruul ${gruulCore(cards)}`;
   }
-  let label = best && bs >= 0.36 ? best.name : `rogue: ${typedName || "unknown"}`;
 
-  // 3. gruul re-split by signature (color detection under-reads dork/ramp decks)
-  if (/gruul/i.test(label)) label = `Gruul ${gruulCore(cards)}`;
-  return label;
+  return label in DISPLAY ? DISPLAY[label] : label;
 }
