@@ -120,6 +120,14 @@ function gruulCore(cards) {
   return "Aggro";
 }
 
+// Boros (R/W): Tribe (Tireless Tribe combo) vs Synthesizer (Experimental
+// Synthesizer) vs Bully (Kor Skyfisher / Battle Screech aggro). Different decks.
+function borosCore(cards) {
+  if (hasName(cards, "tireless tribe")) return "Tribe";
+  if (hasName(cards, "experimental synthesizer")) return "Synthesizer";
+  return "Bully";
+}
+
 /**
  * Classify one deck. `model` = { N, idf:{slug:weight}, archetypes:[{name,col,centroid}] }.
  * Returns an archetype name, or "rogue: <typedName>" when nothing matches.
@@ -136,6 +144,7 @@ export function classifyDeck(cards, typedName, model) {
     if (core) return `${colorPrefix(cs)} ${core}`;
   }
   if (dcol === "R") return `Mono-Red ${redCore(cards)}`;
+  if (dcol === "R,W") return `Boros ${borosCore(cards)}`;
 
   // 2. nearest frozen centroid (small same-color bonus)
   let best = null, bs = 0;
