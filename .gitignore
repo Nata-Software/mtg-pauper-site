@@ -55,3 +55,6 @@ Rounds.csv
 
 
 /src/generated/prisma
+
+# local DB backups
+/backups/
