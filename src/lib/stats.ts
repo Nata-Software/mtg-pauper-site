@@ -111,10 +111,10 @@ export function computeMatrix(
   };
 
   for (const m of matches) {
-    const deck = m.deck.trim().toLowerCase();
+    const deck = m.deck.trim();
     if (isByeDeck(deck)) continue; // can't attribute a blank/bye player deck
 
-    const opp = m.opponentDeck.trim().toLowerCase();
+    const opp = m.opponentDeck.trim();
     const row = getRow(deck);
     // OVERALL counts every match the deck played (incl. byes and matches whose
     // opponent deck wasn't recorded) — this is how Looker counts "Qtd partidas".
@@ -230,7 +230,7 @@ export function computeDeckBreakdown(
 ): DeckBreakdown[] {
   const map = new Map<string, Tally>();
   for (const r of rows) {
-    const deck = r.deck.trim().toLowerCase() || "(no deck recorded)";
+    const deck = r.deck.trim() || "(no deck recorded)";
     let s = map.get(deck);
     if (!s) {
       s = { matches: 0, wins: 0, losses: 0, draws: 0 };

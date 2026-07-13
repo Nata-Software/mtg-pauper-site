@@ -55,6 +55,12 @@ export async function dateBounds(
   return { min: toISODate(min?.date), max: toISODate(max?.date) };
 }
 
+/** The card-based archetype when present, else the player-typed deck name.
+ * Strips the "rogue:" prefix used internally by the classifier. */
+function effectiveDeck(archetype: string | null, deck: string): string {
+  return (archetype ?? deck).replace(/^rogue:\s*/i, "");
+}
+
 export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
   const rows = await prisma.match.findMany({
     where: {
@@ -62,9 +68,19 @@ export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
       ...(f.event ? { eventName: f.event } : {}),
       ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
     },
-    select: { deck: true, opponentDeck: true, result: true },
+    select: {
+      deck: true,
+      archetype: true,
+      opponentDeck: true,
+      opponentArchetype: true,
+      result: true,
+    },
   });
-  return rows;
+  return rows.map((r) => ({
+    deck: effectiveDeck(r.archetype, r.deck),
+    opponentDeck: effectiveDeck(r.opponentArchetype, r.opponentDeck),
+    result: r.result,
+  }));
 }
 
 export type StandingRow = {
@@ -166,7 +182,7 @@ export async function getPlayerDeckRows(opts: {
   to?: string;
   event?: string;
 }): Promise<{ deck: string; result: string }[]> {
-  return prisma.match.findMany({
+  const rows = await prisma.match.findMany({
     where: {
       store: opts.store,
       player: opts.player,
@@ -175,8 +191,9 @@ export async function getPlayerDeckRows(opts: {
         ? { date: dateWhere(opts.from, opts.to) }
         : {}),
     },
-    select: { deck: true, result: true },
+    select: { deck: true, archetype: true, result: true },
   });
+  return rows.map((r) => ({ deck: effectiveDeck(r.archetype, r.deck), result: r.result }));
 }
 
 /** The calendar month (from/to + label) of the most recent match with a date. */
