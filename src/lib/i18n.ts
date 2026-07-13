@@ -174,6 +174,20 @@ const dict = {
     "pt-BR": "Nenhuma partida dessa liga no mês selecionado.",
   },
 
+  "nextTournaments.title": {
+    en: "Next Tournaments",
+    "pt-BR": "Próximos Torneios",
+  },
+  "nextTournaments.subtitle": {
+    en: "Upcoming tournaments happening today or later, sorted by date, time, then name.",
+    "pt-BR":
+      "Torneios futuros acontecendo hoje ou depois, ordenados por data, horário e nome.",
+  },
+  "nextTournaments.source": {
+    en: "Source: Melee organization page",
+    "pt-BR": "Fonte: página da organização no Melee",
+  },
+
   "month.01": { en: "January", "pt-BR": "Janeiro" },
   "month.02": { en: "February", "pt-BR": "Fevereiro" },
   "month.03": { en: "March", "pt-BR": "Março" },

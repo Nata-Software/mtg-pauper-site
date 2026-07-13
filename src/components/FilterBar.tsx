@@ -1,7 +1,7 @@
 import { t, type Locale } from "@/lib/i18n";
 
 type Props = {
-  action: string; // path to submit to, e.g. "/" or "/standings"
+  action: string;
   stores: string[];
   events: string[];
   store: string;
@@ -9,11 +9,11 @@ type Props = {
   from?: string;
   to?: string;
   bounds: { min: string; max: string };
+  locale: Locale;
   showMinPct?: boolean;
   minPct?: number;
   showSort?: boolean;
   sort?: string;
-  locale: Locale;
 };
 
 const inputCls =
@@ -29,12 +29,11 @@ export function FilterBar(props: Props) {
     event,
     from,
     to,
-    bounds,
+    locale,
     showMinPct,
     minPct,
     showSort,
     sort,
-    locale,
   } = props;
 
   return (
