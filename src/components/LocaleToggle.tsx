@@ -1,26 +1,14 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { applyLocale } from "@/lib/i18n-client";
 import type { Locale } from "@/lib/i18n";
 
-function subscribe() {
-  // The attribute only ever changes via a full reload (see toggle() below),
-  // so there's nothing to subscribe to — this just satisfies the API.
-  return () => {};
-}
-
-function getSnapshot(): Locale {
+function domLocale(): Locale {
   return document.documentElement.getAttribute("data-locale") === "pt-BR"
     ? "pt-BR"
     : "en";
-}
-
-// Must match the server-rendered default in layout.tsx exactly, even though
-// the init script may have already flipped the DOM's data-locale attribute
-// by the time this hydrates on the client.
-function getServerSnapshot(): Locale {
-  return "en";
 }
 
 const OPTIONS: { code: Locale; label: string; title: string }[] = [
@@ -29,23 +17,40 @@ const OPTIONS: { code: Locale; label: string; title: string }[] = [
 ];
 
 export function LocaleToggle() {
-  const locale = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  // Start from the server-rendered default ("en") for a clean hydration, then
+  // sync to whatever the pre-paint init script actually applied.
+  const [locale, setLocale] = useState<Locale>("en");
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  useEffect(() => {
+    setLocale(domLocale());
+  }, []);
 
   function select(next: Locale) {
-    // Read the live DOM instead of the `locale` closure — see the matching
-    // comment in ThemeToggle for why this must not rely on the rendered value.
-    if (getSnapshot() === next) return;
+    if (next === locale) return;
+
+    // 1) Optimistic, instant UI: flip the CSS variant + button highlight now.
+    //    The `pt:` Tailwind variant keys off <html data-locale>, so nav labels
+    //    and any CSS-driven strings switch with zero latency.
+    document.documentElement.setAttribute("data-locale", next);
+    document.documentElement.setAttribute("lang", next);
+    setLocale(next);
+
+    // 2) Persist the choice so future requests (and full reloads) honor it.
     applyLocale(next);
-    // Full reload: server-rendered page content (headings, tables, forms)
-    // reads the locale cookie per-request, so this is the simplest way to get
-    // it translated without threading locale through every component.
-    window.location.reload();
+
+    // 3) Soft-refresh only the server-rendered content (headings, tables) with
+    //    the new locale cookie — no white flash, no JS re-download, no re-run
+    //    of the init script. Much faster than window.location.reload().
+    startTransition(() => router.refresh());
   }
 
   return (
     <div
       role="group"
       aria-label="Language / Idioma"
+      aria-busy={isPending}
       className="inline-flex items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-800"
     >
       {OPTIONS.map((o) => {
