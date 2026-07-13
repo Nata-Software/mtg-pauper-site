@@ -119,11 +119,11 @@ export default async function MatchupsPage({
         from={from}
         to={to}
         bounds={bounds}
+        locale={locale}
         showMinPct
         minPct={minPct}
         showSort
         sort={sort}
-        locale={locale}
       />
 
       {matchRows.length === 0 ? (
