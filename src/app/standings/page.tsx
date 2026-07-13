@@ -167,7 +167,7 @@ export default async function StandingsPage({
           locale={locale}
         />
       ) : view === "tournament-data" ? (
-        <TournamentDataView store={store} locale={locale} />
+        <TournamentDataView store={store} />
       ) : (
         <MonthlyView
           store={store}
@@ -203,8 +203,9 @@ async function YearView({
   const stats = computePlayerAnalysis(rows);
 
   // Drill-down: a specific player's win rate by deck.
-  const selected =
-    player && stats.some((s) => s.player === player) ? player : undefined;
+  const selected = player && stats.some((s) => s.player === player)
+    ? player
+    : undefined;
 
   const listParams = new URLSearchParams({ view: "year", store });
   const baseParams = new URLSearchParams(listParams);
@@ -355,14 +356,8 @@ async function MonthlyView({
   );
 }
 
-async function TournamentDataView({
-  store,
-  locale,
-}: {
-  store: string;
-  locale: Locale;
-}) {
+async function TournamentDataView({ store }: { store: string }) {
   const data = await getTournamentData(store);
 
-  return <TournamentDataTab data={data} locale={locale} />;
+  return <TournamentDataTab data={data} />;
 }

@@ -1,66 +1,32 @@
-import { toISODate } from "./dates";
+import { cache } from "react";
 import { prisma } from "./prisma";
+import { toISODate } from "./dates";
 import type { MatchRow } from "./stats";
+import {
+  canonicalDeck,
+  clean,
+  colorKey,
+  display,
+  SYNONYMS,
+} from "./archetype/normalize.mjs";
 
 export type Filters = {
   store: string;
-  from?: string;
-  to?: string;
+  from?: string; // yyyy-mm-dd
+  to?: string; // yyyy-mm-dd
   event?: string;
-  player?: string;
 };
 
 function dateWhere(from?: string, to?: string) {
   const date: { gte?: Date; lte?: Date } = {};
 
-  if (from) date.gte = new Date(`${from}T00:00:00.000Z`);
-  if (to) date.lte = new Date(`${to}T23:59:59.999Z`);
+  if (from) date.gte = new Date(from + "T00:00:00.000Z");
+  if (to) date.lte = new Date(to + "T23:59:59.999Z");
 
   return Object.keys(date).length ? date : undefined;
 }
 
-function clean(value: string | null | undefined): string {
-  return String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-}
-
-const SYNONYMS: Record<string, string> = {
-  "no deck (bye)": "No Deck (Bye)",
-  bye: "No Deck (Bye)",
-};
-
-function display(value: string): string {
-  const trimmed = value.trim();
-
-  if (!trimmed) return "Unknown";
-
-  const synonym = SYNONYMS[trimmed];
-
-  if (synonym) return synonym;
-
-  return trimmed
-    .split(/(\s+|-|\/|\(|\))/)
-    .map((part) => {
-      if (/^\s+$|^-$|^\/$|^\($|^\)$/.test(part)) return part;
-      if (!part) return part;
-
-      return part.charAt(0).toUpperCase() + part.slice(1);
-    })
-    .join("");
-}
-
-function canonicalDeck(deck: string | null | undefined): string {
-  const rawDeck = clean(deck);
-
-  if (!rawDeck) {
-    return "Unknown";
-  }
-
-  return display(SYNONYMS[rawDeck] ?? rawDeck);
-}
-
+/** Distinct stores that have any data. */
 export async function listStores(): Promise<string[]> {
   const [m, s] = await Promise.all([
     prisma.match.findMany({
@@ -78,6 +44,7 @@ export async function listStores(): Promise<string[]> {
   return [...set].sort();
 }
 
+/** Distinct event names for a store. */
 export async function listEvents(store: string): Promise<string[]> {
   const rows = await prisma.match.findMany({
     where: { store },
@@ -85,32 +52,10 @@ export async function listEvents(store: string): Promise<string[]> {
     select: { eventName: true },
   });
 
-  return rows
-    .map((r) => r.eventName)
-    .filter(Boolean)
-    .sort();
+  return rows.map((r) => r.eventName).filter(Boolean).sort();
 }
 
-export async function listPlayers(
-  f: Omit<Filters, "player">,
-): Promise<string[]> {
-  const date = dateWhere(f.from, f.to);
-
-  const rows = await prisma.match.findMany({
-    where: {
-      store: f.store,
-      ...(f.event ? { eventName: f.event } : {}),
-      ...(date ? { date } : {}),
-    },
-    distinct: ["player"],
-    select: { player: true },
-  });
-
-  return [...new Set(rows.map((row) => row.player.trim()).filter(Boolean))].sort(
-    (a, b) => a.localeCompare(b),
-  );
-}
-
+/** Min/max match dates for a store (for default filter bounds). */
 export async function dateBounds(
   store: string,
 ): Promise<{ min: string; max: string }> {
@@ -130,26 +75,80 @@ export async function dateBounds(
   return { min: toISODate(min?.date), max: toISODate(max?.date) };
 }
 
-export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
-  const date = dateWhere(f.from, f.to);
+/**
+ * A per-player resolver for folding bare color-only typed names (e.g. "mono
+ * red", "azorius") into that player's dominant same-color card-classified
+ * archetype. Built once per request from all classified matches in the store.
+ * Returns `(player) => (colorKey) => dominantLabel | undefined`.
+ */
+const buildDeckResolver = cache(
+  async (store: string): Promise<(player: string) => (ck: string) => string | undefined> => {
+    const rows = await prisma.match.findMany({
+      where: { store, archetype: { not: null } },
+      select: { player: true, archetype: true },
+    });
 
-  const rows = await prisma.match.findMany({
-    where: {
-      store: f.store,
-      ...(f.event ? { eventName: f.event } : {}),
-      ...(f.player ? { player: f.player } : {}),
-      ...(date ? { date } : {}),
-    },
-    select: {
-      deck: true,
-      opponentDeck: true,
-      result: true,
-    },
-  });
+    // player -> colorKey -> canonicalLabel -> count
+    const counts = new Map<string, Map<string, Map<string, number>>>();
+    for (const r of rows) {
+      const a = r.archetype;
+      if (!a) continue;
+      const c = clean(a);
+      const ck = colorKey(c);
+      if (!ck) continue;
+      const label = display(SYNONYMS[c] ?? c);
+      let byColor = counts.get(r.player);
+      if (!byColor) counts.set(r.player, (byColor = new Map()));
+      let byLabel = byColor.get(ck);
+      if (!byLabel) byColor.set(ck, (byLabel = new Map()));
+      byLabel.set(label, (byLabel.get(label) ?? 0) + 1);
+    }
+
+    // Reduce to the single dominant label per (player, colorKey).
+    const dominant = new Map<string, Map<string, string>>();
+    for (const [player, byColor] of counts) {
+      const best = new Map<string, string>();
+      for (const [ck, byLabel] of byColor) {
+        let label = "";
+        let n = -1;
+        for (const [l, count] of byLabel) if (count > n) ((n = count), (label = l));
+        best.set(ck, label);
+      }
+      dominant.set(player, best);
+    }
+
+    return (player) => (ck) => dominant.get(player)?.get(ck);
+  },
+);
+
+export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
+  const [rows, resolver] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+      },
+      select: {
+        player: true,
+        deck: true,
+        archetype: true,
+        opponent: true,
+        opponentDeck: true,
+        opponentArchetype: true,
+        result: true,
+      },
+    }),
+    buildDeckResolver(f.store),
+  ]);
 
   return rows.map((r) => ({
-    deck: canonicalDeck(r.deck),
-    opponentDeck: canonicalDeck(r.opponentDeck),
+    deck: canonicalDeck(r.archetype, r.deck, resolver(r.player)),
+    opponentDeck: canonicalDeck(
+      r.opponentArchetype,
+      r.opponentDeck,
+      resolver(r.opponent),
+    ),
     result: r.result,
   }));
 }
@@ -165,13 +164,11 @@ export type StandingRow = {
 };
 
 export async function getStandings(f: Filters): Promise<StandingRow[]> {
-  const date = dateWhere(f.from, f.to);
-
   return prisma.standing.findMany({
     where: {
       store: f.store,
       ...(f.event ? { eventName: f.event } : {}),
-      ...(date ? { date } : {}),
+      ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
     },
     orderBy: [{ date: "desc" }, { position: "asc" }],
     select: {
@@ -194,15 +191,13 @@ export type PlayerMatchRow = {
   opponentDeck: string;
 };
 
+/** Rows for per-player win/loss/draw analysis in a scope. */
 export async function getPlayerRows(f: Filters): Promise<PlayerMatchRow[]> {
-  const date = dateWhere(f.from, f.to);
-
   return prisma.match.findMany({
     where: {
       store: f.store,
       ...(f.event ? { eventName: f.event } : {}),
-      ...(f.player ? { player: f.player } : {}),
-      ...(date ? { date } : {}),
+      ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
     },
     select: {
       player: true,
@@ -220,6 +215,7 @@ function ym(d: Date): string {
   )}`;
 }
 
+/** Distinct "YYYY-MM" months that have matches for an event, newest first. */
 export async function listMonths(
   store: string,
   event: string,
@@ -239,6 +235,7 @@ export async function listMonths(
   return [...set].sort().reverse();
 }
 
+/** from/to ISO bounds + label for a "YYYY-MM" month string. */
 export function monthRange(yyyymm: string): {
   from: string;
   to: string;
@@ -256,6 +253,7 @@ export function monthRange(yyyymm: string): {
   return { from: toISODate(from), to: toISODate(to), label };
 }
 
+/** One player's matches (deck they piloted + result) in a scope. */
 export async function getPlayerDeckRows(opts: {
   store: string;
   player: string;
@@ -263,27 +261,28 @@ export async function getPlayerDeckRows(opts: {
   to?: string;
   event?: string;
 }): Promise<{ deck: string; result: string }[]> {
-  const date = dateWhere(opts.from, opts.to);
-
-  const rows = await prisma.match.findMany({
-    where: {
-      store: opts.store,
-      player: opts.player,
-      ...(opts.event ? { eventName: opts.event } : {}),
-      ...(date ? { date } : {}),
-    },
-    select: {
-      deck: true,
-      result: true,
-    },
-  });
-
+  const [rows, resolver] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: opts.store,
+        player: opts.player,
+        ...(opts.event ? { eventName: opts.event } : {}),
+        ...(dateWhere(opts.from, opts.to)
+          ? { date: dateWhere(opts.from, opts.to) }
+          : {}),
+      },
+      select: { deck: true, archetype: true, result: true },
+    }),
+    buildDeckResolver(opts.store),
+  ]);
+  const resolve = resolver(opts.player);
   return rows.map((r) => ({
-    deck: canonicalDeck(r.deck),
+    deck: canonicalDeck(r.archetype, r.deck, resolve),
     result: r.result,
   }));
 }
 
+/** The calendar month (from/to + label) of the most recent match with a date. */
 export async function latestDataMonth(
   store: string,
 ): Promise<{ from: string; to: string; label: string } | null> {
@@ -296,7 +295,7 @@ export async function latestDataMonth(
   if (!max?.date) return null;
 
   const y = max.date.getUTCFullYear();
-  const m = max.date.getUTCMonth();
+  const m = max.date.getUTCMonth(); // 0-based
   const from = new Date(Date.UTC(y, m, 1));
   const to = new Date(Date.UTC(y, m + 1, 0));
   const label = from.toLocaleDateString("en-US", {
@@ -385,6 +384,12 @@ function increment(map: Map<string, number>, key: string): void {
   map.set(key, (map.get(key) ?? 0) + 1);
 }
 
+/**
+ * Aggregated tournament-level dashboard data.
+ *
+ * Melee imports are grouped by tournamentId.
+ * CSV history has no tournamentId, so it is grouped by event + date.
+ */
 export async function getTournamentData(store: string): Promise<TournamentData> {
   const [standings, matches] = await Promise.all([
     prisma.standing.findMany({
@@ -462,7 +467,10 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
 
     if (player) group.players.add(player);
 
-    if (player && (!group.winner || row.position < group.winner.position)) {
+    if (
+      player &&
+      (!group.winner || row.position < group.winner.position)
+    ) {
       group.winner = {
         position: row.position,
         player,
@@ -506,7 +514,8 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
     if (!group.winner) continue;
 
     const matchGroup = matchGroups.get(key);
-    const playerCount = group.players.size || matchGroup?.players.size || 0;
+    const playerCount =
+      group.players.size || matchGroup?.players.size || 0;
 
     tournamentWins.push({
       tournamentKey: key,
@@ -526,7 +535,6 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
 
   tournamentWins.sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date);
-
     return a.tournamentName.localeCompare(b.tournamentName);
   });
 

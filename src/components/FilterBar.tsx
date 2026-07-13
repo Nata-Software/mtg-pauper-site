@@ -1,53 +1,46 @@
-import Link from "next/link";
-
 import { t, type Locale } from "@/lib/i18n";
 
 type Props = {
   action: string;
   stores: string[];
   events: string[];
-  players?: string[];
   store: string;
   event?: string;
-  player?: string;
   from?: string;
   to?: string;
   bounds: { min: string; max: string };
+  locale: Locale;
   showMinPct?: boolean;
   minPct?: number;
   showSort?: boolean;
   sort?: string;
-  locale: Locale;
 };
 
 const inputCls =
-  "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
-
-const labelCls =
-  "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
+  "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-violet-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
+const labelCls = "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
 
 export function FilterBar(props: Props) {
   const {
     action,
     stores,
     events,
-    players,
     store,
     event,
-    player,
     from,
     to,
+    locale,
     showMinPct,
     minPct,
     showSort,
     sort,
-    locale,
   } = props;
 
   return (
     <form
+      method="get"
       action={action}
-      className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900"
+      className="mb-5 flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50/70 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
     >
       {stores.length > 1 && (
         <label className={labelCls}>
@@ -73,20 +66,6 @@ export function FilterBar(props: Props) {
           ))}
         </select>
       </label>
-
-      {players && players.length > 0 && (
-        <label className={labelCls}>
-          {t(locale, "filter.player")}
-          <select name="player" defaultValue={player ?? ""} className={inputCls}>
-            <option value="">{t(locale, "filter.allPlayers")}</option>
-            {players.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
 
       <label className={labelCls}>
         {t(locale, "filter.from")}
@@ -114,9 +93,9 @@ export function FilterBar(props: Props) {
           <input
             type="number"
             name="minPct"
-            min={0}
-            max={100}
-            step={0.5}
+            step="0.5"
+            min="0"
+            max="100"
             defaultValue={minPct ?? 1}
             className={`${inputCls} w-24`}
           />
@@ -126,11 +105,7 @@ export function FilterBar(props: Props) {
       {showSort && (
         <label className={labelCls}>
           {t(locale, "filter.sortBy")}
-          <select
-            name="sort"
-            defaultValue={sort ?? "matches"}
-            className={inputCls}
-          >
+          <select name="sort" defaultValue={sort ?? "matches"} className={inputCls}>
             <option value="matches">{t(locale, "filter.sort.matches")}</option>
             <option value="winrate">{t(locale, "filter.sort.winrate")}</option>
             <option value="alpha">{t(locale, "filter.sort.alpha")}</option>
@@ -140,17 +115,16 @@ export function FilterBar(props: Props) {
 
       <button
         type="submit"
-        className="rounded-md bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
+        className="rounded-md bg-violet-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-violet-500"
       >
         {t(locale, "filter.apply")}
       </button>
-
-      <Link
+      <a
         href={action}
-        className="rounded-md border border-neutral-300 px-4 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+        className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
         {t(locale, "filter.reset")}
-      </Link>
+      </a>
     </form>
   );
 }
