@@ -21,14 +21,18 @@ function rowsWithFocus(
 ): { rows: ArchetypeRow[]; focusedDeck?: string } {
   if (!focusedDeck) return { rows };
 
-  const normalized = focusedDeck.trim().toLowerCase();
-  const focusedIndex = rows.findIndex((row) => row.deck === normalized);
+  const target = focusedDeck.trim().toLowerCase();
+  const focusedIndex = rows.findIndex(
+    (row) => row.deck.toLowerCase() === target,
+  );
   if (focusedIndex === -1) return { rows };
 
   const nextRows = [...rows];
   const [focused] = nextRows.splice(focusedIndex, 1);
 
-  return { rows: [focused, ...nextRows], focusedDeck: normalized };
+  // Use the row's actual (canonical, cased) label so the downstream
+  // `focusedDeck === row.deck` comparison in buildTableHtml matches.
+  return { rows: [focused, ...nextRows], focusedDeck: focused.deck };
 }
 
 function esc(s: string): string {
@@ -64,7 +68,6 @@ function cellHtml(stat: CellStat | undefined, href?: string): string {
   // right pair via the `[data-theme="dark"]` selector (see .mx-cell).
   const style = `--cb-l:${bgLight};--cf-l:${fgLight};--cb-d:${bgDark};--cf-d:${fgDark}`;
   const content =
-    `<div class="r">${pct(stat.ciLow)}–${pct(stat.ciHigh)}</div>` +
     `<div class="w">${pct(stat.winrate)}</div>` +
     `<div class="m">${stat.matches.toLocaleString()}</div>`;
   const inner = href

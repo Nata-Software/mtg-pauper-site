@@ -1,6 +1,14 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 import { toISODate } from "./dates";
 import type { MatchRow } from "./stats";
+import {
+  canonicalDeck,
+  clean,
+  colorKey,
+  display,
+  SYNONYMS,
+} from "./archetype/normalize.mjs";
 
 export type Filters = {
   store: string;
@@ -67,31 +75,80 @@ export async function dateBounds(
   return { min: toISODate(min?.date), max: toISODate(max?.date) };
 }
 
-/** The card-based archetype when present, else the player-typed deck name.
- * Strips the "rogue:" prefix used internally by the classifier. */
-function effectiveDeck(archetype: string | null, deck: string): string {
-  return (archetype ?? deck).replace(/^rogue:\s*/i, "");
-}
+/**
+ * A per-player resolver for folding bare color-only typed names (e.g. "mono
+ * red", "azorius") into that player's dominant same-color card-classified
+ * archetype. Built once per request from all classified matches in the store.
+ * Returns `(player) => (colorKey) => dominantLabel | undefined`.
+ */
+const buildDeckResolver = cache(
+  async (store: string): Promise<(player: string) => (ck: string) => string | undefined> => {
+    const rows = await prisma.match.findMany({
+      where: { store, archetype: { not: null } },
+      select: { player: true, archetype: true },
+    });
+
+    // player -> colorKey -> canonicalLabel -> count
+    const counts = new Map<string, Map<string, Map<string, number>>>();
+    for (const r of rows) {
+      const a = r.archetype;
+      if (!a) continue;
+      const c = clean(a);
+      const ck = colorKey(c);
+      if (!ck) continue;
+      const label = display(SYNONYMS[c] ?? c);
+      let byColor = counts.get(r.player);
+      if (!byColor) counts.set(r.player, (byColor = new Map()));
+      let byLabel = byColor.get(ck);
+      if (!byLabel) byColor.set(ck, (byLabel = new Map()));
+      byLabel.set(label, (byLabel.get(label) ?? 0) + 1);
+    }
+
+    // Reduce to the single dominant label per (player, colorKey).
+    const dominant = new Map<string, Map<string, string>>();
+    for (const [player, byColor] of counts) {
+      const best = new Map<string, string>();
+      for (const [ck, byLabel] of byColor) {
+        let label = "";
+        let n = -1;
+        for (const [l, count] of byLabel) if (count > n) ((n = count), (label = l));
+        best.set(ck, label);
+      }
+      dominant.set(player, best);
+    }
+
+    return (player) => (ck) => dominant.get(player)?.get(ck);
+  },
+);
 
 export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
-  const rows = await prisma.match.findMany({
-    where: {
-      store: f.store,
-      ...(f.event ? { eventName: f.event } : {}),
-      ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
-    },
-    select: {
-      deck: true,
-      archetype: true,
-      opponentDeck: true,
-      opponentArchetype: true,
-      result: true,
-    },
-  });
+  const [rows, resolver] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+      },
+      select: {
+        player: true,
+        deck: true,
+        archetype: true,
+        opponent: true,
+        opponentDeck: true,
+        opponentArchetype: true,
+        result: true,
+      },
+    }),
+    buildDeckResolver(f.store),
+  ]);
 
   return rows.map((r) => ({
-    deck: effectiveDeck(r.archetype, r.deck),
-    opponentDeck: effectiveDeck(r.opponentArchetype, r.opponentDeck),
+    deck: canonicalDeck(r.archetype, r.deck, resolver(r.player)),
+    opponentDeck: canonicalDeck(
+      r.opponentArchetype,
+      r.opponentDeck,
+      resolver(r.opponent),
+    ),
     result: r.result,
   }));
 }
@@ -204,19 +261,23 @@ export async function getPlayerDeckRows(opts: {
   to?: string;
   event?: string;
 }): Promise<{ deck: string; result: string }[]> {
-  const rows = await prisma.match.findMany({
-    where: {
-      store: opts.store,
-      player: opts.player,
-      ...(opts.event ? { eventName: opts.event } : {}),
-      ...(dateWhere(opts.from, opts.to)
-        ? { date: dateWhere(opts.from, opts.to) }
-        : {}),
-    },
-    select: { deck: true, archetype: true, result: true },
-  });
+  const [rows, resolver] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: opts.store,
+        player: opts.player,
+        ...(opts.event ? { eventName: opts.event } : {}),
+        ...(dateWhere(opts.from, opts.to)
+          ? { date: dateWhere(opts.from, opts.to) }
+          : {}),
+      },
+      select: { deck: true, archetype: true, result: true },
+    }),
+    buildDeckResolver(opts.store),
+  ]);
+  const resolve = resolver(opts.player);
   return rows.map((r) => ({
-    deck: effectiveDeck(r.archetype, r.deck),
+    deck: canonicalDeck(r.archetype, r.deck, resolve),
     result: r.result,
   }));
 }

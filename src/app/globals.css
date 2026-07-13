@@ -115,11 +115,6 @@ body {
   background-color: var(--cb-d);
   color: var(--cf-d);
 }
-.mx-cell .r {
-  font-size: 10px;
-  line-height: 1.1;
-  opacity: 0.8;
-}
 .mx-cell .w {
   font-size: 13px;
   font-weight: 700;
