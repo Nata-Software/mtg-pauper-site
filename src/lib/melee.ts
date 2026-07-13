@@ -3,8 +3,10 @@
  *
  * Ports the old Google Apps Script (code.gs / Dowloader.gs), but uses the
  * decklist names embedded in the match/standings responses, so no per-player
- * GetPlayerDetails calls are needed.
+ * GetPlayerDetails calls are needed. Also fetches each decklist's cards and
+ * classifies it into an archetype.
  */
+import { classifyDeck, type Card } from "./archetype";
 
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36";
@@ -21,10 +23,14 @@ export type ScrapedMatch = {
   round: number;
   player: string;
   deck: string;
+  decklistId: string | null;
+  archetype: string | null;
   playerScore: number;
   result: "win" | "loss" | "draw";
   opponent: string;
   opponentDeck: string;
+  opponentDecklistId: string | null;
+  opponentArchetype: string | null;
   opponentScore: number;
 };
 
@@ -34,6 +40,16 @@ export type ScrapedStanding = {
   points: number;
   position: number;
   deck: string;
+  decklistId: string | null;
+  archetype: string | null;
+};
+
+export type ScrapedDecklist = {
+  id: string;
+  player: string;
+  rawName: string;
+  archetype: string;
+  cards: Card[];
 };
 
 export type ScrapeResult = {
@@ -42,6 +58,7 @@ export type ScrapeResult = {
   date: Date | null;
   matches: ScrapedMatch[];
   standings: ScrapedStanding[];
+  decklists: ScrapedDecklist[];
 };
 
 const BYE_DECK = "no deck (bye)";
@@ -62,6 +79,27 @@ export function parseTournamentId(input: string): string | null {
 function deckName(decklists: unknown): string {
   const arr = decklists as { DecklistName?: string }[] | undefined;
   return lc(arr?.[0]?.DecklistName ?? "");
+}
+
+function deckId(decklists: unknown): string | null {
+  const arr = decklists as { DecklistId?: string }[] | undefined;
+  return arr?.[0]?.DecklistId ?? null;
+}
+
+/** Fetch and parse a decklist's cards from its melee page (no auth). */
+async function fetchDecklistCards(guid: string): Promise<Card[]> {
+  const res = await fetch(`https://melee.gg/Decklist/View/${guid}`, {
+    headers: { "user-agent": UA },
+  });
+  if (res.status !== 200) return [];
+  const html = await res.text();
+  const re =
+    /<span class="decklist-record-quantity">(\d+)<\/span>\s*<a class="decklist-record-name" href="\/Card\/View\/([^?"]+)[^"]*">([^<]+)<\/a>/g;
+  return [...html.matchAll(re)].map((m) => ({
+    qty: Number(m[1]),
+    slug: m[2],
+    name: m[3],
+  }));
 }
 
 function dataTablesColumns(names: string[]): URLSearchParams {
@@ -150,10 +188,14 @@ async function fetchRoundMatches(roundId: string): Promise<{
         round,
         player,
         deck: deckName(c?.Decklists),
+        decklistId: deckId(c?.Decklists),
+        archetype: null,
         playerScore: 2,
         result: "win",
         opponent: "bye",
         opponentDeck: BYE_DECK,
+        opponentDecklistId: null,
+        opponentArchetype: null,
         opponentScore: 0,
       });
       continue;
@@ -168,6 +210,8 @@ async function fetchRoundMatches(roundId: string): Promise<{
     if (!p1 || !p2) continue;
     const d1 = deckName(c1.Decklists);
     const d2 = deckName(c2.Decklists);
+    const d1Id = deckId(c1.Decklists);
+    const d2Id = deckId(c2.Decklists);
     const s1 = Number(c1.GameWins) || 0;
     const s2 = Number(c2.GameWins) || 0;
 
@@ -182,20 +226,28 @@ async function fetchRoundMatches(roundId: string): Promise<{
       round,
       player: p1,
       deck: d1,
+      decklistId: d1Id,
+      archetype: null,
       playerScore: s1,
       result: r1,
       opponent: p2,
       opponentDeck: d2,
+      opponentDecklistId: d2Id,
+      opponentArchetype: null,
       opponentScore: s2,
     });
     matches.push({
       round,
       player: p2,
       deck: d2,
+      decklistId: d2Id,
+      archetype: null,
       playerScore: s2,
       result: r2,
       opponent: p1,
       opponentDeck: d1,
+      opponentDecklistId: d1Id,
+      opponentArchetype: null,
       opponentScore: s1,
     });
   }
@@ -240,6 +292,8 @@ async function fetchStandings(lastRoundId: string): Promise<ScrapedStanding[]> {
       points: Number(rec.Points) || 0,
       position: Number(rec.Rank) || 0,
       deck: deckName(rec.Decklists),
+      decklistId: deckId(rec.Decklists),
+      archetype: null,
     });
   }
   return standings;
@@ -269,7 +323,42 @@ export async function scrapeTournament(input: string): Promise<ScrapeResult> {
   // Standings from the last round.
   const standings = await fetchStandings(roundIds[roundIds.length - 1]);
 
-  return { tournamentId, tournamentName, date, matches, standings };
+  // Fetch + classify every unique decklist referenced by the matches.
+  const idToPlayer = new Map<string, { player: string; rawName: string }>();
+  for (const m of matches) {
+    if (m.decklistId && !idToPlayer.has(m.decklistId))
+      idToPlayer.set(m.decklistId, { player: m.player, rawName: m.deck });
+  }
+  const ids = [...idToPlayer.keys()];
+
+  const decklists: ScrapedDecklist[] = [];
+  const archetypeOf = new Map<string, string>();
+  const POOL = 6;
+  for (let i = 0; i < ids.length; i += POOL) {
+    const batch = ids.slice(i, i + POOL);
+    const cardsList = await Promise.all(batch.map(fetchDecklistCards));
+    batch.forEach((id, j) => {
+      const cards = cardsList[j];
+      const info = idToPlayer.get(id)!;
+      const archetype = cards.length
+        ? classifyDeck(cards, info.rawName)
+        : `rogue: ${info.rawName || "unknown"}`;
+      archetypeOf.set(id, archetype);
+      decklists.push({ id, player: info.player, rawName: info.rawName, archetype, cards });
+    });
+  }
+
+  // Stamp the archetype onto matches (both sides) and standings.
+  for (const m of matches) {
+    if (m.decklistId) m.archetype = archetypeOf.get(m.decklistId) ?? null;
+    if (m.opponentDecklistId)
+      m.opponentArchetype = archetypeOf.get(m.opponentDecklistId) ?? null;
+  }
+  for (const s of standings) {
+    if (s.decklistId) s.archetype = archetypeOf.get(s.decklistId) ?? null;
+  }
+
+  return { tournamentId, tournamentName, date, matches, standings, decklists };
 }
 
 // --- Minimal shapes of the melee JSON we read ---

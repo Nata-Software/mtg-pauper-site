@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
       date: scraped.date,
       matches: scraped.matches,
       standings: scraped.standings,
+      decklists: scraped.decklists,
     });
 
     return NextResponse.json({

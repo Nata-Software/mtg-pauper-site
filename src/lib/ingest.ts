@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import { buildDateResolver } from "./dates";
-import type { ScrapedMatch, ScrapedStanding } from "./melee";
+import type { ScrapedDecklist, ScrapedMatch, ScrapedStanding } from "./melee";
 import { prisma } from "./prisma";
 
 export type MatchInput = {
@@ -147,14 +147,30 @@ export async function addTournamentData(opts: {
   date: Date | null;
   matches: ScrapedMatch[];
   standings: ScrapedStanding[];
-}): Promise<{ matches: number; standings: number }> {
-  const { store, event, tournamentId, tournamentName, date, matches, standings } =
+  decklists: ScrapedDecklist[];
+}): Promise<{ matches: number; standings: number; decklists: number }> {
+  const { store, event, tournamentId, tournamentName, date, matches, standings, decklists } =
     opts;
 
   await prisma.$transaction([
     prisma.match.deleteMany({ where: { store, tournamentId } }),
     prisma.standing.deleteMany({ where: { store, tournamentId } }),
+    prisma.decklist.deleteMany({ where: { tournamentId } }),
   ]);
+
+  await chunkedCreate(decklists, (chunk) =>
+    prisma.decklist.createMany({
+      data: chunk.map((d) => ({
+        id: d.id,
+        tournamentId,
+        player: d.player,
+        rawName: d.rawName,
+        archetype: d.archetype,
+        cards: d.cards,
+      })),
+      skipDuplicates: true,
+    }),
+  );
 
   await chunkedCreate(matches, (chunk) =>
     prisma.match.createMany({
@@ -165,10 +181,14 @@ export async function addTournamentData(opts: {
         round: m.round,
         player: m.player,
         deck: m.deck,
+        decklistId: m.decklistId,
+        archetype: m.archetype,
         playerScore: m.playerScore,
         result: m.result,
         opponent: m.opponent,
         opponentDeck: m.opponentDeck,
+        opponentDecklistId: m.opponentDecklistId,
+        opponentArchetype: m.opponentArchetype,
         opponentScore: m.opponentScore,
         tournamentId,
         tournamentName,
@@ -193,5 +213,9 @@ export async function addTournamentData(opts: {
     }),
   );
 
-  return { matches: matches.length, standings: standings.length };
+  return {
+    matches: matches.length,
+    standings: standings.length,
+    decklists: decklists.length,
+  };
 }
