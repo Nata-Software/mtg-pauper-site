@@ -2,9 +2,9 @@ import { winrateColor, pct } from "@/lib/colors";
 import { prettyDeck, type Matrix, type ArchetypeRow, type CellStat } from "@/lib/stats";
 import { t, type Locale } from "@/lib/i18n";
 
-type SortKey = "matches" | "winrate" | "alpha";
+export type MatrixSortKey = "matches" | "winrate" | "alpha";
 
-function sortedRows(matrix: Matrix, sort: SortKey): ArchetypeRow[] {
+function sortedRows(matrix: Matrix, sort: MatrixSortKey): ArchetypeRow[] {
   const rows = [...matrix.rows];
   if (sort === "winrate") {
     rows.sort((a, b) => (b.overall.winrate ?? -1) - (a.overall.winrate ?? -1));
@@ -12,6 +12,23 @@ function sortedRows(matrix: Matrix, sort: SortKey): ArchetypeRow[] {
     rows.sort((a, b) => a.deck.localeCompare(b.deck));
   } // "matches" is already the default order
   return rows;
+}
+
+/** Pulls the focused deck's row to the top of the list, if present. */
+function rowsWithFocus(
+  rows: ArchetypeRow[],
+  focusedDeck: string | undefined,
+): { rows: ArchetypeRow[]; focusedDeck?: string } {
+  if (!focusedDeck) return { rows };
+
+  const normalized = focusedDeck.trim().toLowerCase();
+  const focusedIndex = rows.findIndex((row) => row.deck === normalized);
+  if (focusedIndex === -1) return { rows };
+
+  const nextRows = [...rows];
+  const [focused] = nextRows.splice(focusedIndex, 1);
+
+  return { rows: [focused, ...nextRows], focusedDeck: normalized };
 }
 
 function esc(s: string): string {
@@ -22,15 +39,38 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function cellHtml(stat: CellStat | undefined): string {
+function attrEsc(s: string): string {
+  return esc(s).replace(/'/g, "&#39;");
+}
+
+function joinUrl(baseHref: string, params: URLSearchParams): string {
+  const query = params.toString();
+  if (!query) return baseHref;
+  const separator = baseHref.includes("?") ? "&" : "?";
+  return `${baseHref}${separator}${query}`;
+}
+
+function focusHref(baseHref: string, deck: string): string {
+  return joinUrl(baseHref, new URLSearchParams({ focus: deck }));
+}
+
+function cellHtml(stat: CellStat | undefined, href?: string): string {
   if (!stat || stat.matches === 0) return '<td class="mx-e"></td>';
-  const { bg, fg } = winrateColor(stat.winrate, stat.wins + stat.losses);
-  return (
-    `<td class="mx-cell" style="background-color:${bg};color:${fg}">` +
+  const { bgLight, fgLight, bgDark, fgDark } = winrateColor(
+    stat.winrate,
+    stat.wins + stat.losses,
+  );
+  // Both variants ride along as custom properties; globals.css picks the
+  // right pair via the `[data-theme="dark"]` selector (see .mx-cell).
+  const style = `--cb-l:${bgLight};--cf-l:${fgLight};--cb-d:${bgDark};--cf-d:${fgDark}`;
+  const content =
     `<div class="r">${pct(stat.ciLow)}–${pct(stat.ciHigh)}</div>` +
     `<div class="w">${pct(stat.winrate)}</div>` +
-    `<div class="m">${stat.matches.toLocaleString()}</div></td>`
-  );
+    `<div class="m">${stat.matches.toLocaleString()}</div>`;
+  const inner = href
+    ? `<a href="${attrEsc(href)}" class="mx-cell-link">${content}</a>`
+    : content;
+  return `<td class="mx-cell" style="${style}">${inner}</td>`;
 }
 
 /**
@@ -38,12 +78,24 @@ function cellHtml(stat: CellStat | undefined): string {
  * of React elements avoids serializing tens of thousands of nodes, which keeps
  * server render fast. Injected via dangerouslySetInnerHTML.
  */
-function buildTableHtml(
-  rows: ArchetypeRow[],
-  cols: string[],
-  locale: Locale,
-): string {
+function buildTableHtml({
+  rows,
+  cols,
+  focusedDeck,
+  baseHref,
+  locale,
+}: {
+  rows: ArchetypeRow[];
+  cols: string[];
+  focusedDeck?: string;
+  baseHref: string;
+  locale: Locale;
+}): string {
   const matchesSuffix = t(locale, "matrix.matchesSuffix");
+  const focusedLabel = esc(t(locale, "matrix.focused"));
+  const clickToFocus = t(locale, "matrix.clickToFocus");
+  const clickToUnfocus = t(locale, "matrix.clickToUnfocus");
+
   const head =
     "<thead><tr>" +
     `<th class="mx-corner">${esc(t(locale, "matrix.archetype"))}</th>` +
@@ -55,12 +107,27 @@ function buildTableHtml(
     "<tbody>" +
     rows
       .map((row, i) => {
-        const cells = cols.map((c) => cellHtml(row.vs[c])).join("");
+        const isFocused = focusedDeck === row.deck;
+        const rowHref = isFocused ? baseHref : focusHref(baseHref, row.deck);
+
+        const trClasses = [i % 2 ? "mx-odd" : "", isFocused ? "mx-row-focused" : ""]
+          .filter(Boolean)
+          .join(" ");
+        const rowheadClass = `mx-rowhead${isFocused ? " mx-focused" : ""}`;
+        const focusBadge = isFocused
+          ? `<span class="mx-focus-badge">${focusedLabel}</span>`
+          : "";
+
+        const cells = cols.map((c) => cellHtml(row.vs[c], rowHref)).join("");
+
         return (
-          `<tr${i % 2 ? ' class="mx-odd"' : ""}>` +
-          `<th class="mx-rowhead"><b>${esc(prettyDeck(row.deck))}</b>` +
-          `<span>${row.matches.toLocaleString()}${esc(matchesSuffix)}</span></th>` +
-          cellHtml(row.overall) +
+          `<tr${trClasses ? ` class="${trClasses}"` : ""}>` +
+          `<th class="${rowheadClass}"><a href="${attrEsc(rowHref)}" title="${attrEsc(
+            isFocused ? clickToUnfocus : clickToFocus,
+          )}">` +
+          `<b>${esc(prettyDeck(row.deck))}</b>${focusBadge}` +
+          `<span>${row.matches.toLocaleString()}${esc(matchesSuffix)}</span></a></th>` +
+          cellHtml(row.overall, rowHref) +
           cells +
           "</tr>"
         );
@@ -74,13 +141,18 @@ function buildTableHtml(
 export function MatrixTable({
   matrix,
   sort,
+  focus,
+  baseHref,
   locale,
 }: {
   matrix: Matrix;
-  sort: SortKey;
+  sort: MatrixSortKey;
+  focus?: string;
+  baseHref: string;
   locale: Locale;
 }) {
-  const rows = sortedRows(matrix, sort);
+  const sorted = sortedRows(matrix, sort);
+  const { rows, focusedDeck } = rowsWithFocus(sorted, focus);
 
   if (rows.length === 0) {
     return (
@@ -90,7 +162,13 @@ export function MatrixTable({
     );
   }
 
-  const html = buildTableHtml(rows, matrix.archetypes, locale);
+  const html = buildTableHtml({
+    rows,
+    cols: matrix.archetypes,
+    focusedDeck,
+    baseHref,
+    locale,
+  });
 
   // Sticky header row + sticky first column keep deck names visible while
   // scrolling this large grid in both directions.

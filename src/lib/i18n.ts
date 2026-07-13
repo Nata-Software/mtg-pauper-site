@@ -56,29 +56,39 @@ const dict = {
   "matrix.archetype": { en: "Archetype", "pt-BR": "Arquétipo" },
   "matrix.overall": { en: "Overall", "pt-BR": "Geral" },
   "matrix.matchesSuffix": { en: " matches", "pt-BR": " partidas" },
+  "matrix.focusHint": {
+    en: "One archetype row may be focused at a time. Click the focused row again to return to the original table order.",
+    "pt-BR":
+      "Apenas uma linha de arquétipo pode ser focada por vez. Clique na linha focada novamente para retornar à ordem original da tabela.",
+  },
+  "matrix.focused": { en: "focused", "pt-BR": "focado" },
+  "matrix.clickToFocus": { en: "Click to focus this row", "pt-BR": "Clique para focar esta linha" },
+  "matrix.clickToUnfocus": { en: "Click to remove focus", "pt-BR": "Clique para remover o foco" },
 
   "standings.title": { en: "Standings", "pt-BR": "Classificação" },
   "standings.subtitle": {
-    en: "Player performance. The yearly view ranks by matches played; the monthly views rank by points (win 3 · draw 1 · loss 0).",
+    en: "Player performance. The yearly view ranks by matches played; the monthly views rank by points (win 3 · draw 1 · loss 0). Byes are excluded from standings.",
     "pt-BR":
-      "Desempenho dos jogadores. A visão anual classifica por partidas jogadas; as visões mensais classificam por pontos (vitória 3 · empate 1 · derrota 0).",
+      "Desempenho dos jogadores. A visão anual classifica por partidas jogadas; as visões mensais classificam por pontos (vitória 3 · empate 1 · derrota 0). Byes são excluídos da classificação.",
   },
   "standings.tab.year": { en: "Whole year", "pt-BR": "Ano inteiro" },
   "standings.tab.tuesday": { en: "Tuesday", "pt-BR": "Terça-feira" },
   "standings.tab.friday": { en: "Friday", "pt-BR": "Sexta-feira" },
+  "standings.tab.tournamentData": { en: "Tournament Data", "pt-BR": "Dados do Torneio" },
   "standings.noMonthMatches": {
     en: "No {event} matches recorded yet.",
     "pt-BR": "Nenhuma partida de {event} registrada ainda.",
   },
   "standings.yearView.title": { en: "Whole year — {year}", "pt-BR": "Ano inteiro — {year}" },
   "standings.yearView.subtitle": {
-    en: "All events. Win / loss / draw rate per player (byes included), ranked by matches played. Click a name for their per-deck breakdown.",
+    en: "All events. Win / loss / draw rate per player, ranked by matches played by default. Byes are excluded. Click a name for their per-deck breakdown, or a column header to change sorting.",
     "pt-BR":
-      "Todos os eventos. Taxa de vitória/derrota/empate por jogador (byes incluídos), classificado por partidas jogadas. Clique em um nome para ver o detalhamento por deck.",
+      "Todos os eventos. Taxa de vitória/derrota/empate por jogador, classificado por partidas jogadas por padrão. Byes são excluídos. Clique em um nome para ver o detalhamento por deck, ou em um cabeçalho de coluna para mudar a ordenação.",
   },
   "standings.monthly.subtitle": {
-    en: "Ranked by points (win 3 · draw 1 · loss 0).",
-    "pt-BR": "Classificado por pontos (vitória 3 · empate 1 · derrota 0).",
+    en: "Ranked by points by default (win 3 · draw 1 · loss 0). Byes are excluded. Click a column header to change sorting.",
+    "pt-BR":
+      "Classificado por pontos por padrão (vitória 3 · empate 1 · derrota 0). Byes são excluídos. Clique em um cabeçalho de coluna para mudar a ordenação.",
   },
   "standings.older": { en: "← Older", "pt-BR": "← Mais antigo" },
   "standings.newer": { en: "Newer →", "pt-BR": "Mais recente →" },
@@ -162,6 +172,20 @@ const dict = {
   "league.noData": {
     en: "No matches for this league in the selected month.",
     "pt-BR": "Nenhuma partida dessa liga no mês selecionado.",
+  },
+
+  "nextTournaments.title": {
+    en: "Next Tournaments",
+    "pt-BR": "Próximos Torneios",
+  },
+  "nextTournaments.subtitle": {
+    en: "Upcoming tournaments happening today or later, sorted by date, time, then name.",
+    "pt-BR":
+      "Torneios futuros acontecendo hoje ou depois, ordenados por data, horário e nome.",
+  },
+  "nextTournaments.source": {
+    en: "Source: Melee organization page",
+    "pt-BR": "Fonte: página da organização no Melee",
   },
 
   "month.01": { en: "January", "pt-BR": "Janeiro" },

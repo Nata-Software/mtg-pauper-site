@@ -25,7 +25,7 @@ export function DeckBreakdownTable({
         <div>
           <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">
             {t(locale, "deck.titlePrefix")} —{" "}
-            <span className="text-emerald-600 dark:text-emerald-400">{player}</span>
+            <span className="text-violet-600 dark:text-violet-400">{player}</span>
           </h2>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             {t(locale, "deck.subtitle", {
@@ -76,7 +76,7 @@ export function DeckBreakdownTable({
                   <td className="px-3 py-1.5 text-center tabular-nums text-neutral-500 dark:text-neutral-400">
                     {r.wins}–{r.losses}–{r.draws}
                   </td>
-                  <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                  <td className="px-3 py-1.5 text-right font-semibold tabular-nums text-violet-600 dark:text-violet-400">
                     {pctP(r.winPct)}
                   </td>
                   <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
