@@ -15,7 +15,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { isBasic, colorSet, cosine, vec } from "./classify.mjs";
+import { isBasic, colorSet, cosine, vec } from "../../src/lib/archetype/classify.mjs";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const decks = JSON.parse(fs.readFileSync(path.join(DIR, "data/decklists.json")));
@@ -82,7 +82,7 @@ for (const members of Object.values(clusters)) {
 }
 
 const model = { version: 1, trainedDecks: N, idf: idfMap, archetypes };
-fs.writeFileSync(path.join(DIR, "archetype-model.json"), JSON.stringify(model));
+fs.writeFileSync(path.join(DIR, "../../src/lib/archetype/model.json"), JSON.stringify(model));
 console.log(
   `model written: ${archetypes.length} archetype centroids, ${Object.keys(idfMap).length} cards, trained on ${N} decklists`,
 );

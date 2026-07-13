@@ -8,10 +8,10 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { classifyDeck } from "./classify.mjs";
+import { classifyDeck } from "../../src/lib/archetype/classify.mjs";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const model = JSON.parse(fs.readFileSync(path.join(DIR, "archetype-model.json")));
+const model = JSON.parse(fs.readFileSync(path.join(DIR, "../../src/lib/archetype/model.json")));
 const decks = JSON.parse(fs.readFileSync(path.join(DIR, "data/decklists.json")));
 const matches = JSON.parse(fs.readFileSync(path.join(DIR, "data/matches.json")));
 

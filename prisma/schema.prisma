@@ -27,11 +27,32 @@ model Match {
   opponentScore  Int
   tournamentId   String? // melee tournament id (null for CSV-imported history)
   tournamentName String?
+  // Card-based archetype (denormalized from Decklist for simple queries).
+  // Null for legacy CSV data with no decklist -> views fall back to `deck`.
+  decklistId         String?
+  opponentDecklistId String?
+  archetype          String?
+  opponentArchetype  String?
   createdAt      DateTime @default(now())
 
   @@index([store, deck, opponentDeck])
   @@index([store, date])
   @@index([store, tournamentId])
+  @@index([store, archetype, opponentArchetype])
+}
+
+// One scraped decklist with its actual cards. The cards are the source of
+// truth: re-classifying (changing the rules) re-runs over these, no re-scrape.
+model Decklist {
+  id           String   @id // melee DecklistId (GUID)
+  tournamentId String?
+  player       String
+  rawName      String // player-typed deck name
+  archetype    String // card-based classification
+  cards        Json // [{ qty, slug, name }]
+  createdAt    DateTime @default(now())
+
+  @@index([tournamentId])
 }
 
 // Fixed-window rate limiting for admin endpoints, keyed by "action:ip".
