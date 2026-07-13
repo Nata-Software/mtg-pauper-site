@@ -11,6 +11,10 @@ const dict = {
   "nav.matchups": { en: "Matchups", "pt-BR": "Confrontos" },
   "nav.standings": { en: "Standings", "pt-BR": "Classificação" },
   "nav.league": { en: "League", "pt-BR": "Liga" },
+  "nav.nextTournaments": {
+    en: "Next Tournaments",
+    "pt-BR": "Próximos Torneios",
+  },
   "nav.upload": { en: "Upload", "pt-BR": "Importar" },
 
   "matchups.title": {
@@ -18,9 +22,9 @@ const dict = {
     "pt-BR": "Taxas de Vitória dos Principais Arquétipos de MTG Pauper",
   },
   "matchups.subtitle": {
-    en: 'Winrate against the most present archetypes (at least {minPct}% of the matches){eventClause} between {range} — {count} archetypes. Draws are excluded from winrate.',
+    en: "Winrate against the most present archetypes (at least {minPct}% of the matches){eventClause} between {range} — {count} archetypes. Draws are excluded from winrate.",
     "pt-BR":
-      'Taxa de vitória contra os arquétipos mais presentes (pelo menos {minPct}% das partidas){eventClause} entre {range} — {count} arquétipos. Empates são excluídos da taxa de vitória.',
+      "Taxa de vitória contra os arquétipos mais presentes (pelo menos {minPct}% das partidas){eventClause} entre {range} — {count} arquétipos. Empates são excluídos da taxa de vitória.",
   },
   "matchups.inEvent": { en: ' in "{event}"', "pt-BR": ' em "{event}"' },
   "matchups.noDataBefore": {
@@ -35,15 +39,25 @@ const dict = {
   "matchups.rangeNow": { en: "now", "pt-BR": "agora" },
   "matchups.rangeTo": { en: "to", "pt-BR": "até" },
   "matchups.allTime": { en: "all time", "pt-BR": "todo o período" },
+  "matchups.playerHint": {
+    en: 'Filtered to matches played by "{player}". Rows are decks used by that player; columns are decks faced with each row deck.',
+    "pt-BR":
+      'Filtrado para partidas jogadas por "{player}". As linhas são decks usados por esse jogador; as colunas são decks enfrentados com cada deck da linha.',
+  },
 
   "filter.store": { en: "Store", "pt-BR": "Loja" },
   "filter.event": { en: "Event", "pt-BR": "Evento" },
   "filter.allEvents": { en: "All events", "pt-BR": "Todos os eventos" },
+  "filter.player": { en: "Player", "pt-BR": "Jogador" },
+  "filter.allPlayers": { en: "All players", "pt-BR": "Todos os jogadores" },
   "filter.from": { en: "From", "pt-BR": "De" },
   "filter.to": { en: "To", "pt-BR": "Até" },
   "filter.minPct": { en: "Min % of matches", "pt-BR": "Mín. % das partidas" },
   "filter.sortBy": { en: "Sort by", "pt-BR": "Ordenar por" },
-  "filter.sort.matches": { en: "Number of matches", "pt-BR": "Número de partidas" },
+  "filter.sort.matches": {
+    en: "Number of matches",
+    "pt-BR": "Número de partidas",
+  },
   "filter.sort.winrate": { en: "Winrate", "pt-BR": "Taxa de vitória" },
   "filter.sort.alpha": { en: "Alphabetical", "pt-BR": "Alfabético" },
   "filter.apply": { en: "Apply", "pt-BR": "Aplicar" },
@@ -62,8 +76,14 @@ const dict = {
       "Apenas uma linha de arquétipo pode ser focada por vez. Clique na linha focada novamente para retornar à ordem original da tabela.",
   },
   "matrix.focused": { en: "focused", "pt-BR": "focado" },
-  "matrix.clickToFocus": { en: "Click to focus this row", "pt-BR": "Clique para focar esta linha" },
-  "matrix.clickToUnfocus": { en: "Click to remove focus", "pt-BR": "Clique para remover o foco" },
+  "matrix.clickToFocus": {
+    en: "Click to focus this row",
+    "pt-BR": "Clique para focar esta linha",
+  },
+  "matrix.clickToUnfocus": {
+    en: "Click to remove focus",
+    "pt-BR": "Clique para remover o foco",
+  },
 
   "standings.title": { en: "Standings", "pt-BR": "Classificação" },
   "standings.subtitle": {
@@ -74,12 +94,18 @@ const dict = {
   "standings.tab.year": { en: "Whole year", "pt-BR": "Ano inteiro" },
   "standings.tab.tuesday": { en: "Tuesday", "pt-BR": "Terça-feira" },
   "standings.tab.friday": { en: "Friday", "pt-BR": "Sexta-feira" },
-  "standings.tab.tournamentData": { en: "Tournament Data", "pt-BR": "Dados do Torneio" },
+  "standings.tab.tournamentData": {
+    en: "Tournament Data",
+    "pt-BR": "Dados do Torneio",
+  },
   "standings.noMonthMatches": {
     en: "No {event} matches recorded yet.",
     "pt-BR": "Nenhuma partida de {event} registrada ainda.",
   },
-  "standings.yearView.title": { en: "Whole year — {year}", "pt-BR": "Ano inteiro — {year}" },
+  "standings.yearView.title": {
+    en: "Whole year — {year}",
+    "pt-BR": "Ano inteiro — {year}",
+  },
   "standings.yearView.subtitle": {
     en: "All events. Win / loss / draw rate per player, ranked by matches played by default. Byes are excluded. Click a name for their per-deck breakdown, or a column header to change sorting.",
     "pt-BR":
@@ -114,7 +140,10 @@ const dict = {
     "pt-BR": "Mostrando os {shown} melhores de {total} jogadores",
   },
 
-  "deck.titlePrefix": { en: "Win rate by deck", "pt-BR": "Taxa de vitória por deck" },
+  "deck.titlePrefix": {
+    en: "Win rate by deck",
+    "pt-BR": "Taxa de vitória por deck",
+  },
   "deck.subtitle": {
     en: "{total} matches across {count} {deckWord}. Byes included.",
     "pt-BR": "{total} partidas em {count} {deckWord}. Byes incluídos.",
@@ -128,7 +157,10 @@ const dict = {
   },
 
   "upload.title": { en: "Import data", "pt-BR": "Importar dados" },
-  "upload.meleeHeading": { en: "Import a melee tournament", "pt-BR": "Importar um torneio do melee" },
+  "upload.meleeHeading": {
+    en: "Import a melee tournament",
+    "pt-BR": "Importar um torneio do melee",
+  },
   "upload.meleeDesc": {
     en: "Paste a melee.gg tournament URL, choose which league it belongs to, and it's scraped and added automatically. Re-importing the same tournament just refreshes it.",
     "pt-BR":
@@ -146,7 +178,8 @@ const dict = {
   "upload.importing": { en: "Importing…", "pt-BR": "Importando…" },
   "upload.bulkSummary": {
     en: "Bulk CSV upload (Ranking + Rounds tabs) — replaces all data",
-    "pt-BR": "Upload de CSV em lote (abas Ranking + Rounds) — substitui todos os dados",
+    "pt-BR":
+      "Upload de CSV em lote (abas Ranking + Rounds) — substitui todos os dados",
   },
   "upload.storeLabel": { en: "Store", "pt-BR": "Loja" },
   "upload.roundsCsvLabel": { en: "Rounds CSV", "pt-BR": "CSV de Rounds" },
@@ -158,7 +191,10 @@ const dict = {
   "upload.matchRows": { en: "match rows", "pt-BR": "linhas de partidas" },
   "upload.standingsRows": { en: "standings", "pt-BR": "classificações" },
   "upload.viewMatchups": { en: "View matchups →", "pt-BR": "Ver confrontos →" },
-  "upload.uploadedIntoStore": { en: "Uploaded into store", "pt-BR": "Enviado para a loja" },
+  "upload.uploadedIntoStore": {
+    en: "Uploaded into store",
+    "pt-BR": "Enviado para a loja",
+  },
   "upload.error": { en: "Error", "pt-BR": "Erro" },
 
   "league.title": { en: "League", "pt-BR": "Liga" },
@@ -210,10 +246,12 @@ export function t(
   vars?: Record<string, string | number>,
 ): string {
   let str: string = dict[key][locale];
+
   if (vars) {
     for (const [k, v] of Object.entries(vars)) {
       str = str.replaceAll(`{${k}}`, String(v));
     }
   }
+
   return str;
 }
