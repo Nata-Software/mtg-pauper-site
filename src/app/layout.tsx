@@ -65,10 +65,6 @@ export default function RootLayout({
               >
                 <Bilingual en="Next Tournaments" pt="Próximos Torneios" />
               </Link>
-
-              <Link href="/admin/upload" className="hover:text-neutral-950 dark:hover:text-white">
-                <Bilingual en="Upload" pt="Importar" />
-              </Link>
             </div>
             <div className="ml-auto flex items-center gap-2">
               <LocaleToggle />

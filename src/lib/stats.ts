@@ -38,7 +38,7 @@ export type Matrix = {
 
 const BYE_DECKS = new Set(["no deck (bye)", "bye", ""]);
 
-function isByeDeck(deck: string): boolean {
+export function isByeDeck(deck: string): boolean {
   return BYE_DECKS.has(deck.trim().toLowerCase());
 }
 

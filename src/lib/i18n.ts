@@ -10,6 +10,7 @@ export function parseLocale(value: string | undefined | null): Locale {
 const dict = {
   "nav.matchups": { en: "Matchups", "pt-BR": "Confrontos" },
   "nav.standings": { en: "Standings", "pt-BR": "Classificação" },
+  "nav.metagame": { en: "Metagame", "pt-BR": "Metagame" },
   "nav.league": { en: "League", "pt-BR": "Liga" },
   "nav.upload": { en: "Upload", "pt-BR": "Importar" },
 
@@ -187,6 +188,42 @@ const dict = {
     en: "Source: Melee organization page",
     "pt-BR": "Fonte: página da organização no Melee",
   },
+
+  "metagame.title": { en: "Metagame", "pt-BR": "Metagame" },
+  "metagame.subtitle": {
+    en: "Deck breakdown of the field for the selected period. Click a deck to see its games.",
+    "pt-BR":
+      "Distribuição de decks do metagame no período selecionado. Clique em um deck para ver as partidas.",
+  },
+  "metagame.range.1m": { en: "Last month", "pt-BR": "Último mês" },
+  "metagame.range.6m": { en: "Last 6 months", "pt-BR": "Últimos 6 meses" },
+  "metagame.range.1y": { en: "Last year", "pt-BR": "Último ano" },
+  "metagame.entrants": {
+    en: "{count} {playerWord}",
+    "pt-BR": "{count} {playerWord}",
+  },
+  "metagame.entrants.singular": { en: "player", "pt-BR": "jogador" },
+  "metagame.entrants.plural": { en: "players", "pt-BR": "jogadores" },
+  "metagame.share": { en: "{pct}% of the field", "pt-BR": "{pct}% do metagame" },
+  "metagame.noData": {
+    en: "No decks recorded for this period yet.",
+    "pt-BR": "Nenhum deck registrado para este período ainda.",
+  },
+  "metagame.matchLog.title": { en: "Games — {deck}", "pt-BR": "Partidas — {deck}" },
+  "metagame.matchLog.back": { en: "← Back to metagame", "pt-BR": "← Voltar ao metagame" },
+  "metagame.matchLog.empty": {
+    en: "No games for this deck in this period.",
+    "pt-BR": "Nenhuma partida deste deck neste período.",
+  },
+  "metagame.col.date": { en: "Date", "pt-BR": "Data" },
+  "metagame.col.tournament": { en: "Tournament", "pt-BR": "Torneio" },
+  "metagame.col.player": { en: "Player", "pt-BR": "Jogador" },
+  "metagame.col.opponent": { en: "Opponent", "pt-BR": "Oponente" },
+  "metagame.col.opponentDeck": { en: "Opponent Deck", "pt-BR": "Deck do Oponente" },
+  "metagame.col.result": { en: "Result", "pt-BR": "Resultado" },
+  "metagame.result.win": { en: "Win", "pt-BR": "Vitória" },
+  "metagame.result.loss": { en: "Loss", "pt-BR": "Derrota" },
+  "metagame.result.draw": { en: "Draw", "pt-BR": "Empate" },
 
   "month.01": { en: "January", "pt-BR": "Janeiro" },
   "month.02": { en: "February", "pt-BR": "Fevereiro" },

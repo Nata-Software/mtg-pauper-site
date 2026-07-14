@@ -167,3 +167,13 @@ export function toISODate(d: Date | null | undefined): string {
 
   return d.toISOString().slice(0, 10);
 }
+
+/** yyyy-mm-dd for `months` months before `from` (UTC), for range presets. */
+export function monthsAgoISO(months: number, from: Date = new Date()): string {
+  const d = new Date(
+    Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()),
+  );
+  d.setUTCMonth(d.getUTCMonth() - months);
+
+  return toISODate(d);
+}

@@ -115,6 +115,14 @@ body {
   background-color: var(--cb-d);
   color: var(--cf-d);
 }
+.meta-badge {
+  background-color: var(--cb-l);
+  color: var(--cf-l);
+}
+[data-theme="dark"] .meta-badge {
+  background-color: var(--cb-d);
+  color: var(--cf-d);
+}
 .mx-cell .w {
   font-size: 13px;
   font-weight: 700;
