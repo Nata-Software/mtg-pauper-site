@@ -167,7 +167,7 @@ export default async function StandingsPage({
           locale={locale}
         />
       ) : view === "tournament-data" ? (
-        <TournamentDataView store={store} />
+        <TournamentDataView store={store} locale={locale} />
       ) : (
         <MonthlyView
           store={store}
@@ -356,8 +356,14 @@ async function MonthlyView({
   );
 }
 
-async function TournamentDataView({ store }: { store: string }) {
+async function TournamentDataView({
+  store,
+  locale,
+}: {
+  store: string;
+  locale: Locale;
+}) {
   const data = await getTournamentData(store);
 
-  return <TournamentDataTab data={data} />;
+  return <TournamentDataTab data={data} locale={locale} />;
 }

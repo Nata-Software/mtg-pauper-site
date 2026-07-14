@@ -113,7 +113,12 @@ const buildDeckResolver = cache(
       for (const [ck, byLabel] of byColor) {
         let label = "";
         let n = -1;
-        for (const [l, count] of byLabel) if (count > n) ((n = count), (label = l));
+        for (const [l, count] of byLabel) {
+          if (count > n) {
+            n = count;
+            label = l;
+          }
+        }
         best.set(ck, label);
       }
       dominant.set(player, best);
