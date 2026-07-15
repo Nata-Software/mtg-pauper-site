@@ -213,12 +213,23 @@ export function MatrixTable({
     locale,
   });
 
+  const drawNote =
+  locale === "pt-BR"
+    ? "A winrate da matriz ignora empates. A contagem de partidas inclui empates."
+    : "Matrix winrate excludes draws. Match count includes draws.";
+
   return (
-    <div className="matrix-scroll overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-      <table
-        className="mx min-w-full"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+    <div className="space-y-2">
+      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        {drawNote}
+      </p>
+
+      <div className="matrix-scroll overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+        <table
+          className="mx min-w-full"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     </div>
   );
 }
