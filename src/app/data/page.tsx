@@ -237,7 +237,10 @@ export default async function DataPage({
                 from: tab.view === "tournament-data" ? undefined : from,
                 to: tab.view === "tournament-data" ? undefined : to,
                 event: tab.view === "tournament-data" ? undefined : event,
-                player: tab.view === "single-player" ? player : undefined,
+                player:
+                  tab.view === "single-player" || tab.view === "all-players"
+                    ? player
+                    : undefined,
               })}
               className={
                 active
@@ -259,13 +262,7 @@ export default async function DataPage({
         >
           <input type="hidden" name="view" value={view} />
 
-          <div
-            className={
-              view === "single-player"
-                ? "grid gap-4 md:grid-cols-2 xl:grid-cols-5"
-                : "grid gap-4 md:grid-cols-2 xl:grid-cols-4"
-            }
-          >
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <label className="flex flex-col gap-1 text-sm">
               {c.store}
               <select
@@ -317,9 +314,9 @@ export default async function DataPage({
               />
             </label>
 
-            {view === "single-player" && (
+            {(view === "single-player" || view === "all-players") && (
               <PlayerSearchInput
-                key={player || "no-player-selected"}
+                key={`${view}:${player || "no-player-selected"}`}
                 players={players}
                 selectedPlayer={player}
                 label={c.player}
@@ -364,6 +361,7 @@ export default async function DataPage({
           from={from}
           to={to}
           event={event || undefined}
+          player={player || undefined}
           c={c}
         />
       ) : (
@@ -399,12 +397,14 @@ async function AllPlayersSection({
   from,
   to,
   event,
+  player,
   c,
 }: {
   store: string;
   from: string;
   to: string;
   event?: string;
+  player?: string;
   c: ReturnType<typeof copy>;
 }) {
   const rows = await getAllPlayersData({
@@ -412,6 +412,7 @@ async function AllPlayersSection({
     from,
     to,
     event,
+    player,
   });
 
   if (rows.length === 0) {
