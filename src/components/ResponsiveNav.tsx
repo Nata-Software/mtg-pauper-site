@@ -15,11 +15,11 @@ function Bilingual({ en, pt }: { en: string; pt: string }) {
 
 const NAV_ITEMS = [
   { href: "/", en: "Matchups", pt: "Confrontos" },
-  { href: "/metagame", en: "Metagame", pt: "Metagame" },
+  // { href: "/metagame", en: "Metagame", pt: "Metagame" },
   { href: "/league", en: "League", pt: "Liga" },
   { href: "/data", en: "Data", pt: "Dados" },
   { href: "/next-tournaments", en: "Next Tournaments", pt: "Próximos Torneios" },
-  { href: "/admin/upload", en: "Upload", pt: "Upload" },
+  // { href: "/admin/upload", en: "Upload", pt: "Upload" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
