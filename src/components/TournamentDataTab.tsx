@@ -4,13 +4,13 @@ import type { Locale } from "@/lib/i18n";
 
 type Props = {
   data: TournamentData;
-  locale: Locale;
+  locale?: Locale;
 };
 
 function copy(locale: Locale) {
   if (locale === "pt-BR") {
     return {
-      title: "Dados do Torneio",
+      title: "Dados dos Torneios",
       subtitle:
         "Resumo dos torneios importados, vencedores, arquétipos, jogadores e volume de partidas.",
       uniqueTournaments: "Torneios Únicos",
@@ -91,7 +91,7 @@ const tableBodyCell =
 const tableBodyCellStrong =
   "h-12 px-4 py-0 text-sm font-semibold text-neutral-950 dark:text-white";
 
-export function TournamentDataTab({ data, locale }: Props) {
+export function TournamentDataTab({ data, locale = "en" }: Props) {
   const c = copy(locale);
 
   return (

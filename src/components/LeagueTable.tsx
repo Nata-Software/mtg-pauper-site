@@ -9,16 +9,18 @@ const MEDAL_CLS: Record<number, string> = {
 
 function PositionBadge({ position }: { position: number }) {
   const medal = MEDAL_CLS[position];
+
   if (!medal) {
     return (
-      <span className="flex h-6 w-6 items-center justify-center text-xs tabular-nums text-neutral-400 dark:text-neutral-500">
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-neutral-200 text-sm font-bold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
         {position}
       </span>
     );
   }
+
   return (
     <span
-      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold tabular-nums ${medal}`}
+      className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold ${medal}`}
     >
       {position}
     </span>
@@ -35,50 +37,46 @@ export function LeagueTable({
   locale: Locale;
 }) {
   return (
-    <section>
-      <h2 className="mb-2 text-lg font-semibold text-neutral-950 dark:text-white">{title}</h2>
+    <section className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <h2 className="text-xl font-bold text-neutral-950 dark:text-white">
+        {title}
+      </h2>
 
       {stats.length === 0 ? (
-        <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
           {t(locale, "league.noData")}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <table className="w-full border-collapse text-sm">
+        <div className="mt-4 overflow-auto">
+          <table className="min-w-full text-sm">
             <thead>
-              <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
-                <th className="w-12 px-3 py-2 text-center">#</th>
-                <th className="px-3 py-2">{t(locale, "table.player")}</th>
-                <th className="px-3 py-2 text-right">{t(locale, "table.points")}</th>
+              <tr className="border-b border-neutral-200 text-left text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+                <th className="px-2 py-2">#</th>
+                <th className="px-2 py-2">{t(locale, "table.player")}</th>
+                <th className="px-2 py-2 text-right">
+                  {t(locale, "table.points")}
+                </th>
+                <th className="px-2 py-2 text-right">Participations</th>
               </tr>
             </thead>
-            <tbody>
+
+            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
               {stats.map((s, i) => {
                 const position = i + 1;
-                const isTop3 = position <= 3;
+
                 return (
-                  <tr
-                    key={s.player}
-                    className={
-                      isTop3
-                        ? "border-t border-neutral-200 bg-amber-50/60 dark:border-neutral-800/60 dark:bg-amber-950/10"
-                        : "border-t border-neutral-200 odd:bg-neutral-50 dark:border-neutral-800/60 dark:odd:bg-neutral-900/30"
-                    }
-                  >
-                    <td className="px-3 py-1.5">
+                  <tr key={s.player}>
+                    <td className="px-2 py-3">
                       <PositionBadge position={position} />
                     </td>
-                    <td
-                      className={
-                        isTop3
-                          ? "px-3 py-1.5 font-semibold"
-                          : "px-3 py-1.5 font-medium"
-                      }
-                    >
+                    <td className="px-2 py-3 font-semibold text-neutral-950 dark:text-white">
                       {s.player}
                     </td>
-                    <td className="px-3 py-1.5 text-right font-bold tabular-nums text-violet-600 dark:text-violet-400">
+                    <td className="px-2 py-3 text-right font-bold">
                       {s.points}
+                    </td>
+                    <td className="px-2 py-3 text-right">
+                      {s.participations.toLocaleString()}
                     </td>
                   </tr>
                 );
