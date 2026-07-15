@@ -232,15 +232,7 @@ export default async function DataPage({
             <Link
               key={tab.view}
               href={makeHref({
-                store,
                 view: tab.view,
-                from: tab.view === "tournament-data" ? undefined : from,
-                to: tab.view === "tournament-data" ? undefined : to,
-                event: tab.view === "tournament-data" ? undefined : event,
-                player:
-                  tab.view === "single-player" || tab.view === "all-players"
-                    ? player
-                    : undefined,
               })}
               className={
                 active
@@ -452,8 +444,20 @@ async function AllPlayersSection({
         <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
           {rows.map((row) => (
             <tr key={row.player}>
-              <td className="h-12 px-4 py-0 text-sm font-semibold text-neutral-950 dark:text-white">
-                {row.player}
+              <td className="h-12 px-4 py-0 text-sm font-semibold">
+                <Link
+                  href={makeHref({
+                    store,
+                    view: "single-player",
+                    from,
+                    to,
+                    event,
+                    player: row.player,
+                  })}
+                  className="text-violet-600 hover:underline dark:text-violet-400"
+                >
+                  {row.player}
+                </Link>
               </td>
               <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
                 {row.matches.toLocaleString()}

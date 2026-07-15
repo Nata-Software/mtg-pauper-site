@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type KeyboardEvent, useMemo, useState } from "react";
 
 function normalize(value: string): string {
   return value.trim().toLowerCase();
@@ -53,6 +53,20 @@ export function PlayerSearchInput({
     }
   }
 
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter") return;
+
+    if (showResults) {
+      event.preventDefault();
+
+      const firstResult = results[0];
+
+      if (firstResult) {
+        choosePlayer(firstResult);
+      }
+    }
+  }
+
   return (
     <label className="relative flex flex-col gap-1 text-sm">
       {label}
@@ -64,6 +78,7 @@ export function PlayerSearchInput({
         value={query}
         onChange={(event) => updateQuery(event.target.value)}
         onFocus={() => setOpen(true)}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoComplete="off"
         className="rounded-md border border-neutral-300 bg-white px-2 py-2 dark:border-neutral-700 dark:bg-neutral-950"
