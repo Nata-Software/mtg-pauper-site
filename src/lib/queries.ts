@@ -1,8 +1,13 @@
 import { cache } from "react";
+
 import { prisma } from "./prisma";
 import { toISODate } from "./dates";
-import type { MatchRow } from "./stats";
-import { isByeDeck } from "./stats";
+import {
+  computeMatrix,
+  isByeDeck,
+  type MatchRow,
+  type Matrix,
+} from "./stats";
 import type { Card } from "./archetype";
 import {
   canonicalDeck,
@@ -12,23 +17,24 @@ import {
   SYNONYMS,
 } from "./archetype/normalize.mjs";
 
+const LOW_SAMPLE_MATCHES = 10;
+
 export type Filters = {
   store: string;
-  from?: string; // yyyy-mm-dd
-  to?: string; // yyyy-mm-dd
+  from?: string;
+  to?: string;
   event?: string;
 };
 
 function dateWhere(from?: string, to?: string) {
   const date: { gte?: Date; lte?: Date } = {};
 
-  if (from) date.gte = new Date(from + "T00:00:00.000Z");
-  if (to) date.lte = new Date(to + "T23:59:59.999Z");
+  if (from) date.gte = new Date(`${from}T00:00:00.000Z`);
+  if (to) date.lte = new Date(`${to}T23:59:59.999Z`);
 
   return Object.keys(date).length ? date : undefined;
 }
 
-/** Distinct stores that have any data. */
 export async function listStores(): Promise<string[]> {
   const [m, s] = await Promise.all([
     prisma.match.findMany({
@@ -46,7 +52,6 @@ export async function listStores(): Promise<string[]> {
   return [...set].sort();
 }
 
-/** Distinct event names for a store. */
 export async function listEvents(store: string): Promise<string[]> {
   const rows = await prisma.match.findMany({
     where: { store },
@@ -54,10 +59,12 @@ export async function listEvents(store: string): Promise<string[]> {
     select: { eventName: true },
   });
 
-  return rows.map((r) => r.eventName).filter(Boolean).sort();
+  return rows
+    .map((r) => r.eventName)
+    .filter(Boolean)
+    .sort();
 }
 
-/** Min/max match dates for a store (for default filter bounds). */
 export async function dateBounds(
   store: string,
 ): Promise<{ min: string; max: string }> {
@@ -77,50 +84,65 @@ export async function dateBounds(
   return { min: toISODate(min?.date), max: toISODate(max?.date) };
 }
 
-/**
- * A per-player resolver for folding bare color-only typed names (e.g. "mono
- * red", "azorius") into that player's dominant same-color card-classified
- * archetype. Built once per request from all classified matches in the store.
- * Returns `(player) => (colorKey) => dominantLabel | undefined`.
- */
 const buildDeckResolver = cache(
-  async (store: string): Promise<(player: string) => (ck: string) => string | undefined> => {
+  async (
+    store: string,
+  ): Promise<(player: string) => (ck: string) => string | undefined> => {
     const rows = await prisma.match.findMany({
       where: { store, archetype: { not: null } },
       select: { player: true, archetype: true },
     });
 
-    // player -> colorKey -> canonicalLabel -> count
     const counts = new Map<string, Map<string, Map<string, number>>>();
+
     for (const r of rows) {
       const a = r.archetype;
+
       if (!a) continue;
+
       const c = clean(a);
       const ck = colorKey(c);
+
       if (!ck) continue;
+
       const label = display(SYNONYMS[c] ?? c);
+
       let byColor = counts.get(r.player);
-      if (!byColor) counts.set(r.player, (byColor = new Map()));
+
+      if (!byColor) {
+        byColor = new Map<string, Map<string, number>>();
+        counts.set(r.player, byColor);
+      }
+
       let byLabel = byColor.get(ck);
-      if (!byLabel) byColor.set(ck, (byLabel = new Map()));
+
+      if (!byLabel) {
+        byLabel = new Map<string, number>();
+        byColor.set(ck, byLabel);
+      }
+
       byLabel.set(label, (byLabel.get(label) ?? 0) + 1);
     }
 
-    // Reduce to the single dominant label per (player, colorKey).
     const dominant = new Map<string, Map<string, string>>();
+
     for (const [player, byColor] of counts) {
       const best = new Map<string, string>();
+
       for (const [ck, byLabel] of byColor) {
         let label = "";
         let n = -1;
+
         for (const [l, count] of byLabel) {
           if (count > n) {
             n = count;
             label = l;
           }
         }
+
         best.set(ck, label);
       }
+
       dominant.set(player, best);
     }
 
@@ -129,12 +151,14 @@ const buildDeckResolver = cache(
 );
 
 export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
+  const date = dateWhere(f.from, f.to);
+
   const [rows, resolver] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
         ...(f.event ? { eventName: f.event } : {}),
-        ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+        ...(date ? { date } : {}),
       },
       select: {
         player: true,
@@ -171,11 +195,13 @@ export type StandingRow = {
 };
 
 export async function getStandings(f: Filters): Promise<StandingRow[]> {
+  const date = dateWhere(f.from, f.to);
+
   return prisma.standing.findMany({
     where: {
       store: f.store,
       ...(f.event ? { eventName: f.event } : {}),
-      ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+      ...(date ? { date } : {}),
     },
     orderBy: [{ date: "desc" }, { position: "asc" }],
     select: {
@@ -196,23 +222,36 @@ export type PlayerMatchRow = {
   result: string;
   opponent: string;
   opponentDeck: string;
+  participationKey?: string;
 };
 
-/** Rows for per-player win/loss/draw analysis in a scope. */
 export async function getPlayerRows(f: Filters): Promise<PlayerMatchRow[]> {
-  return prisma.match.findMany({
+  const date = dateWhere(f.from, f.to);
+
+  const rows = await prisma.match.findMany({
     where: {
       store: f.store,
       ...(f.event ? { eventName: f.event } : {}),
-      ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+      ...(date ? { date } : {}),
     },
     select: {
       player: true,
       result: true,
       opponent: true,
       opponentDeck: true,
+      tournamentId: true,
+      eventName: true,
+      date: true,
     },
   });
+
+  return rows.map((row) => ({
+    player: row.player,
+    result: row.result,
+    opponent: row.opponent,
+    opponentDeck: row.opponentDeck,
+    participationKey: tournamentKey(row),
+  }));
 }
 
 function ym(d: Date): string {
@@ -222,7 +261,6 @@ function ym(d: Date): string {
   )}`;
 }
 
-/** Distinct "YYYY-MM" months that have matches for an event, newest first. */
 export async function listMonths(
   store: string,
   event: string,
@@ -242,7 +280,6 @@ export async function listMonths(
   return [...set].sort().reverse();
 }
 
-/** from/to ISO bounds + label for a "YYYY-MM" month string. */
 export function monthRange(yyyymm: string): {
   from: string;
   to: string;
@@ -260,7 +297,6 @@ export function monthRange(yyyymm: string): {
   return { from: toISODate(from), to: toISODate(to), label };
 }
 
-/** One player's matches (deck they piloted + result) in a scope. */
 export async function getPlayerDeckRows(opts: {
   store: string;
   player: string;
@@ -268,28 +304,29 @@ export async function getPlayerDeckRows(opts: {
   to?: string;
   event?: string;
 }): Promise<{ deck: string; result: string }[]> {
+  const date = dateWhere(opts.from, opts.to);
+
   const [rows, resolver] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: opts.store,
         player: opts.player,
         ...(opts.event ? { eventName: opts.event } : {}),
-        ...(dateWhere(opts.from, opts.to)
-          ? { date: dateWhere(opts.from, opts.to) }
-          : {}),
+        ...(date ? { date } : {}),
       },
       select: { deck: true, archetype: true, result: true },
     }),
     buildDeckResolver(opts.store),
   ]);
+
   const resolve = resolver(opts.player);
+
   return rows.map((r) => ({
     deck: canonicalDeck(r.archetype, r.deck, resolve),
     result: r.result,
   }));
 }
 
-/** The calendar month (from/to + label) of the most recent match with a date. */
 export async function latestDataMonth(
   store: string,
 ): Promise<{ from: string; to: string; label: string } | null> {
@@ -302,7 +339,7 @@ export async function latestDataMonth(
   if (!max?.date) return null;
 
   const y = max.date.getUTCFullYear();
-  const m = max.date.getUTCMonth(); // 0-based
+  const m = max.date.getUTCMonth();
   const from = new Date(Date.UTC(y, m, 1));
   const to = new Date(Date.UTC(y, m + 1, 0));
   const label = from.toLocaleDateString("en-US", {
@@ -347,10 +384,21 @@ function normalizeName(value: string | null | undefined): string {
   return String(value ?? "").trim().toLowerCase();
 }
 
+function displayName(value: string | null | undefined): string {
+  return String(value ?? "").trim();
+}
+
 function isRealArchetype(value: string | null | undefined): boolean {
   const deck = normalizeName(value);
 
   return deck !== "" && deck !== "bye" && deck !== "no deck (bye)";
+}
+
+function isByeMatch(row: {
+  opponent: string | null | undefined;
+  opponentDeck: string | null | undefined;
+}): boolean {
+  return normalizeName(row.opponent) === "bye" || isByeDeck(row.opponentDeck ?? "");
 }
 
 function tournamentKey(row: {
@@ -391,12 +439,6 @@ function increment(map: Map<string, number>, key: string): void {
   map.set(key, (map.get(key) ?? 0) + 1);
 }
 
-/**
- * Aggregated tournament-level dashboard data.
- *
- * Melee imports are grouped by tournamentId.
- * CSV history has no tournamentId, so it is grouped by event + date.
- */
 export async function getTournamentData(store: string): Promise<TournamentData> {
   const [standings, matches] = await Promise.all([
     prisma.standing.findMany({
@@ -474,10 +516,7 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
 
     if (player) group.players.add(player);
 
-    if (
-      player &&
-      (!group.winner || row.position < group.winner.position)
-    ) {
+    if (player && (!group.winner || row.position < group.winner.position)) {
       group.winner = {
         position: row.position,
         player,
@@ -521,8 +560,7 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
     if (!group.winner) continue;
 
     const matchGroup = matchGroups.get(key);
-    const playerCount =
-      group.players.size || matchGroup?.players.size || 0;
+    const playerCount = group.players.size || matchGroup?.players.size || 0;
 
     tournamentWins.push({
       tournamentKey: key,
@@ -542,6 +580,7 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
 
   tournamentWins.sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date);
+
     return a.tournamentName.localeCompare(b.tournamentName);
   });
 
@@ -567,13 +606,13 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
 
 export type MetagameDeckRow = {
   deck: string;
-  entrants: number; // unique (tournament, player) entries piloting this deck
-  sharePct: number; // entrants / total entrants in scope, 0-100
-  matches: number; // total match rows (rounds) for this deck in scope
+  entrants: number;
+  sharePct: number;
+  matches: number;
   wins: number;
   losses: number;
   draws: number;
-  winrate: number | null; // wins / (wins + losses), ignores draws
+  winrate: number | null;
   representativeCardName: string | null;
 };
 
@@ -585,19 +624,17 @@ const BASIC_LAND_NAMES = new Set([
   "forest",
 ]);
 
-/**
- * One row per deck present in the scope: metagame share (by distinct
- * entrants, matching how MTGGoldfish/ligalegacy count "% of the field" —
- * one per player per tournament, not one per round played), win/loss/draw
- * volume, and a representative card name for the deck tile's art.
- */
-export async function getMetagameData(f: Filters): Promise<MetagameDeckRow[]> {
+export async function getMetagameData(
+  f: Filters,
+): Promise<MetagameDeckRow[]> {
+  const date = dateWhere(f.from, f.to);
+
   const [rows, resolver] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
         ...(f.event ? { eventName: f.event } : {}),
-        ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+        ...(date ? { date } : {}),
       },
       select: {
         player: true,
@@ -613,61 +650,90 @@ export async function getMetagameData(f: Filters): Promise<MetagameDeckRow[]> {
     buildDeckResolver(f.store),
   ]);
 
-  type Tally = { wins: number; losses: number; draws: number; matches: number };
+  type Tally = {
+    wins: number;
+    losses: number;
+    draws: number;
+    matches: number;
+  };
+
   const tally = new Map<string, Tally>();
-  const entrants = new Map<string, { count: number; decklistIds: Set<string> }>();
+  const entrants = new Map<
+    string,
+    { count: number; decklistIds: Set<string> }
+  >();
   const entrantSeen = new Set<string>();
   let totalEntrants = 0;
 
   for (const r of rows) {
     const deck = canonicalDeck(r.archetype, r.deck, resolver(r.player));
+
     if (isByeDeck(deck)) continue;
 
     let t = tally.get(deck);
-    if (!t) tally.set(deck, (t = { wins: 0, losses: 0, draws: 0, matches: 0 }));
+
+    if (!t) {
+      t = { wins: 0, losses: 0, draws: 0, matches: 0 };
+      tally.set(deck, t);
+    }
+
     t.matches++;
+
     const res = r.result.trim().toLowerCase();
+
     if (res === "win") t.wins++;
     else if (res === "loss") t.losses++;
     else t.draws++;
 
     const entrantKey = `${tournamentKey(r)}::${r.player}`;
+
     if (!entrantSeen.has(entrantKey)) {
       entrantSeen.add(entrantKey);
       totalEntrants++;
 
       let e = entrants.get(deck);
-      if (!e) entrants.set(deck, (e = { count: 0, decklistIds: new Set() }));
+
+      if (!e) {
+        e = { count: 0, decklistIds: new Set<string>() };
+        entrants.set(deck, e);
+      }
+
       e.count++;
+
       if (r.decklistId) e.decklistIds.add(r.decklistId);
     }
   }
 
-  // Representative card per deck: the nonland card appearing in the most
-  // distinct decklists for that deck (each decklist votes once per card).
   const allDecklistIds = [
     ...new Set([...entrants.values()].flatMap((e) => [...e.decklistIds])),
   ];
+
   const decklists = allDecklistIds.length
     ? await prisma.decklist.findMany({
         where: { id: { in: allDecklistIds } },
         select: { id: true, cards: true },
       })
     : [];
+
   const cardsById = new Map(
     decklists.map((d) => [d.id, d.cards as unknown as Card[]]),
   );
 
   const representativeCard = new Map<string, string | null>();
+
   for (const [deck, e] of entrants) {
     const freq = new Map<string, number>();
+
     for (const id of e.decklistIds) {
       const cards = cardsById.get(id) ?? [];
       const seen = new Set<string>();
+
       for (const c of cards) {
         const name = c.name?.trim();
+
         if (!name || BASIC_LAND_NAMES.has(name.toLowerCase())) continue;
-        if (seen.has(name)) continue; // one vote per decklist per card
+        if (seen.has(name)) continue;
+
         seen.add(name);
         freq.set(name, (freq.get(name) ?? 0) + 1);
       }
@@ -675,12 +741,14 @@ export async function getMetagameData(f: Filters): Promise<MetagameDeckRow[]> {
 
     let best: string | null = null;
     let bestCount = 0;
+
     for (const [name, count] of freq) {
       if (count > bestCount) {
         best = name;
         bestCount = count;
       }
     }
+
     representativeCard.set(deck, best);
   }
 
@@ -705,7 +773,7 @@ export async function getMetagameData(f: Filters): Promise<MetagameDeckRow[]> {
 }
 
 export type DeckMatchLogRow = {
-  date: string; // yyyy-mm-dd, "" if unknown
+  date: string;
   tournamentName: string;
   player: string;
   opponent: string;
@@ -714,17 +782,18 @@ export type DeckMatchLogRow = {
   round: number;
 };
 
-/** Every game played with `deck` (already a canonical label) in scope, newest first. */
 export async function getDeckMatchLog(
   f: Filters,
   deck: string,
 ): Promise<DeckMatchLogRow[]> {
+  const date = dateWhere(f.from, f.to);
+
   const [rows, resolver] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
         ...(f.event ? { eventName: f.event } : {}),
-        ...(dateWhere(f.from, f.to) ? { date: dateWhere(f.from, f.to) } : {}),
+        ...(date ? { date } : {}),
       },
       orderBy: { date: "desc" },
       select: {
@@ -761,4 +830,531 @@ export async function getDeckMatchLog(
       result: r.result,
       round: r.round,
     }));
+}
+
+export type AllPlayersDataRow = {
+  player: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number;
+  participations: number;
+  tournamentWins: number;
+};
+
+export type SinglePlayerDeckRow = {
+  deck: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number;
+  tournamentWins: number;
+  lowSample: boolean;
+};
+
+export type SinglePlayerOpponentRow = {
+  opponent: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number | null;
+  lowSample: boolean;
+};
+
+export type SinglePlayerData = {
+  player: string;
+  tournamentsEntered: number;
+  tournamentsWon: number;
+  matchesPlayed: number;
+  uniqueOpponents: number;
+  uniqueArchetypesPlayed: number;
+  total: {
+    wins: number;
+    losses: number;
+    draws: number;
+    winPct: number;
+  };
+  mostPlayedDeck: string | null;
+  mostPlayedOpponent: string | null;
+  bestOpponent: SinglePlayerOpponentRow | null;
+  worstOpponent: SinglePlayerOpponentRow | null;
+  usedLowSampleFallback: boolean;
+  decks: SinglePlayerDeckRow[];
+  opponents: SinglePlayerOpponentRow[];
+  matrix: Matrix;
+};
+
+function matchWinPct(
+  wins: number,
+  losses: number,
+  draws: number,
+): number | null {
+  const total = wins + losses + draws;
+
+  return total ? wins / total : null;
+}
+
+function resultToTally(
+  stat: { wins: number; losses: number; draws: number; matches: number },
+  result: string,
+): void {
+  const normalized = result.trim().toLowerCase();
+
+  if (normalized === "win") stat.wins++;
+  else if (normalized === "loss") stat.losses++;
+  else stat.draws++;
+
+  stat.matches++;
+}
+
+export async function listPlayersForData(f: {
+  store: string;
+  from?: string;
+  to?: string;
+  event?: string;
+}): Promise<string[]> {
+  const date = dateWhere(f.from, f.to);
+
+  const rows = await prisma.match.findMany({
+    where: {
+      store: f.store,
+      ...(f.event ? { eventName: f.event } : {}),
+      ...(date ? { date } : {}),
+    },
+    distinct: ["player"],
+    select: { player: true },
+  });
+
+  return [...new Set(rows.map((row) => row.player.trim()).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b),
+  );
+}
+
+export async function getAllPlayersData(f: {
+  store: string;
+  from?: string;
+  to?: string;
+  event?: string;
+  player?: string;
+}): Promise<AllPlayersDataRow[]> {
+  const date = dateWhere(f.from, f.to);
+
+  const [matches, standings] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(f.player ? { player: f.player } : {}),
+        ...(date ? { date } : {}),
+      },
+      select: {
+        player: true,
+        result: true,
+        opponent: true,
+        opponentDeck: true,
+        tournamentId: true,
+        eventName: true,
+        date: true,
+      },
+    }),
+    prisma.standing.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(date ? { date } : {}),
+      },
+      orderBy: [{ date: "desc" }, { position: "asc" }],
+      select: {
+        tournamentId: true,
+        eventName: true,
+        date: true,
+        nickname: true,
+        position: true,
+      },
+    }),
+  ]);
+
+  const rows = new Map<string, AllPlayersDataRow>();
+  const participationSets = new Map<string, Set<string>>();
+  const tournamentWinners = new Map<
+    string,
+    { player: string; position: number }
+  >();
+
+  for (const row of matches) {
+    if (isByeMatch(row)) {
+      continue;
+    }
+
+    const key = normalizeName(row.player);
+    const player = displayName(row.player);
+
+    if (!key || !player) continue;
+
+    let stat = rows.get(key);
+
+    if (!stat) {
+      stat = {
+        player,
+        matches: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        winPct: 0,
+        participations: 0,
+        tournamentWins: 0,
+      };
+
+      rows.set(key, stat);
+    }
+
+    resultToTally(stat, row.result);
+
+    let participations = participationSets.get(key);
+
+    if (!participations) {
+      participations = new Set<string>();
+      participationSets.set(key, participations);
+    }
+
+    participations.add(tournamentKey(row));
+  }
+
+  for (const row of standings) {
+    const key = tournamentKey(row);
+    const player = normalizeName(row.nickname);
+
+    if (!player) continue;
+
+    const existing = tournamentWinners.get(key);
+
+    if (!existing || row.position < existing.position) {
+      tournamentWinners.set(key, {
+        player,
+        position: row.position,
+      });
+    }
+  }
+
+  for (const winner of tournamentWinners.values()) {
+    const stat = rows.get(winner.player);
+
+    if (stat) {
+      stat.tournamentWins++;
+    }
+  }
+
+  for (const [key, stat] of rows.entries()) {
+    stat.participations = participationSets.get(key)?.size ?? 0;
+    stat.winPct = matchWinPct(stat.wins, stat.losses, stat.draws) ?? 0;
+  }
+
+  return [...rows.values()].sort(
+    (a, b) =>
+      b.matches - a.matches ||
+      b.winPct - a.winPct ||
+      a.player.localeCompare(b.player),
+  );
+}
+
+export async function getSinglePlayerData(f: {
+  store: string;
+  player: string;
+  from?: string;
+  to?: string;
+  event?: string;
+}): Promise<SinglePlayerData | null> {
+  const date = dateWhere(f.from, f.to);
+  const selectedPlayerKey = normalizeName(f.player);
+
+  if (!selectedPlayerKey) {
+    return null;
+  }
+
+  const [matches, standings, resolver] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: f.store,
+        player: f.player,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(date ? { date } : {}),
+      },
+      orderBy: [{ date: "desc" }, { round: "asc" }],
+      select: {
+        player: true,
+        deck: true,
+        archetype: true,
+        result: true,
+        opponent: true,
+        opponentDeck: true,
+        opponentArchetype: true,
+        tournamentId: true,
+        eventName: true,
+        date: true,
+      },
+    }),
+    prisma.standing.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(date ? { date } : {}),
+      },
+      orderBy: [{ date: "desc" }, { position: "asc" }],
+      select: {
+        tournamentId: true,
+        tournamentName: true,
+        eventName: true,
+        date: true,
+        nickname: true,
+        deck: true,
+        position: true,
+      },
+    }),
+    buildDeckResolver(f.store),
+  ]);
+
+  const filteredMatches = matches.filter((row) => !isByeMatch(row));
+
+  if (filteredMatches.length === 0) {
+    return null;
+  }
+
+  const resolvePlayerDeck = resolver(f.player);
+
+  const total = {
+    wins: 0,
+    losses: 0,
+    draws: 0,
+    matches: 0,
+  };
+
+  const tournamentEntries = new Set<string>();
+  const uniqueOpponents = new Set<string>();
+  const uniqueArchetypesPlayed = new Set<string>();
+
+  const deckMap = new Map<
+    string,
+    {
+      deck: string;
+      matches: number;
+      wins: number;
+      losses: number;
+      draws: number;
+    }
+  >();
+
+  const opponentMap = new Map<
+    string,
+    {
+      opponent: string;
+      matches: number;
+      wins: number;
+      losses: number;
+      draws: number;
+    }
+  >();
+
+  const matrixRows: MatchRow[] = [];
+
+  for (const row of filteredMatches) {
+    const deck = canonicalDeck(row.archetype, row.deck, resolvePlayerDeck);
+    const opponentDeck = canonicalDeck(
+      row.opponentArchetype,
+      row.opponentDeck,
+      resolver(row.opponent),
+    );
+
+    resultToTally(total, row.result);
+
+    tournamentEntries.add(tournamentKey(row));
+    uniqueOpponents.add(normalizeName(row.opponent));
+    uniqueArchetypesPlayed.add(deck);
+
+    let deckStat = deckMap.get(deck);
+
+    if (!deckStat) {
+      deckStat = {
+        deck,
+        matches: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+      };
+
+      deckMap.set(deck, deckStat);
+    }
+
+    resultToTally(deckStat, row.result);
+
+    const opponentKey = normalizeName(row.opponent);
+    const opponentName = displayName(row.opponent);
+
+    if (opponentKey && opponentName) {
+      let opponentStat = opponentMap.get(opponentKey);
+
+      if (!opponentStat) {
+        opponentStat = {
+          opponent: opponentName,
+          matches: 0,
+          wins: 0,
+          losses: 0,
+          draws: 0,
+        };
+
+        opponentMap.set(opponentKey, opponentStat);
+      }
+
+      resultToTally(opponentStat, row.result);
+    }
+
+    matrixRows.push({
+      deck,
+      opponentDeck,
+      result: row.result,
+    });
+  }
+
+  const tournamentWinners = new Map<
+    string,
+    {
+      player: string;
+      position: number;
+      deck: string;
+    }
+  >();
+
+  for (const row of standings) {
+    const key = tournamentKey(row);
+    const winnerKey = normalizeName(row.nickname);
+
+    if (!winnerKey) continue;
+
+    const existing = tournamentWinners.get(key);
+
+    if (!existing || row.position < existing.position) {
+      tournamentWinners.set(key, {
+        player: winnerKey,
+        position: row.position,
+        deck: canonicalDeck(null, row.deck),
+      });
+    }
+  }
+
+  let tournamentsWon = 0;
+  const deckTournamentWins = new Map<string, number>();
+
+  for (const [key, winner] of tournamentWinners.entries()) {
+    if (winner.player !== selectedPlayerKey) continue;
+
+    tournamentsWon++;
+
+    if (!tournamentEntries.has(key)) {
+      tournamentEntries.add(key);
+    }
+
+    deckTournamentWins.set(
+      winner.deck,
+      (deckTournamentWins.get(winner.deck) ?? 0) + 1,
+    );
+  }
+
+  const decks: SinglePlayerDeckRow[] = [...deckMap.values()]
+    .map((row) => {
+      const winPct = matchWinPct(row.wins, row.losses, row.draws) ?? 0;
+
+      return {
+        deck: row.deck,
+        matches: row.matches,
+        wins: row.wins,
+        losses: row.losses,
+        draws: row.draws,
+        winPct,
+        tournamentWins: deckTournamentWins.get(row.deck) ?? 0,
+        lowSample: row.matches < LOW_SAMPLE_MATCHES,
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.matches - a.matches ||
+        b.winPct - a.winPct ||
+        a.deck.localeCompare(b.deck),
+    );
+
+  const opponents: SinglePlayerOpponentRow[] = [...opponentMap.values()]
+    .map((row) => ({
+      opponent: row.opponent,
+      matches: row.matches,
+      wins: row.wins,
+      losses: row.losses,
+      draws: row.draws,
+      winPct: matchWinPct(row.wins, row.losses, row.draws),
+      lowSample: row.matches < LOW_SAMPLE_MATCHES,
+    }))
+    .sort(
+      (a, b) =>
+        b.matches - a.matches ||
+        (b.winPct ?? -1) - (a.winPct ?? -1) ||
+        a.opponent.localeCompare(b.opponent),
+    );
+
+  const eligibleOpponents = opponents.filter(
+    (row) => row.matches >= LOW_SAMPLE_MATCHES && row.winPct !== null,
+  );
+
+  const opponentPool =
+    eligibleOpponents.length > 0
+      ? eligibleOpponents
+      : opponents.filter((row) => row.winPct !== null);
+
+  const bestOpponent =
+    opponentPool.length > 0
+      ? [...opponentPool].sort(
+          (a, b) =>
+            (b.winPct ?? -1) - (a.winPct ?? -1) ||
+            b.matches - a.matches,
+        )[0]
+      : null;
+
+  const worstOpponent =
+    opponentPool.length > 0
+      ? [...opponentPool].sort(
+          (a, b) =>
+            (a.winPct ?? 2) - (b.winPct ?? 2) ||
+            b.matches - a.matches,
+        )[0]
+      : null;
+
+  const mostPlayedDeck = decks[0]?.deck ?? null;
+  const mostPlayedOpponent = opponents[0]?.opponent ?? null;
+
+  return {
+    player: f.player,
+    tournamentsEntered: tournamentEntries.size,
+    tournamentsWon,
+    matchesPlayed: total.matches,
+    uniqueOpponents: [...uniqueOpponents].filter(Boolean).length,
+    uniqueArchetypesPlayed: uniqueArchetypesPlayed.size,
+    total: {
+      wins: total.wins,
+      losses: total.losses,
+      draws: total.draws,
+      winPct: matchWinPct(total.wins, total.losses, total.draws) ?? 0,
+    },
+    mostPlayedDeck,
+    mostPlayedOpponent,
+    bestOpponent,
+    worstOpponent,
+    usedLowSampleFallback:
+      eligibleOpponents.length === 0 &&
+      opponents.some((row) => row.winPct !== null),
+    decks,
+    opponents,
+    matrix: computeMatrix(matrixRows, {
+      minPct: 0,
+      columnMode: "opponents",
+    }),
+  };
 }
