@@ -398,7 +398,13 @@ function isByeMatch(row: {
   opponent: string | null | undefined;
   opponentDeck: string | null | undefined;
 }): boolean {
-  return normalizeName(row.opponent) === "bye" || isByeDeck(row.opponentDeck ?? "");
+  // Only an actual bye (no opponent) — NOT a real match whose opponent simply
+  // forgot to register a decklist. The latter is a genuine game for this player
+  // and must count (e.g. a 4-0 vs a deckless opponent should read 4-0, not 3-0).
+  return (
+    normalizeName(row.opponent) === "bye" ||
+    normalizeName(row.opponentDeck) === "no deck (bye)"
+  );
 }
 
 function tournamentKey(row: {
