@@ -69,7 +69,9 @@ export type DeckBreakdown = {
   drawPct: number;
 };
 
-const BYE_DECKS = new Set(["no deck (bye)", "bye", ""]);
+// "unknown deck" = a player who didn't register a decklist. Kept OUT of the
+// matchup matrix (like byes), but still labeled + counted in per-deck/player views.
+const BYE_DECKS = new Set(["no deck (bye)", "bye", "", "unknown deck"]);
 
 export function isByeDeck(deck: string): boolean {
   return BYE_DECKS.has(deck.trim().toLowerCase());
