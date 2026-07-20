@@ -42,6 +42,9 @@ export type ScrapedStanding = {
   deck: string;
   decklistId: string | null;
   archetype: string | null;
+  /** W+L+D from melee's MatchRecord — how many matches this player actually
+   * played, used to detect an incomplete match scrape (see scrapeTournament). */
+  matchesExpected: number;
 };
 
 export type ScrapedDecklist = {
@@ -59,7 +62,17 @@ export type ScrapeResult = {
   matches: ScrapedMatch[];
   standings: ScrapedStanding[];
   decklists: ScrapedDecklist[];
+  /** Non-fatal integrity warnings (e.g. fewer matches scraped than the
+   * standings say a player played — usually a not-yet-finalized round). */
+  warnings: string[];
 };
+
+/** Sum a melee "W-L-D" MatchRecord string into a total match count. */
+function matchRecordTotal(record: unknown): number {
+  return String(record ?? "")
+    .split("-")
+    .reduce((sum, part) => sum + (Number(part) || 0), 0);
+}
 
 const BYE_DECK = "no deck (bye)";
 
@@ -294,6 +307,7 @@ async function fetchStandings(lastRoundId: string): Promise<ScrapedStanding[]> {
       deck: deckName(rec.Decklists),
       decklistId: deckId(rec.Decklists),
       archetype: null,
+      matchesExpected: matchRecordTotal(rec.MatchRecord),
     });
   }
   return standings;
@@ -358,7 +372,43 @@ export async function scrapeTournament(input: string): Promise<ScrapeResult> {
     if (s.decklistId) s.archetype = archetypeOf.get(s.decklistId) ?? null;
   }
 
-  return { tournamentId, tournamentName, date, matches, standings, decklists };
+  // Integrity check: the match scrape and the standings scrape come from
+  // different melee endpoints, so a not-yet-finalized round (e.g. a match held
+  // up because a player never registered a decklist) can leave the standings
+  // complete while the Match rows are short — a SILENT partial import. Compare
+  // each player's scraped match count to their standings MatchRecord (W+L+D)
+  // and warn loudly so the import isn't trusted as complete.
+  const scrapedPerPlayer = new Map<string, number>();
+  for (const m of matches) {
+    scrapedPerPlayer.set(m.player, (scrapedPerPlayer.get(m.player) ?? 0) + 1);
+  }
+  const warnings: string[] = [];
+  let missingTotal = 0;
+  for (const s of standings) {
+    const got = scrapedPerPlayer.get(s.nickname) ?? 0;
+    if (s.matchesExpected > got) {
+      missingTotal += s.matchesExpected - got;
+      warnings.push(
+        `${s.nickname}: standings show ${s.matchesExpected} matches but only ${got} were scraped`,
+      );
+    }
+  }
+  if (warnings.length) {
+    warnings.unshift(
+      `Incomplete import: ${missingTotal} match row(s) missing across ${warnings.length} player(s). ` +
+        `A round may not be finalized on melee yet (often caused by a missing decklist). Re-import once it's resolved.`,
+    );
+  }
+
+  return {
+    tournamentId,
+    tournamentName,
+    date,
+    matches,
+    standings,
+    decklists,
+    warnings,
+  };
 }
 
 // --- Minimal shapes of the melee JSON we read ---
@@ -383,4 +433,5 @@ type MeleeStanding = {
   Decklists?: { DecklistName?: string }[];
   Points?: number;
   Rank?: number;
+  MatchRecord?: string;
 };
