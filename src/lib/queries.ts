@@ -557,6 +557,7 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
         date: true,
         nickname: true,
         deck: true,
+        archetype: true,
         position: true,
       },
     }),
@@ -1027,6 +1028,7 @@ export async function getDeckDrilldownData(
         date: true,
         nickname: true,
         deck: true,
+        archetype: true,
         position: true,
       },
     }),
@@ -1192,7 +1194,7 @@ export async function getDeckDrilldownData(
         player: playerKey,
         playerDisplay: displayName(row.nickname),
         position: row.position,
-        deck: normalizeDeckName(null, row.deck, dominantDeckFor(playerKey)),
+        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey)),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
         playerCount: 0,
@@ -1643,6 +1645,7 @@ export async function getSinglePlayerData(f: {
         date: true,
         nickname: true,
         deck: true,
+        archetype: true,
         position: true,
       },
     }),
@@ -1844,7 +1847,7 @@ export async function getSinglePlayerData(f: {
     if (playerKey === selectedPlayerKey) {
       playerStandings.set(key, {
         position: row.position,
-        deck: normalizeDeckName(null, row.deck, dominantDeckFor(playerKey)),
+        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey)),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
       });
@@ -1858,7 +1861,7 @@ export async function getSinglePlayerData(f: {
       tournamentWinners.set(key, {
         player: playerKey,
         position: row.position,
-        deck: normalizeDeckName(null, row.deck, dominantDeckFor(playerKey)),
+        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey)),
       });
     }
   }
