@@ -1,0 +1,54 @@
+name: CI
+
+# Runs on every pull request targeting main (and on pushes to main after
+# merge). Make this a required status check in the branch-protection rule
+# for `main` so PRs can't merge until it's green.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel an in-flight run when new commits are pushed to the same PR/branch.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint · Typecheck · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cheap, fast guard: fail if unresolved git conflict markers were
+      # committed (this is exactly how a broken stats.ts reached main once).
+      - name: Check for merge conflict markers
+        run: |
+          if git grep -nE '^(<<<<<<<|>>>>>>>)' -- . ; then
+            echo "::error::Unresolved merge conflict markers found"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` also runs the postinstall `prisma generate` (no DB needed).
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      # force-dynamic pages don't query the DB at build time, so a dummy
+      # connection string is enough to compile.
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          UPLOAD_PASSWORD: ci-placeholder
