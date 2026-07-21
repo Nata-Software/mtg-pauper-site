@@ -5,6 +5,7 @@ import { toISODate } from "./dates";
 import {
   computeMatrix,
   isByeDeck,
+  wilson,
   type MatchRow,
   type Matrix,
 } from "./stats";
@@ -18,6 +19,7 @@ import {
 } from "./archetype/normalize.mjs";
 
 const LOW_SAMPLE_MATCHES = 10;
+const BEST_PILOT_MIN_TOURNAMENTS = 2;
 
 export type Filters = {
   store: string;
@@ -391,19 +393,25 @@ function displayName(value: string | null | undefined): string {
 function isRealArchetype(value: string | null | undefined): boolean {
   const deck = normalizeName(value);
 
-  return deck !== "" && deck !== "bye" && deck !== "no deck (bye)";
+  return (
+    deck !== "" &&
+    deck !== "bye" &&
+    deck !== "no deck (bye)" &&
+    deck !== "unknown deck"
+  );
 }
 
 function isByeMatch(row: {
   opponent: string | null | undefined;
   opponentDeck: string | null | undefined;
 }): boolean {
-  // Only an actual bye (no opponent) — NOT a real match whose opponent simply
-  // forgot to register a decklist. The latter is a genuine game for this player
-  // and must count (e.g. a 4-0 vs a deckless opponent should read 4-0, not 3-0).
+  const opponent = normalizeName(row.opponent);
+  const opponentDeck = normalizeName(row.opponentDeck);
+
   return (
-    normalizeName(row.opponent) === "bye" ||
-    normalizeName(row.opponentDeck) === "no deck (bye)"
+    opponent === "bye" ||
+    opponentDeck === "bye" ||
+    opponentDeck === "no deck (bye)"
   );
 }
 
@@ -420,7 +428,7 @@ function tournamentKey(row: {
 }
 
 function fallbackTournamentName(row: {
-  tournamentName: string | null;
+  tournamentName?: string | null;
   eventName: string;
   date: Date | null;
 }): string {
@@ -443,6 +451,45 @@ function fallbackTournamentName(row: {
 
 function increment(map: Map<string, number>, key: string): void {
   map.set(key, (map.get(key) ?? 0) + 1);
+}
+
+function resultToTally(
+  stat: { wins: number; losses: number; draws: number; matches: number },
+  result: string,
+): void {
+  const normalized = result.trim().toLowerCase();
+
+  if (normalized === "win") stat.wins++;
+  else if (normalized === "loss") stat.losses++;
+  else stat.draws++;
+
+  stat.matches++;
+}
+
+function matchWinPct(
+  wins: number,
+  losses: number,
+  draws: number,
+): number | null {
+  const total = wins + losses + draws;
+
+  return total ? wins / total : null;
+}
+
+function lowSample(matches: number): boolean {
+  return matches < LOW_SAMPLE_MATCHES;
+}
+
+function wilsonScore(row: {
+  wins: number;
+  losses: number;
+  draws: number;
+}): {
+  winrate: number | null;
+  low: number;
+  high: number;
+} {
+  return wilson(row.wins, row.losses + row.draws);
 }
 
 export async function getTournamentData(store: string): Promise<TournamentData> {
@@ -683,13 +730,7 @@ export async function getMetagameData(
       tally.set(deck, t);
     }
 
-    t.matches++;
-
-    const res = r.result.trim().toLowerCase();
-
-    if (res === "win") t.wins++;
-    else if (res === "loss") t.losses++;
-    else t.draws++;
+    resultToTally(t, r.result);
 
     const entrantKey = `${tournamentKey(r)}::${r.player}`;
 
@@ -761,7 +802,6 @@ export async function getMetagameData(
   return [...tally.entries()]
     .map(([deck, t]) => {
       const e = entrants.get(deck);
-      const decided = t.wins + t.losses;
 
       return {
         deck,
@@ -771,7 +811,7 @@ export async function getMetagameData(
         wins: t.wins,
         losses: t.losses,
         draws: t.draws,
-        winrate: decided ? t.wins / decided : null,
+        winrate: matchWinPct(t.wins, t.losses, t.draws),
         representativeCardName: representativeCard.get(deck) ?? null,
       };
     })
@@ -822,7 +862,7 @@ export async function getDeckMatchLog(
 
   return rows
     .filter((r) => canonicalDeck(r.archetype, r.deck, resolver(r.player)) === deck)
-    .filter((r) => normalizeName(r.opponent) !== "bye")
+    .filter((r) => !isByeMatch(r))
     .map((r) => ({
       date: toISODate(r.date),
       tournamentName: r.tournamentName || r.eventName,
@@ -836,6 +876,407 @@ export async function getDeckMatchLog(
       result: r.result,
       round: r.round,
     }));
+}
+
+export type DeckDrilldownMetricRow = {
+  name: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number | null;
+  score: number;
+  lowSample: boolean;
+};
+
+export type DeckDrilldownPilotRow = {
+  player: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number | null;
+  score: number;
+  tournaments: number;
+  tournamentWins: number;
+  lastPlayed: string;
+  lowSample: boolean;
+};
+
+export type DeckDrilldownTournamentWin = {
+  tournamentName: string;
+  date: string;
+  player: string;
+  playerCount: number;
+};
+
+export type DeckDrilldownData = {
+  deck: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number | null;
+  tournamentsWon: number;
+  biggestTournamentWon: DeckDrilldownTournamentWin | null;
+  bestMatchup: DeckDrilldownMetricRow | null;
+  worstMatchup: DeckDrilldownMetricRow | null;
+  mostPlayedOpponentDeck: DeckDrilldownMetricRow | null;
+  bestPilot: DeckDrilldownPilotRow | null;
+  recentPlayers: DeckDrilldownPilotRow[];
+};
+
+export async function getDeckDrilldownData(
+  f: Filters,
+  deck: string,
+): Promise<DeckDrilldownData | null> {
+  const date = dateWhere(f.from, f.to);
+
+  const [rows, standings, resolver] = await Promise.all([
+    prisma.match.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(date ? { date } : {}),
+      },
+      orderBy: [{ date: "desc" }, { round: "asc" }],
+      select: {
+        player: true,
+        deck: true,
+        archetype: true,
+        result: true,
+        opponent: true,
+        opponentDeck: true,
+        opponentArchetype: true,
+        tournamentId: true,
+        eventName: true,
+        date: true,
+      },
+      take: 10000,
+    }),
+    prisma.standing.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(date ? { date } : {}),
+      },
+      orderBy: [{ date: "desc" }, { position: "asc" }],
+      select: {
+        tournamentId: true,
+        tournamentName: true,
+        eventName: true,
+        date: true,
+        nickname: true,
+        deck: true,
+        position: true,
+      },
+    }),
+    buildDeckResolver(f.store),
+  ]);
+
+  const total = {
+    wins: 0,
+    losses: 0,
+    draws: 0,
+    matches: 0,
+  };
+
+  const matchupMap = new Map<
+    string,
+    {
+      name: string;
+      wins: number;
+      losses: number;
+      draws: number;
+      matches: number;
+    }
+  >();
+
+  const pilotMap = new Map<
+    string,
+    {
+      player: string;
+      wins: number;
+      losses: number;
+      draws: number;
+      matches: number;
+      tournaments: Set<string>;
+      tournamentWins: number;
+      lastPlayed: string;
+    }
+  >();
+
+  const tournamentPlayerSets = new Map<string, Set<string>>();
+
+  for (const row of rows) {
+    const key = tournamentKey(row);
+    const playerKey = normalizeName(row.player);
+
+    if (playerKey) {
+      let players = tournamentPlayerSets.get(key);
+
+      if (!players) {
+        players = new Set<string>();
+        tournamentPlayerSets.set(key, players);
+      }
+
+      players.add(playerKey);
+    }
+
+    const rowDeck = canonicalDeck(row.archetype, row.deck, resolver(row.player));
+
+    if (rowDeck !== deck) continue;
+    if (isByeMatch(row)) continue;
+
+    const opponentDeck = canonicalDeck(
+      row.opponentArchetype,
+      row.opponentDeck,
+      resolver(row.opponent),
+    );
+
+    if (isByeDeck(opponentDeck)) continue;
+
+    resultToTally(total, row.result);
+
+    let matchup = matchupMap.get(opponentDeck);
+
+    if (!matchup) {
+      matchup = {
+        name: opponentDeck,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        matches: 0,
+      };
+
+      matchupMap.set(opponentDeck, matchup);
+    }
+
+    resultToTally(matchup, row.result);
+
+    const player = displayName(row.player);
+
+    if (player && playerKey) {
+      let pilot = pilotMap.get(playerKey);
+
+      if (!pilot) {
+        pilot = {
+          player,
+          wins: 0,
+          losses: 0,
+          draws: 0,
+          matches: 0,
+          tournaments: new Set<string>(),
+          tournamentWins: 0,
+          lastPlayed: "",
+        };
+
+        pilotMap.set(playerKey, pilot);
+      }
+
+      resultToTally(pilot, row.result);
+      pilot.tournaments.add(key);
+
+      const playedDate = toISODate(row.date);
+
+      if (playedDate && playedDate > pilot.lastPlayed) {
+        pilot.lastPlayed = playedDate;
+      }
+    }
+  }
+
+  if (total.matches === 0) {
+    return null;
+  }
+
+  type StandingWinner = {
+    player: string;
+    position: number;
+    deck: string;
+    tournamentName: string;
+    date: string;
+    playerCount: number;
+  };
+
+  const standingsPlayers = new Map<string, Set<string>>();
+  const tournamentWinners = new Map<string, StandingWinner>();
+
+  for (const row of standings) {
+    const key = tournamentKey(row);
+    const playerKey = normalizeName(row.nickname);
+
+    if (playerKey) {
+      let players = standingsPlayers.get(key);
+
+      if (!players) {
+        players = new Set<string>();
+        standingsPlayers.set(key, players);
+      }
+
+      players.add(playerKey);
+    }
+
+    if (!playerKey) continue;
+
+    const existing = tournamentWinners.get(key);
+
+    if (!existing || row.position < existing.position) {
+      tournamentWinners.set(key, {
+        player: playerKey,
+        position: row.position,
+        deck: canonicalDeck(null, row.deck),
+        tournamentName: fallbackTournamentName(row),
+        date: toISODate(row.date),
+        playerCount: 0,
+      });
+    }
+  }
+
+  const tournamentWins: DeckDrilldownTournamentWin[] = [];
+
+  for (const [key, winner] of tournamentWinners.entries()) {
+    const playerCount =
+      standingsPlayers.get(key)?.size ?? tournamentPlayerSets.get(key)?.size ?? 0;
+
+    if (winner.deck !== deck) continue;
+
+    tournamentWins.push({
+      tournamentName: winner.tournamentName,
+      date: winner.date,
+      player: winner.player,
+      playerCount,
+    });
+
+    const pilot = pilotMap.get(winner.player);
+
+    if (pilot) {
+      pilot.tournamentWins++;
+    }
+  }
+
+  const biggestTournamentWon =
+    tournamentWins.length > 0
+      ? [...tournamentWins].sort(
+          (a, b) =>
+            b.playerCount - a.playerCount ||
+            b.date.localeCompare(a.date) ||
+            a.tournamentName.localeCompare(b.tournamentName),
+        )[0]
+      : null;
+
+  const matchups: DeckDrilldownMetricRow[] = [...matchupMap.values()].map(
+    (row) => {
+      const score = wilsonScore(row);
+
+      return {
+        name: row.name,
+        matches: row.matches,
+        wins: row.wins,
+        losses: row.losses,
+        draws: row.draws,
+        winPct: matchWinPct(row.wins, row.losses, row.draws),
+        score: score.low,
+        lowSample: lowSample(row.matches),
+      };
+    },
+  );
+
+  const preferredMatchups = matchups.some((row) => !row.lowSample)
+    ? matchups.filter((row) => !row.lowSample)
+    : matchups;
+
+  const bestMatchup =
+    preferredMatchups.length > 0
+      ? [...preferredMatchups].sort(
+          (a, b) => b.score - a.score || b.matches - a.matches,
+        )[0]
+      : null;
+
+  const worstMatchup =
+    preferredMatchups.length > 0
+      ? [...preferredMatchups].sort((a, b) => {
+          const aUpper = wilson(a.wins, a.losses + a.draws).high;
+          const bUpper = wilson(b.wins, b.losses + b.draws).high;
+
+          return aUpper - bUpper || b.matches - a.matches;
+        })[0]
+      : null;
+
+  const mostPlayedOpponentDeck =
+    matchups.length > 0
+      ? [...matchups].sort(
+          (a, b) => b.matches - a.matches || a.name.localeCompare(b.name),
+        )[0]
+      : null;
+
+  const pilots: DeckDrilldownPilotRow[] = [...pilotMap.values()].map((row) => {
+    const score = wilsonScore(row);
+    const tournaments = row.tournaments.size;
+
+    return {
+      player: row.player,
+      matches: row.matches,
+      wins: row.wins,
+      losses: row.losses,
+      draws: row.draws,
+      winPct: matchWinPct(row.wins, row.losses, row.draws),
+      score: score.low,
+      tournaments,
+      tournamentWins: row.tournamentWins,
+      lastPlayed: row.lastPlayed,
+      lowSample:
+        row.matches < LOW_SAMPLE_MATCHES ||
+        tournaments < BEST_PILOT_MIN_TOURNAMENTS,
+    };
+  });
+
+  const bestPilotPool =
+    pilots.filter(
+      (row) =>
+        row.matches >= LOW_SAMPLE_MATCHES &&
+        row.tournaments >= BEST_PILOT_MIN_TOURNAMENTS,
+    ).length > 0
+      ? pilots.filter(
+          (row) =>
+            row.matches >= LOW_SAMPLE_MATCHES &&
+            row.tournaments >= BEST_PILOT_MIN_TOURNAMENTS,
+        )
+      : pilots.filter((row) => row.matches >= LOW_SAMPLE_MATCHES).length > 0
+        ? pilots.filter((row) => row.matches >= LOW_SAMPLE_MATCHES)
+        : pilots;
+
+  const bestPilot =
+    bestPilotPool.length > 0
+      ? [...bestPilotPool].sort(
+          (a, b) =>
+            b.score - a.score ||
+            b.matches - a.matches ||
+            b.tournaments - a.tournaments,
+        )[0]
+      : null;
+
+  const recentPlayers = [...pilots].sort(
+    (a, b) =>
+      b.lastPlayed.localeCompare(a.lastPlayed) ||
+      b.matches - a.matches ||
+      a.player.localeCompare(b.player),
+  );
+
+  return {
+    deck,
+    matches: total.matches,
+    wins: total.wins,
+    losses: total.losses,
+    draws: total.draws,
+    winPct: matchWinPct(total.wins, total.losses, total.draws),
+    tournamentsWon: tournamentWins.length,
+    biggestTournamentWon,
+    bestMatchup,
+    worstMatchup,
+    mostPlayedOpponentDeck,
+    bestPilot,
+    recentPlayers,
+  };
 }
 
 export type AllPlayersDataRow = {
@@ -892,29 +1333,6 @@ export type SinglePlayerData = {
   opponents: SinglePlayerOpponentRow[];
   matrix: Matrix;
 };
-
-function matchWinPct(
-  wins: number,
-  losses: number,
-  draws: number,
-): number | null {
-  const total = wins + losses + draws;
-
-  return total ? wins / total : null;
-}
-
-function resultToTally(
-  stat: { wins: number; losses: number; draws: number; matches: number },
-  result: string,
-): void {
-  const normalized = result.trim().toLowerCase();
-
-  if (normalized === "win") stat.wins++;
-  else if (normalized === "loss") stat.losses++;
-  else stat.draws++;
-
-  stat.matches++;
-}
 
 export async function listPlayersForData(f: {
   store: string;
@@ -991,9 +1409,7 @@ export async function getAllPlayersData(f: {
   >();
 
   for (const row of matches) {
-    if (isByeMatch(row)) {
-      continue;
-    }
+    if (isByeMatch(row)) continue;
 
     const key = normalizeName(row.player);
     const player = displayName(row.player);
