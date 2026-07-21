@@ -132,7 +132,7 @@ export async function dateBounds(
   return { min: toISODate(min?.date), max: toISODate(max?.date) };
 }
 
-const buildDeckResolver = cache(
+const buildDominantDeckLookup = cache(
   async (
     store: string,
   ): Promise<(player: string) => (ck: string) => string | undefined> => {
@@ -205,7 +205,7 @@ const buildDeckResolver = cache(
 export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, resolver] = await Promise.all([
+  const [rows, dominantDeckFor] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -223,15 +223,15 @@ export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
         result: true,
       },
     }),
-    buildDeckResolver(f.store),
+    buildDominantDeckLookup(f.store),
   ]);
 
   return rows.map((r) => ({
-    deck: normalizeDeckName(r.archetype, r.deck, resolver(r.player)),
+    deck: normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player)),
     opponentDeck: normalizeDeckName(
       r.opponentArchetype,
       r.opponentDeck,
-      resolver(r.opponent),
+      dominantDeckFor(r.opponent),
     ),
     result: r.result,
   }));
@@ -359,7 +359,7 @@ export async function getPlayerDeckRows(opts: {
 }): Promise<{ deck: string; result: string }[]> {
   const date = dateWhere(opts.from, opts.to);
 
-  const [rows, resolver] = await Promise.all([
+  const [rows, dominantDeckFor] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: opts.store,
@@ -369,10 +369,10 @@ export async function getPlayerDeckRows(opts: {
       },
       select: { deck: true, archetype: true, result: true },
     }),
-    buildDeckResolver(opts.store),
+    buildDominantDeckLookup(opts.store),
   ]);
 
-  const resolve = resolver(opts.player);
+  const resolve = dominantDeckFor(opts.player);
 
   return rows.map((r) => ({
     deck: normalizeDeckName(r.archetype, r.deck, resolve),
@@ -735,7 +735,7 @@ export async function getMetagameData(
 ): Promise<MetagameDeckRow[]> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, resolver] = await Promise.all([
+  const [rows, dominantDeckFor] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -753,7 +753,7 @@ export async function getMetagameData(
         decklistId: true,
       },
     }),
-    buildDeckResolver(f.store),
+    buildDominantDeckLookup(f.store),
   ]);
 
   type Tally = {
@@ -772,7 +772,7 @@ export async function getMetagameData(
   let totalEntrants = 0;
 
   for (const r of rows) {
-    const deck = normalizeDeckName(r.archetype, r.deck, resolver(r.player));
+    const deck = normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player));
 
     if (isByeDeck(deck)) continue;
 
@@ -887,7 +887,7 @@ export async function getDeckMatchLog(
 ): Promise<DeckMatchLogRow[]> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, resolver] = await Promise.all([
+  const [rows, dominantDeckFor] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -910,12 +910,12 @@ export async function getDeckMatchLog(
       },
       take: 5000,
     }),
-    buildDeckResolver(f.store),
+    buildDominantDeckLookup(f.store),
   ]);
 
   return rows
     .filter(
-      (r) => normalizeDeckName(r.archetype, r.deck, resolver(r.player)) === deck,
+      (r) => normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player)) === deck,
     )
     .filter((r) => !isByeMatch(r))
     .map((r) => ({
@@ -926,7 +926,7 @@ export async function getDeckMatchLog(
       opponentDeck: normalizeDeckName(
         r.opponentArchetype,
         r.opponentDeck,
-        resolver(r.opponent),
+        dominantDeckFor(r.opponent),
       ),
       result: r.result,
       round: r.round,
@@ -990,7 +990,7 @@ export async function getDeckDrilldownData(
 ): Promise<DeckDrilldownData | null> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, standings, resolver] = await Promise.all([
+  const [rows, standings, dominantDeckFor] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -1030,7 +1030,7 @@ export async function getDeckDrilldownData(
         position: true,
       },
     }),
-    buildDeckResolver(f.store),
+    buildDominantDeckLookup(f.store),
   ]);
 
   const total = {
@@ -1083,7 +1083,7 @@ export async function getDeckDrilldownData(
       players.add(playerKey);
     }
 
-    const rowDeck = normalizeDeckName(row.archetype, row.deck, resolver(row.player));
+    const rowDeck = normalizeDeckName(row.archetype, row.deck, dominantDeckFor(row.player));
 
     if (rowDeck !== deck) continue;
     if (isByeMatch(row)) continue;
@@ -1091,7 +1091,7 @@ export async function getDeckDrilldownData(
     const opponentDeck = normalizeDeckName(
       row.opponentArchetype,
       row.opponentDeck,
-      resolver(row.opponent),
+      dominantDeckFor(row.opponent),
     );
 
     if (isByeDeck(opponentDeck)) continue;
@@ -1192,7 +1192,7 @@ export async function getDeckDrilldownData(
         player: playerKey,
         playerDisplay: displayName(row.nickname),
         position: row.position,
-        deck: normalizeDeckName(null, row.deck),
+        deck: normalizeDeckName(null, row.deck, dominantDeckFor(playerKey)),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
         playerCount: 0,
@@ -1588,7 +1588,7 @@ export async function getSinglePlayerData(f: {
     return null;
   }
 
-  const [matches, fieldMatches, standings, resolver] = await Promise.all([
+  const [matches, fieldMatches, standings, dominantDeckFor] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -1646,7 +1646,7 @@ export async function getSinglePlayerData(f: {
         position: true,
       },
     }),
-    buildDeckResolver(f.store),
+    buildDominantDeckLookup(f.store),
   ]);
 
   const filteredMatches = matches.filter((row) => !isByeMatch(row));
@@ -1668,7 +1668,7 @@ export async function getSinglePlayerData(f: {
   for (const row of fieldMatches) {
     if (isByeMatch(row)) continue;
 
-    const deck = normalizeDeckName(row.archetype, row.deck, resolver(row.player));
+    const deck = normalizeDeckName(row.archetype, row.deck, dominantDeckFor(row.player));
 
     if (isByeDeck(deck)) continue;
 
@@ -1688,7 +1688,7 @@ export async function getSinglePlayerData(f: {
     resultToTally(stat, row.result);
   }
 
-  const resolvePlayerDeck = resolver(f.player);
+  const dominantDeckForPlayer = dominantDeckFor(f.player);
 
   const total = {
     wins: 0,
@@ -1741,11 +1741,11 @@ export async function getSinglePlayerData(f: {
 
   for (const row of filteredMatches) {
     const key = tournamentKey(row);
-    const deck = normalizeDeckName(row.archetype, row.deck, resolvePlayerDeck);
+    const deck = normalizeDeckName(row.archetype, row.deck, dominantDeckForPlayer);
     const opponentDeck = normalizeDeckName(
       row.opponentArchetype,
       row.opponentDeck,
-      resolver(row.opponent),
+      dominantDeckFor(row.opponent),
     );
 
     resultToTally(total, row.result);
@@ -1844,7 +1844,7 @@ export async function getSinglePlayerData(f: {
     if (playerKey === selectedPlayerKey) {
       playerStandings.set(key, {
         position: row.position,
-        deck: normalizeDeckName(null, row.deck),
+        deck: normalizeDeckName(null, row.deck, dominantDeckFor(playerKey)),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
       });
@@ -1858,7 +1858,7 @@ export async function getSinglePlayerData(f: {
       tournamentWinners.set(key, {
         player: playerKey,
         position: row.position,
-        deck: normalizeDeckName(null, row.deck),
+        deck: normalizeDeckName(null, row.deck, dominantDeckFor(playerKey)),
       });
     }
   }
