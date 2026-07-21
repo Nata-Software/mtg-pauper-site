@@ -28,8 +28,8 @@ function copy(locale: Locale) {
       tournaments: "Torneios",
       winrate: "Win%",
       deck: "Deck",
-      lowSampleMatches: "Low Sample Size, <10 Matches",
-      lowSampleTournament: "Low Sample Size, 1 Tournament",
+      lowSampleMatches: "Amostra baixa, <10 partidas",
+      lowSampleTournament: "Amostra baixa, 1 torneio",
       tournamentsWon: "Torneios vencidos",
       biggestTournamentWon: "Maior torneio vencido",
       players: "jogadores",
@@ -213,6 +213,8 @@ function bestPilotCard({
             <span>{c.matches}: {number(row.matches)}</span>
             <span>·</span>
             <span>{c.tournaments}: {number(row.tournaments)}</span>
+            <span>·</span>
+            <span>{c.tournamentWins}: {number(row.tournamentWins)}</span>
           </div>
 
           {pilotSampleBadge(row, c)}
