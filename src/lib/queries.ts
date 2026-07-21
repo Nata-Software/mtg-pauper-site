@@ -26,6 +26,7 @@ export type Filters = {
   from?: string;
   to?: string;
   event?: string;
+  player?: string;
 };
 
 function dateWhere(from?: string, to?: string) {
@@ -160,6 +161,7 @@ export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
       where: {
         store: f.store,
         ...(f.event ? { eventName: f.event } : {}),
+        ...(f.player ? { player: f.player } : {}),
         ...(date ? { date } : {}),
       },
       select: {
@@ -383,7 +385,9 @@ export type TournamentData = {
 };
 
 function normalizeName(value: string | null | undefined): string {
-  return String(value ?? "").trim().toLowerCase();
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 function displayName(value: string | null | undefined): string {
@@ -480,11 +484,7 @@ function lowSample(matches: number): boolean {
   return matches < LOW_SAMPLE_MATCHES;
 }
 
-function wilsonScore(row: {
-  wins: number;
-  losses: number;
-  draws: number;
-}): {
+function wilsonScore(row: { wins: number; losses: number; draws: number }): {
   winrate: number | null;
   low: number;
   high: number;
@@ -492,7 +492,9 @@ function wilsonScore(row: {
   return wilson(row.wins, row.losses + row.draws);
 }
 
-export async function getTournamentData(store: string): Promise<TournamentData> {
+export async function getTournamentData(
+  store: string,
+): Promise<TournamentData> {
   const [standings, matches] = await Promise.all([
     prisma.standing.findMany({
       where: { store },
@@ -650,7 +652,9 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
     tournamentWins,
     archetypeWins: [...archetypeWins.entries()]
       .map(([archetype, wins]) => ({ archetype, wins }))
-      .sort((a, b) => b.wins - a.wins || a.archetype.localeCompare(b.archetype)),
+      .sort(
+        (a, b) => b.wins - a.wins || a.archetype.localeCompare(b.archetype),
+      ),
     playerWins: [...playerWins.entries()]
       .map(([player, wins]) => ({ player, wins }))
       .sort((a, b) => b.wins - a.wins || a.player.localeCompare(b.player)),
@@ -677,9 +681,7 @@ const BASIC_LAND_NAMES = new Set([
   "forest",
 ]);
 
-export async function getMetagameData(
-  f: Filters,
-): Promise<MetagameDeckRow[]> {
+export async function getMetagameData(f: Filters): Promise<MetagameDeckRow[]> {
   const date = dateWhere(f.from, f.to);
 
   const [rows, resolver] = await Promise.all([
@@ -861,7 +863,9 @@ export async function getDeckMatchLog(
   ]);
 
   return rows
-    .filter((r) => canonicalDeck(r.archetype, r.deck, resolver(r.player)) === deck)
+    .filter(
+      (r) => canonicalDeck(r.archetype, r.deck, resolver(r.player)) === deck,
+    )
     .filter((r) => !isByeMatch(r))
     .map((r) => ({
       date: toISODate(r.date),
@@ -917,12 +921,15 @@ export type DeckDrilldownData = {
   losses: number;
   draws: number;
   winPct: number | null;
+  pilots: number;
   tournamentsWon: number;
   biggestTournamentWon: DeckDrilldownTournamentWin | null;
   bestMatchup: DeckDrilldownMetricRow | null;
   worstMatchup: DeckDrilldownMetricRow | null;
   mostPlayedOpponentDeck: DeckDrilldownMetricRow | null;
   bestPilot: DeckDrilldownPilotRow | null;
+  matchups: DeckDrilldownMetricRow[];
+  matrix: Matrix;
   recentPlayers: DeckDrilldownPilotRow[];
 };
 
@@ -937,6 +944,7 @@ export async function getDeckDrilldownData(
       where: {
         store: f.store,
         ...(f.event ? { eventName: f.event } : {}),
+        ...(f.player ? { player: f.player } : {}),
         ...(date ? { date } : {}),
       },
       orderBy: [{ date: "desc" }, { round: "asc" }],
@@ -1006,6 +1014,7 @@ export async function getDeckDrilldownData(
     }
   >();
 
+  const matrixRows: MatchRow[] = [];
   const tournamentPlayerSets = new Map<string, Set<string>>();
 
   for (const row of rows) {
@@ -1023,7 +1032,11 @@ export async function getDeckDrilldownData(
       players.add(playerKey);
     }
 
-    const rowDeck = canonicalDeck(row.archetype, row.deck, resolver(row.player));
+    const rowDeck = canonicalDeck(
+      row.archetype,
+      row.deck,
+      resolver(row.player),
+    );
 
     if (rowDeck !== deck) continue;
     if (isByeMatch(row)) continue;
@@ -1037,6 +1050,12 @@ export async function getDeckDrilldownData(
     if (isByeDeck(opponentDeck)) continue;
 
     resultToTally(total, row.result);
+
+    matrixRows.push({
+      deck: rowDeck,
+      opponentDeck,
+      result: row.result,
+    });
 
     let matchup = matchupMap.get(opponentDeck);
 
@@ -1091,6 +1110,7 @@ export async function getDeckDrilldownData(
 
   type StandingWinner = {
     player: string;
+    playerDisplay: string;
     position: number;
     deck: string;
     tournamentName: string;
@@ -1123,6 +1143,7 @@ export async function getDeckDrilldownData(
     if (!existing || row.position < existing.position) {
       tournamentWinners.set(key, {
         player: playerKey,
+        playerDisplay: displayName(row.nickname),
         position: row.position,
         deck: canonicalDeck(null, row.deck),
         tournamentName: fallbackTournamentName(row),
@@ -1132,18 +1153,22 @@ export async function getDeckDrilldownData(
     }
   }
 
+  const selectedPlayerKey = normalizeName(f.player);
   const tournamentWins: DeckDrilldownTournamentWin[] = [];
 
   for (const [key, winner] of tournamentWinners.entries()) {
     const playerCount =
-      standingsPlayers.get(key)?.size ?? tournamentPlayerSets.get(key)?.size ?? 0;
+      standingsPlayers.get(key)?.size ??
+      tournamentPlayerSets.get(key)?.size ??
+      0;
 
     if (winner.deck !== deck) continue;
+    if (selectedPlayerKey && winner.player !== selectedPlayerKey) continue;
 
     tournamentWins.push({
       tournamentName: winner.tournamentName,
       date: winner.date,
-      player: winner.player,
+      player: winner.playerDisplay,
       playerCount,
     });
 
@@ -1164,8 +1189,8 @@ export async function getDeckDrilldownData(
         )[0]
       : null;
 
-  const matchups: DeckDrilldownMetricRow[] = [...matchupMap.values()].map(
-    (row) => {
+  const matchups: DeckDrilldownMetricRow[] = [...matchupMap.values()]
+    .map((row) => {
       const score = wilsonScore(row);
 
       return {
@@ -1178,8 +1203,13 @@ export async function getDeckDrilldownData(
         score: score.low,
         lowSample: lowSample(row.matches),
       };
-    },
-  );
+    })
+    .sort(
+      (a, b) =>
+        b.matches - a.matches ||
+        (b.winPct ?? -1) - (a.winPct ?? -1) ||
+        a.name.localeCompare(b.name),
+    );
 
   const preferredMatchups = matchups.some((row) => !row.lowSample)
     ? matchups.filter((row) => !row.lowSample)
@@ -1202,12 +1232,7 @@ export async function getDeckDrilldownData(
         })[0]
       : null;
 
-  const mostPlayedOpponentDeck =
-    matchups.length > 0
-      ? [...matchups].sort(
-          (a, b) => b.matches - a.matches || a.name.localeCompare(b.name),
-        )[0]
-      : null;
+  const mostPlayedOpponentDeck = matchups[0] ?? null;
 
   const pilots: DeckDrilldownPilotRow[] = [...pilotMap.values()].map((row) => {
     const score = wilsonScore(row);
@@ -1269,12 +1294,18 @@ export async function getDeckDrilldownData(
     losses: total.losses,
     draws: total.draws,
     winPct: matchWinPct(total.wins, total.losses, total.draws),
+    pilots: pilots.length,
     tournamentsWon: tournamentWins.length,
     biggestTournamentWon,
     bestMatchup,
     worstMatchup,
     mostPlayedOpponentDeck,
     bestPilot,
+    matchups,
+    matrix: computeMatrix(matrixRows, {
+      minPct: 0,
+      columnMode: "opponents",
+    }),
     recentPlayers,
   };
 }
@@ -1297,6 +1328,7 @@ export type SinglePlayerDeckRow = {
   losses: number;
   draws: number;
   winPct: number;
+  fieldWinPct: number | null;
   tournamentWins: number;
   lowSample: boolean;
 };
@@ -1309,6 +1341,19 @@ export type SinglePlayerOpponentRow = {
   draws: number;
   winPct: number | null;
   lowSample: boolean;
+};
+
+export type SinglePlayerTournamentHistoryRow = {
+  tournamentKey: string;
+  date: string;
+  tournamentName: string;
+  deck: string;
+  position: number | null;
+  matches: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  winPct: number | null;
 };
 
 export type SinglePlayerData = {
@@ -1326,11 +1371,13 @@ export type SinglePlayerData = {
   };
   mostPlayedDeck: string | null;
   mostPlayedOpponent: string | null;
+  bestDeck: string | null;
   bestOpponent: SinglePlayerOpponentRow | null;
   worstOpponent: SinglePlayerOpponentRow | null;
   usedLowSampleFallback: boolean;
   decks: SinglePlayerDeckRow[];
   opponents: SinglePlayerOpponentRow[];
+  tournamentHistory: SinglePlayerTournamentHistoryRow[];
   matrix: Matrix;
 };
 
@@ -1352,9 +1399,9 @@ export async function listPlayersForData(f: {
     select: { player: true },
   });
 
-  return [...new Set(rows.map((row) => row.player.trim()).filter(Boolean))].sort(
-    (a, b) => a.localeCompare(b),
-  );
+  return [
+    ...new Set(rows.map((row) => row.player.trim()).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b));
 }
 
 export async function getAllPlayersData(f: {
@@ -1496,7 +1543,7 @@ export async function getSinglePlayerData(f: {
     return null;
   }
 
-  const [matches, standings, resolver] = await Promise.all([
+  const [matches, fieldMatches, standings, resolver] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -1513,6 +1560,25 @@ export async function getSinglePlayerData(f: {
         opponent: true,
         opponentDeck: true,
         opponentArchetype: true,
+        tournamentId: true,
+        tournamentName: true,
+        eventName: true,
+        date: true,
+      },
+    }),
+    prisma.match.findMany({
+      where: {
+        store: f.store,
+        ...(f.event ? { eventName: f.event } : {}),
+        ...(date ? { date } : {}),
+      },
+      select: {
+        player: true,
+        deck: true,
+        archetype: true,
+        result: true,
+        opponent: true,
+        opponentDeck: true,
         tournamentId: true,
         eventName: true,
         date: true,
@@ -1542,6 +1608,39 @@ export async function getSinglePlayerData(f: {
 
   if (filteredMatches.length === 0) {
     return null;
+  }
+
+  const fieldDeckMap = new Map<
+    string,
+    {
+      wins: number;
+      losses: number;
+      draws: number;
+      matches: number;
+    }
+  >();
+
+  for (const row of fieldMatches) {
+    if (isByeMatch(row)) continue;
+
+    const deck = canonicalDeck(row.archetype, row.deck, resolver(row.player));
+
+    if (isByeDeck(deck)) continue;
+
+    let stat = fieldDeckMap.get(deck);
+
+    if (!stat) {
+      stat = {
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        matches: 0,
+      };
+
+      fieldDeckMap.set(deck, stat);
+    }
+
+    resultToTally(stat, row.result);
   }
 
   const resolvePlayerDeck = resolver(f.player);
@@ -1579,9 +1678,24 @@ export async function getSinglePlayerData(f: {
     }
   >();
 
+  const tournamentGroups = new Map<
+    string,
+    {
+      tournamentKey: string;
+      date: string;
+      tournamentName: string;
+      deckCounts: Map<string, number>;
+      matches: number;
+      wins: number;
+      losses: number;
+      draws: number;
+    }
+  >();
+
   const matrixRows: MatchRow[] = [];
 
   for (const row of filteredMatches) {
+    const key = tournamentKey(row);
     const deck = canonicalDeck(row.archetype, row.deck, resolvePlayerDeck);
     const opponentDeck = canonicalDeck(
       row.opponentArchetype,
@@ -1591,9 +1705,29 @@ export async function getSinglePlayerData(f: {
 
     resultToTally(total, row.result);
 
-    tournamentEntries.add(tournamentKey(row));
+    tournamentEntries.add(key);
     uniqueOpponents.add(normalizeName(row.opponent));
     uniqueArchetypesPlayed.add(deck);
+
+    let tournament = tournamentGroups.get(key);
+
+    if (!tournament) {
+      tournament = {
+        tournamentKey: key,
+        date: toISODate(row.date),
+        tournamentName: fallbackTournamentName(row),
+        deckCounts: new Map<string, number>(),
+        matches: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+      };
+
+      tournamentGroups.set(key, tournament);
+    }
+
+    tournament.deckCounts.set(deck, (tournament.deckCounts.get(deck) ?? 0) + 1);
+    resultToTally(tournament, row.result);
 
     let deckStat = deckMap.get(deck);
 
@@ -1639,6 +1773,16 @@ export async function getSinglePlayerData(f: {
     });
   }
 
+  const playerStandings = new Map<
+    string,
+    {
+      position: number;
+      deck: string;
+      tournamentName: string;
+      date: string;
+    }
+  >();
+
   const tournamentWinners = new Map<
     string,
     {
@@ -1650,15 +1794,24 @@ export async function getSinglePlayerData(f: {
 
   for (const row of standings) {
     const key = tournamentKey(row);
-    const winnerKey = normalizeName(row.nickname);
+    const playerKey = normalizeName(row.nickname);
 
-    if (!winnerKey) continue;
+    if (playerKey === selectedPlayerKey) {
+      playerStandings.set(key, {
+        position: row.position,
+        deck: canonicalDeck(null, row.deck),
+        tournamentName: fallbackTournamentName(row),
+        date: toISODate(row.date),
+      });
+    }
+
+    if (!playerKey) continue;
 
     const existing = tournamentWinners.get(key);
 
     if (!existing || row.position < existing.position) {
       tournamentWinners.set(key, {
-        player: winnerKey,
+        player: playerKey,
         position: row.position,
         deck: canonicalDeck(null, row.deck),
       });
@@ -1686,6 +1839,7 @@ export async function getSinglePlayerData(f: {
   const decks: SinglePlayerDeckRow[] = [...deckMap.values()]
     .map((row) => {
       const winPct = matchWinPct(row.wins, row.losses, row.draws) ?? 0;
+      const field = fieldDeckMap.get(row.deck);
 
       return {
         deck: row.deck,
@@ -1694,6 +1848,9 @@ export async function getSinglePlayerData(f: {
         losses: row.losses,
         draws: row.draws,
         winPct,
+        fieldWinPct: field
+          ? matchWinPct(field.wins, field.losses, field.draws)
+          : null,
         tournamentWins: deckTournamentWins.get(row.deck) ?? 0,
         lowSample: row.matches < LOW_SAMPLE_MATCHES,
       };
@@ -1704,6 +1861,20 @@ export async function getSinglePlayerData(f: {
         b.winPct - a.winPct ||
         a.deck.localeCompare(b.deck),
     );
+
+  const bestDeckPool = decks.some((row) => row.matches >= LOW_SAMPLE_MATCHES)
+    ? decks.filter((row) => row.matches >= LOW_SAMPLE_MATCHES)
+    : decks;
+
+  const bestDeck =
+    bestDeckPool.length > 0
+      ? [...bestDeckPool].sort((a, b) => {
+          const aScore = wilson(a.wins, a.losses + a.draws).low;
+          const bScore = wilson(b.wins, b.losses + b.draws).low;
+
+          return bScore - aScore || b.matches - a.matches;
+        })[0].deck
+      : null;
 
   const opponents: SinglePlayerOpponentRow[] = [...opponentMap.values()]
     .map((row) => ({
@@ -1722,6 +1893,41 @@ export async function getSinglePlayerData(f: {
         a.opponent.localeCompare(b.opponent),
     );
 
+  const tournamentHistory: SinglePlayerTournamentHistoryRow[] = [
+    ...tournamentGroups.values(),
+  ]
+    .map((row) => {
+      const standing = playerStandings.get(row.tournamentKey);
+
+      let deck = standing?.deck ?? "";
+      let deckCount = -1;
+
+      for (const [candidate, count] of row.deckCounts) {
+        if (count > deckCount) {
+          deck = candidate;
+          deckCount = count;
+        }
+      }
+
+      return {
+        tournamentKey: row.tournamentKey,
+        date: standing?.date || row.date,
+        tournamentName: standing?.tournamentName || row.tournamentName,
+        deck,
+        position: standing?.position ?? null,
+        matches: row.matches,
+        wins: row.wins,
+        losses: row.losses,
+        draws: row.draws,
+        winPct: matchWinPct(row.wins, row.losses, row.draws),
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.date.localeCompare(a.date) ||
+        a.tournamentName.localeCompare(b.tournamentName),
+    );
+
   const eligibleOpponents = opponents.filter(
     (row) => row.matches >= LOW_SAMPLE_MATCHES && row.winPct !== null,
   );
@@ -1735,17 +1941,14 @@ export async function getSinglePlayerData(f: {
     opponentPool.length > 0
       ? [...opponentPool].sort(
           (a, b) =>
-            (b.winPct ?? -1) - (a.winPct ?? -1) ||
-            b.matches - a.matches,
+            (b.winPct ?? -1) - (a.winPct ?? -1) || b.matches - a.matches,
         )[0]
       : null;
 
   const worstOpponent =
     opponentPool.length > 0
       ? [...opponentPool].sort(
-          (a, b) =>
-            (a.winPct ?? 2) - (b.winPct ?? 2) ||
-            b.matches - a.matches,
+          (a, b) => (a.winPct ?? 2) - (b.winPct ?? 2) || b.matches - a.matches,
         )[0]
       : null;
 
@@ -1767,6 +1970,7 @@ export async function getSinglePlayerData(f: {
     },
     mostPlayedDeck,
     mostPlayedOpponent,
+    bestDeck,
     bestOpponent,
     worstOpponent,
     usedLowSampleFallback:
@@ -1774,6 +1978,7 @@ export async function getSinglePlayerData(f: {
       opponents.some((row) => row.winPct !== null),
     decks,
     opponents,
+    tournamentHistory,
     matrix: computeMatrix(matrixRows, {
       minPct: 0,
       columnMode: "opponents",

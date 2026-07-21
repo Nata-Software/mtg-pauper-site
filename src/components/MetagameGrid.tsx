@@ -88,12 +88,12 @@ function DeckTile({
 
 export function MetagameGrid({
   decks,
-  cardArt,
+  deckArt,
   baseHref,
   locale,
 }: {
   decks: MetagameDeckRow[];
-  cardArt: Map<string, string | null>;
+  deckArt: Map<string, string | null>;
   baseHref: string;
   locale: Locale;
 }) {
@@ -113,11 +113,7 @@ export function MetagameGrid({
         <DeckTile
           key={row.deck}
           row={row}
-          artUrl={
-            row.representativeCardName
-              ? cardArt.get(row.representativeCardName) ?? null
-              : null
-          }
+          artUrl={deckArt.get(row.deck) ?? null}
           baseHref={baseHref}
           locale={locale}
         />

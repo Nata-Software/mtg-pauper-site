@@ -19,9 +19,9 @@ const dict = {
     "pt-BR": "Taxas de Vitória dos Principais Arquétipos de MTG Pauper",
   },
   "matchups.subtitle": {
-    en: 'Winrate against the most present archetypes (at least {minPct}% of the matches){eventClause} between {range} — {count} archetypes. Draws are excluded from winrate.',
+    en: "Winrate against the most present archetypes (at least {minPct}% of the matches){eventClause} between {range} — {count} archetypes. Draws are excluded from winrate.",
     "pt-BR":
-      'Taxa de vitória contra os arquétipos mais presentes (pelo menos {minPct}% das partidas){eventClause} entre {range} — {count} arquétipos. Empates são excluídos da taxa de vitória.',
+      "Taxa de vitória contra os arquétipos mais presentes (pelo menos {minPct}% das partidas){eventClause} entre {range} — {count} arquétipos. Empates são excluídos da taxa de vitória.",
   },
   "matchups.inEvent": { en: ' in "{event}"', "pt-BR": ' em "{event}"' },
   "matchups.noDataBefore": {
@@ -44,7 +44,10 @@ const dict = {
   "filter.to": { en: "To", "pt-BR": "Até" },
   "filter.minPct": { en: "Min % of matches", "pt-BR": "Mín. % das partidas" },
   "filter.sortBy": { en: "Sort by", "pt-BR": "Ordenar por" },
-  "filter.sort.matches": { en: "Number of matches", "pt-BR": "Número de partidas" },
+  "filter.sort.matches": {
+    en: "Number of matches",
+    "pt-BR": "Número de partidas",
+  },
   "filter.sort.winrate": { en: "Winrate", "pt-BR": "Taxa de vitória" },
   "filter.sort.alpha": { en: "Alphabetical", "pt-BR": "Alfabético" },
   "filter.apply": { en: "Apply", "pt-BR": "Aplicar" },
@@ -63,8 +66,14 @@ const dict = {
       "Apenas uma linha de arquétipo pode ser focada por vez. Clique na linha focada novamente para retornar à ordem original da tabela.",
   },
   "matrix.focused": { en: "focused", "pt-BR": "focado" },
-  "matrix.clickToFocus": { en: "Click to focus this row", "pt-BR": "Clique para focar esta linha" },
-  "matrix.clickToUnfocus": { en: "Click to remove focus", "pt-BR": "Clique para remover o foco" },
+  "matrix.clickToFocus": {
+    en: "Click to focus this row",
+    "pt-BR": "Clique para focar esta linha",
+  },
+  "matrix.clickToUnfocus": {
+    en: "Click to remove focus",
+    "pt-BR": "Clique para remover o foco",
+  },
 
   "standings.title": { en: "Standings", "pt-BR": "Classificação" },
   "standings.subtitle": {
@@ -75,12 +84,18 @@ const dict = {
   "standings.tab.year": { en: "Whole year", "pt-BR": "Ano inteiro" },
   "standings.tab.tuesday": { en: "Tuesday", "pt-BR": "Terça-feira" },
   "standings.tab.friday": { en: "Friday", "pt-BR": "Sexta-feira" },
-  "standings.tab.tournamentData": { en: "Tournament Data", "pt-BR": "Dados do Torneio" },
+  "standings.tab.tournamentData": {
+    en: "Tournament Data",
+    "pt-BR": "Dados do Torneio",
+  },
   "standings.noMonthMatches": {
     en: "No {event} matches recorded yet.",
     "pt-BR": "Nenhuma partida de {event} registrada ainda.",
   },
-  "standings.yearView.title": { en: "Whole year — {year}", "pt-BR": "Ano inteiro — {year}" },
+  "standings.yearView.title": {
+    en: "Whole year — {year}",
+    "pt-BR": "Ano inteiro — {year}",
+  },
   "standings.yearView.subtitle": {
     en: "All events. Win / loss / draw rate per player, ranked by matches played by default. Byes are excluded. Click a name for their per-deck breakdown, or a column header to change sorting.",
     "pt-BR":
@@ -115,7 +130,10 @@ const dict = {
     "pt-BR": "Mostrando os {shown} melhores de {total} jogadores",
   },
 
-  "deck.titlePrefix": { en: "Win rate by deck", "pt-BR": "Taxa de vitória por deck" },
+  "deck.titlePrefix": {
+    en: "Win rate by deck",
+    "pt-BR": "Taxa de vitória por deck",
+  },
   "deck.subtitle": {
     en: "{total} matches across {count} {deckWord}. Byes included.",
     "pt-BR": "{total} partidas em {count} {deckWord}. Byes incluídos.",
@@ -129,7 +147,10 @@ const dict = {
   },
 
   "upload.title": { en: "Import data", "pt-BR": "Importar dados" },
-  "upload.meleeHeading": { en: "Import a melee tournament", "pt-BR": "Importar um torneio do melee" },
+  "upload.meleeHeading": {
+    en: "Import a melee tournament",
+    "pt-BR": "Importar um torneio do melee",
+  },
   "upload.meleeDesc": {
     en: "Paste a melee.gg tournament URL, choose which league it belongs to, and it's scraped and added automatically. Re-importing the same tournament just refreshes it.",
     "pt-BR":
@@ -137,7 +158,10 @@ const dict = {
   },
   "upload.meleeUrlLabel": { en: "Melee URL", "pt-BR": "URL do Melee" },
   "upload.addToLeague": { en: "Add to league", "pt-BR": "Adicionar à liga" },
-  "upload.chooseLeague": { en: "Choose a league…", "pt-BR": "Escolha uma liga…" },
+  "upload.chooseLeague": {
+    en: "Choose a league…",
+    "pt-BR": "Escolha uma liga…",
+  },
   "upload.passwordLabel": { en: "Password", "pt-BR": "Senha" },
   "upload.passwordPlaceholder": {
     en: "Required on the live site",
@@ -147,7 +171,8 @@ const dict = {
   "upload.importing": { en: "Importing…", "pt-BR": "Importando…" },
   "upload.bulkSummary": {
     en: "Bulk CSV upload (Ranking + Rounds tabs) — replaces all data",
-    "pt-BR": "Upload de CSV em lote (abas Ranking + Rounds) — substitui todos os dados",
+    "pt-BR":
+      "Upload de CSV em lote (abas Ranking + Rounds) — substitui todos os dados",
   },
   "upload.storeLabel": { en: "Store", "pt-BR": "Loja" },
   "upload.roundsCsvLabel": { en: "Rounds CSV", "pt-BR": "CSV de Rounds" },
@@ -164,7 +189,10 @@ const dict = {
   "upload.matchRows": { en: "match rows", "pt-BR": "linhas de partidas" },
   "upload.standingsRows": { en: "standings", "pt-BR": "classificações" },
   "upload.viewMatchups": { en: "View matchups →", "pt-BR": "Ver confrontos →" },
-  "upload.uploadedIntoStore": { en: "Uploaded into store", "pt-BR": "Enviado para a loja" },
+  "upload.uploadedIntoStore": {
+    en: "Uploaded into store",
+    "pt-BR": "Enviado para a loja",
+  },
   "upload.error": { en: "Error", "pt-BR": "Erro" },
 
   "league.title": { en: "League", "pt-BR": "Liga" },
@@ -209,13 +237,22 @@ const dict = {
   },
   "metagame.entrants.singular": { en: "player", "pt-BR": "jogador" },
   "metagame.entrants.plural": { en: "players", "pt-BR": "jogadores" },
-  "metagame.share": { en: "{pct}% of the field", "pt-BR": "{pct}% do metagame" },
+  "metagame.share": {
+    en: "{pct}% of the field",
+    "pt-BR": "{pct}% do metagame",
+  },
   "metagame.noData": {
     en: "No decks recorded for this period yet.",
     "pt-BR": "Nenhum deck registrado para este período ainda.",
   },
-  "metagame.matchLog.title": { en: "Games — {deck}", "pt-BR": "Partidas — {deck}" },
-  "metagame.matchLog.back": { en: "← Back to metagame", "pt-BR": "← Voltar ao metagame" },
+  "metagame.matchLog.title": {
+    en: "Games — {deck}",
+    "pt-BR": "Partidas — {deck}",
+  },
+  "metagame.matchLog.back": {
+    en: "← Back to metagame",
+    "pt-BR": "← Voltar ao metagame",
+  },
   "metagame.matchLog.empty": {
     en: "No games for this deck in this period.",
     "pt-BR": "Nenhuma partida deste deck neste período.",
@@ -224,7 +261,10 @@ const dict = {
   "metagame.col.tournament": { en: "Tournament", "pt-BR": "Torneio" },
   "metagame.col.player": { en: "Player", "pt-BR": "Jogador" },
   "metagame.col.opponent": { en: "Opponent", "pt-BR": "Oponente" },
-  "metagame.col.opponentDeck": { en: "Opponent Deck", "pt-BR": "Deck do Oponente" },
+  "metagame.col.opponentDeck": {
+    en: "Opponent Deck",
+    "pt-BR": "Deck do Oponente",
+  },
   "metagame.col.result": { en: "Result", "pt-BR": "Resultado" },
   "metagame.result.win": { en: "Win", "pt-BR": "Vitória" },
   "metagame.result.loss": { en: "Loss", "pt-BR": "Derrota" },

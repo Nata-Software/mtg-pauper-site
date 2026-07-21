@@ -91,7 +91,9 @@ function parseSortDir(value: string | undefined): SortDir {
 }
 
 function normalize(value: string | null | undefined): string {
-  return String(value ?? "").trim().toLowerCase();
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 function isByeRow(row: { opponent: string; opponentDeck: string }): boolean {
@@ -203,9 +205,8 @@ async function YearView({
   const stats = computePlayerAnalysis(rows);
 
   // Drill-down: a specific player's win rate by deck.
-  const selected = player && stats.some((s) => s.player === player)
-    ? player
-    : undefined;
+  const selected =
+    player && stats.some((s) => s.player === player) ? player : undefined;
 
   const listParams = new URLSearchParams({ view: "year", store });
   const baseParams = new URLSearchParams(listParams);

@@ -71,7 +71,7 @@ including byes and matches with an unrecorded opponent deck.
 ## Data notes / known limitations
 
 - **Dates are messy in the source**: the `Ranking` tab uses Excel serial
-  numbers; the `Rounds` tabs use slash strings whose format *changed over time*
+  numbers; the `Rounds` tabs use slash strings whose format _changed over time_
   (older rows `DD/MM/YYYY`, newer rows `M/D/YYYY`). `src/lib/dates.ts` infers
   the orientation **per year** from that year's unambiguous dates. A year with
   only ambiguous dates would fall back to `DD/MM`.
@@ -111,7 +111,7 @@ Roughly in priority order:
    - Deck names today are **free-text from the players**, so they're unreliable.
      Simple aliasing handles obvious variants (`mono-red` / `mono-red aggro`),
      but the real problem is **genuine ambiguity**: a bare `mono red` could be
-     Mono-Red Madness/Burn *or* Mono-Red Rally / Red Deck Wins — different decks
+     Mono-Red Madness/Burn _or_ Mono-Red Rally / Red Deck Wins — different decks
      we can't tell apart from the name alone. Players also just type `mono red`
      and leave us guessing.
    - Proper fix needs the **card lists** (depends on #4): classify each deck by

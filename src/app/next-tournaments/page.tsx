@@ -59,7 +59,9 @@ function saoPauloTodayStart(now: Date): number {
   const get = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((part) => part.type === type)?.value ?? "";
 
-  return Date.parse(`${get("year")}-${get("month")}-${get("day")}T00:00:00-03:00`);
+  return Date.parse(
+    `${get("year")}-${get("month")}-${get("day")}T00:00:00-03:00`,
+  );
 }
 
 function tournamentTimestamp(event: NextTournament): number {
@@ -142,13 +144,7 @@ function imageFallbackLabel(event: NextTournament): string {
   return label.toUpperCase();
 }
 
-function TournamentTabs({
-  view,
-  locale,
-}: {
-  view: View;
-  locale: Locale;
-}) {
+function TournamentTabs({ view, locale }: { view: View; locale: Locale }) {
   const labels = copy(locale);
 
   const tabs: { key: View; label: string; href: string }[] = [

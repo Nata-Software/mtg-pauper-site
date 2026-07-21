@@ -77,7 +77,9 @@ function matchRecordTotal(record: unknown): number {
 const BYE_DECK = "no deck (bye)";
 
 function lc(v: unknown): string {
-  return String(v ?? "").trim().toLowerCase();
+  return String(v ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 /** Pull the numeric tournament id out of a melee URL or a bare id. */
@@ -358,7 +360,13 @@ export async function scrapeTournament(input: string): Promise<ScrapeResult> {
         ? classifyDeck(cards, info.rawName)
         : `rogue: ${info.rawName || "unknown"}`;
       archetypeOf.set(id, archetype);
-      decklists.push({ id, player: info.player, rawName: info.rawName, archetype, cards });
+      decklists.push({
+        id,
+        player: info.player,
+        rawName: info.rawName,
+        archetype,
+        cards,
+      });
     });
   }
 

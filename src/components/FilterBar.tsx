@@ -18,7 +18,8 @@ type Props = {
 
 const inputCls =
   "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 focus:border-violet-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
-const labelCls = "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
+const labelCls =
+  "flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400";
 
 export function FilterBar(props: Props) {
   const {
@@ -105,7 +106,11 @@ export function FilterBar(props: Props) {
       {showSort && (
         <label className={labelCls}>
           {t(locale, "filter.sortBy")}
-          <select name="sort" defaultValue={sort ?? "matches"} className={inputCls}>
+          <select
+            name="sort"
+            defaultValue={sort ?? "matches"}
+            className={inputCls}
+          >
             <option value="matches">{t(locale, "filter.sort.matches")}</option>
             <option value="winrate">{t(locale, "filter.sort.winrate")}</option>
             <option value="alpha">{t(locale, "filter.sort.alpha")}</option>

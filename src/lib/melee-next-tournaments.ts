@@ -71,7 +71,9 @@ function parsePlayerCount(value: string): number {
 
 function extractTournamentUrl(value: unknown): string | undefined {
   const raw = String(value ?? "");
-  const match = raw.match(/href=["']([^"']*\/Tournament\/View\/\d+[^"']*)["']/i);
+  const match = raw.match(
+    /href=["']([^"']*\/Tournament\/View\/\d+[^"']*)["']/i,
+  );
 
   if (!match) return undefined;
 
@@ -145,10 +147,9 @@ function parseMeleeStartDate(value: string): {
   if (ampm === "PM" && hour !== 12) hour += 12;
   if (ampm === "AM" && hour === 12) hour = 0;
 
-  const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(
-    2,
-    "0",
-  )}`;
+  const date = `${year}-${String(month).padStart(2, "0")}-${String(
+    day,
+  ).padStart(2, "0")}`;
 
   const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(
     2,
@@ -227,17 +228,15 @@ function rawRowsFromArrayRows(rows: unknown[]): RawTournamentRow[] {
     .filter((row) => row.startDate && row.name);
 }
 
-function rawRowsFromObjectRows(rows: Record<string, unknown>[]): RawTournamentRow[] {
+function rawRowsFromObjectRows(
+  rows: Record<string, unknown>[],
+): RawTournamentRow[] {
   return rows
     .map((row) => {
       const id = cleanCell(row.ID ?? row.Id ?? row.id ?? "");
 
       const name =
-        row.Name ??
-        row.name ??
-        row.TournamentName ??
-        row.tournamentName ??
-        "";
+        row.Name ?? row.name ?? row.TournamentName ?? row.tournamentName ?? "";
 
       const format = cleanCell(row.Formats ?? row.formats ?? "");
 
@@ -282,7 +281,9 @@ function rawRowsFromObjectRows(rows: Record<string, unknown>[]): RawTournamentRo
     .filter((row) => row.startDate && row.name);
 }
 
-function rowsFromOrganizationBuckets(obj: Record<string, unknown>): RawTournamentRow[] {
+function rowsFromOrganizationBuckets(
+  obj: Record<string, unknown>,
+): RawTournamentRow[] {
   const buckets = ["Featured", "Your", "Next"];
 
   return buckets.flatMap((bucket) => {
@@ -403,7 +404,10 @@ function datatablesBody(): URLSearchParams {
   return body;
 }
 
-async function postEndpoint(url: string, body: URLSearchParams): Promise<string> {
+async function postEndpoint(
+  url: string,
+  body: URLSearchParams,
+): Promise<string> {
   const res = await fetch(url, {
     method: "POST",
     headers: {

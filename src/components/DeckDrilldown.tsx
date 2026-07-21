@@ -1,11 +1,13 @@
 import Link from "next/link";
 
-import { prettyDeck } from "@/lib/stats";
+import { MatrixTable } from "@/components/MatrixTable";
+import { PlayerSearchInput } from "@/components/PlayerSearchInput";
 import type {
   DeckDrilldownData,
   DeckDrilldownMetricRow,
   DeckDrilldownPilotRow,
 } from "@/lib/queries";
+import { prettyDeck } from "@/lib/stats";
 import type { Locale } from "@/lib/i18n";
 
 type Copy = ReturnType<typeof copy>;
@@ -18,22 +20,30 @@ function copy(locale: Locale) {
       overallWinrate: "Winrate geral",
       record: "V-D-E",
       matches: "Partidas",
+      pilots: "Pilotos",
       bestMatchup: "Melhor matchup",
       worstMatchup: "Pior matchup",
       mostPlayedOpponentDeck: "Deck oponente mais enfrentado",
       bestPilot: "Melhor piloto",
       recentPlayers: "Jogadores recentes",
+      matchupMatrix: "Matriz de matchups",
       player: "Jogador",
+      winner: "Vencedor",
       lastPlayed: "Última vez",
       tournaments: "Torneios",
-      winrate: "Win%",
-      deck: "Deck",
-      lowSampleMatches: "Amostra baixa, <10 partidas",
-      lowSampleTournament: "Amostra baixa, 1 torneio",
       tournamentsWon: "Torneios vencidos",
       biggestTournamentWon: "Maior torneio vencido",
-      players: "jogadores",
       tournamentWins: "Vitórias em torneios",
+      players: "jogadores",
+      winrate: "Win%",
+      lowSampleMatches: "Amostra baixa, <10 partidas",
+      lowSampleTournament: "Amostra baixa, 1 torneio",
+      filterPlayer: "Filtrar jogador",
+      searchPlayer: "Buscar jogador...",
+      typeAtLeast3: "Digite pelo menos 3 letras",
+      noPlayerFound: "Nenhum jogador encontrado",
+      apply: "Aplicar",
+      reset: "Limpar",
       none: "—",
     };
   }
@@ -44,22 +54,30 @@ function copy(locale: Locale) {
     overallWinrate: "Overall Winrate",
     record: "W-L-D",
     matches: "Matches",
+    pilots: "Pilots",
     bestMatchup: "Best Matchup",
     worstMatchup: "Worst Matchup",
     mostPlayedOpponentDeck: "Most Played Opponent Deck",
     bestPilot: "Best Pilot",
     recentPlayers: "Recent Players",
+    matchupMatrix: "Matchup Matrix",
     player: "Player",
+    winner: "Winner",
     lastPlayed: "Last Played",
     tournaments: "Tournaments",
-    winrate: "Win%",
-    deck: "Deck",
-    lowSampleMatches: "Low Sample Size, <10 Matches",
-    lowSampleTournament: "Low Sample Size, 1 Tournament",
     tournamentsWon: "Tournaments Won",
     biggestTournamentWon: "Biggest Tournament Won",
-    players: "players",
     tournamentWins: "Tournament Wins",
+    players: "players",
+    winrate: "Win%",
+    lowSampleMatches: "Low Sample Size, <10 Matches",
+    lowSampleTournament: "Low Sample Size, 1 Tournament",
+    filterPlayer: "Filter player",
+    searchPlayer: "Search player...",
+    typeAtLeast3: "Type at least 3 letters",
+    noPlayerFound: "No player found",
+    apply: "Apply",
+    reset: "Reset",
     none: "—",
   };
 }
@@ -76,6 +94,12 @@ function wld(row: { wins: number; losses: number; draws: number }): string {
 
 function number(value: number): string {
   return value.toLocaleString();
+}
+
+function playerHref(baseHref: string, player: string): string {
+  const sep = baseHref.includes("?") ? "&" : "?";
+
+  return `${baseHref}${sep}player=${encodeURIComponent(player)}`;
 }
 
 function lowSampleBadge(label: string) {
@@ -103,15 +127,18 @@ function biggestTournamentCard({
   label,
   tournament,
   playersLabel,
+  winnerLabel,
   none,
 }: {
   label: string;
   tournament: {
     tournamentName: string;
     date: string;
+    player: string;
     playerCount: number;
   } | null;
   playersLabel: string;
+  winnerLabel: string;
   none: string;
 }) {
   return (
@@ -124,6 +151,9 @@ function biggestTournamentCard({
         <div className="mt-2 space-y-1">
           <div className="text-lg font-bold leading-snug text-neutral-950 dark:text-white">
             {tournament.tournamentName}
+          </div>
+          <div className="text-sm text-neutral-500 dark:text-neutral-400">
+            {winnerLabel}: {tournament.player}
           </div>
           <div className="text-sm text-neutral-500 dark:text-neutral-400">
             {tournament.playerCount.toLocaleString()} {playersLabel}
@@ -161,11 +191,17 @@ function matchupCard({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-            <span>{c.record}: {wld(row)}</span>
+            <span>
+              {c.record}: {wld(row)}
+            </span>
             <span>·</span>
-            <span>{c.winrate}: {pct(row.winPct)}</span>
+            <span>
+              {c.winrate}: {pct(row.winPct)}
+            </span>
             <span>·</span>
-            <span>{c.matches}: {number(row.matches)}</span>
+            <span>
+              {c.matches}: {number(row.matches)}
+            </span>
           </div>
 
           {row.lowSample && lowSampleBadge(c.lowSampleMatches)}
@@ -206,15 +242,29 @@ function bestPilotCard({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-            <span>{c.record}: {wld(row)}</span>
+            <span>
+              {c.record}: {wld(row)}
+            </span>
             <span>·</span>
-            <span>{c.winrate}: {pct(row.winPct)}</span>
+            <span>
+              {c.winrate}: {pct(row.winPct)}
+            </span>
             <span>·</span>
-            <span>{c.matches}: {number(row.matches)}</span>
+            <span>
+              {c.matches}: {number(row.matches)}
+            </span>
             <span>·</span>
-            <span>{c.tournaments}: {number(row.tournaments)}</span>
+            <span>
+              {c.tournaments}: {number(row.tournaments)}
+            </span>
             <span>·</span>
-            <span>{c.tournamentWins}: {number(row.tournamentWins)}</span>
+            <span>
+              {c.tournamentWins}: {number(row.tournamentWins)}
+            </span>
+            <span>·</span>
+            <span>
+              {c.lastPlayed}: {row.lastPlayed || "—"}
+            </span>
           </div>
 
           {pilotSampleBadge(row, c)}
@@ -232,11 +282,21 @@ export function DeckDrilldown({
   deck,
   data,
   backHref,
+  filterBaseHref,
+  store,
+  range,
+  selectedPlayer,
+  players,
   locale,
 }: {
   deck: string;
   data: DeckDrilldownData | null;
   backHref: string;
+  filterBaseHref: string;
+  store: string;
+  range: string;
+  selectedPlayer: string;
+  players: string[];
   locale: Locale;
 }) {
   const c = copy(locale);
@@ -258,6 +318,44 @@ export function DeckDrilldown({
         </div>
       </div>
 
+      <form
+        method="get"
+        action="/metagame"
+        className="flex flex-wrap items-end gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <input type="hidden" name="store" value={store} />
+        <input type="hidden" name="range" value={range} />
+        <input type="hidden" name="deck" value={deck} />
+
+        <div className="min-w-64">
+          <PlayerSearchInput
+            key={selectedPlayer || "all-players"}
+            players={players}
+            selectedPlayer={selectedPlayer}
+            label={c.filterPlayer}
+            placeholder={c.searchPlayer}
+            minimumLabel={c.typeAtLeast3}
+            noResultsLabel={c.noPlayerFound}
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="rounded-md bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
+        >
+          {c.apply}
+        </button>
+
+        {selectedPlayer && (
+          <Link
+            href={filterBaseHref}
+            className="rounded-md border border-neutral-300 px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          >
+            {c.reset}
+          </Link>
+        )}
+      </form>
+
       {!data ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           {c.noData}
@@ -268,16 +366,21 @@ export function DeckDrilldown({
             {statCard(c.overallWinrate, pct(data.winPct))}
             {statCard(c.record, wld(data))}
             {statCard(c.matches, data.matches)}
+            {statCard(c.pilots, data.pilots)}
             {statCard(c.tournamentsWon, data.tournamentsWon)}
-            {biggestTournamentCard({
-                label: c.biggestTournamentWon,
-                tournament: data.biggestTournamentWon,
-                playersLabel: c.players,
-                none: c.none,
-            })}
-            </div>
+          </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
+            {biggestTournamentCard({
+              label: c.biggestTournamentWon,
+              tournament: data.biggestTournamentWon,
+              playersLabel: c.players,
+              winnerLabel: c.winner,
+              none: c.none,
+            })}
+
+            {bestPilotCard({ row: data.bestPilot, c })}
+
             {matchupCard({
               title: c.bestMatchup,
               row: data.bestMatchup,
@@ -295,83 +398,93 @@ export function DeckDrilldown({
               row: data.mostPlayedOpponentDeck,
               c,
             })}
-
-            {bestPilotCard({ row: data.bestPilot, c })}
           </div>
+
+          <section className="space-y-3">
+            <h3 className="text-xl font-bold text-neutral-950 dark:text-white">
+              {c.matchupMatrix}
+            </h3>
+
+            <MatrixTable
+              matrix={data.matrix}
+              sort="matches"
+              baseHref={filterBaseHref}
+              locale={locale}
+            />
+          </section>
 
           <section className="space-y-3">
             <h3 className="text-xl font-bold text-neutral-950 dark:text-white">
               {c.recentPlayers}
             </h3>
 
-            {data.recentPlayers.length === 0 ? (
-              <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-                {c.noData}
-              </p>
-            ) : (
-              <div className="max-h-[33rem] overflow-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
-                <table className="min-w-full text-sm">
-                  <thead className="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-900">
-                    <tr>
-                      <th className="h-12 px-4 py-0 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.player}
-                      </th>
-                      <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.lastPlayed}
-                      </th>
-                      <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.tournaments}
-                      </th>
-                      <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.tournamentWins}
-                      </th>
-                      <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.matches}
-                      </th>
-                      <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.record}
-                      </th>
-                      <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {c.winrate}
-                      </th>
-                    </tr>
-                  </thead>
+            <div className="max-h-[18rem] overflow-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
+              <table className="min-w-full text-sm">
+                <thead className="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-900">
+                  <tr>
+                    <th className="h-12 px-4 py-0 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.player}
+                    </th>
+                    <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.lastPlayed}
+                    </th>
+                    <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.tournaments}
+                    </th>
+                    <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.tournamentWins}
+                    </th>
+                    <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.matches}
+                    </th>
+                    <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.record}
+                    </th>
+                    <th className="h-12 px-4 py-0 text-right text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {c.winrate}
+                    </th>
+                  </tr>
+                </thead>
 
-                  <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                    {data.recentPlayers.map((row) => (
-                      <tr key={row.player}>
-                        <td className="h-12 px-4 py-0 text-sm font-semibold text-neutral-950 dark:text-white">
+                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                  {data.recentPlayers.map((row) => (
+                    <tr key={row.player}>
+                      <td className="h-12 px-4 py-0 text-sm font-semibold">
+                        <Link
+                          href={playerHref(filterBaseHref, row.player)}
+                          className="text-violet-600 hover:underline dark:text-violet-400"
+                        >
                           {row.player}
-                          {row.lowSample && (
-                            <span className="ml-2">
-                              {pilotSampleBadge(row, c)}
-                            </span>
-                          )}
-                        </td>
-                        <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
-                          {row.lastPlayed || "—"}
-                        </td>
-                        <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
-                          {number(row.tournaments)}
-                        </td>
-                        <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
-                          {number(row.tournamentWins)}
-                        </td>
-                        <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
-                          {number(row.matches)}
-                        </td>
-                        <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
-                          {wld(row)}
-                        </td>
-                        <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
-                          {pct(row.winPct)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        </Link>
+                        {row.lowSample && (
+                          <span className="ml-2">
+                            {pilotSampleBadge(row, c)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
+                        {row.lastPlayed || "—"}
+                      </td>
+                      <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
+                        {number(row.tournaments)}
+                      </td>
+                      <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
+                        {number(row.tournamentWins)}
+                      </td>
+                      <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
+                        {number(row.matches)}
+                      </td>
+                      <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
+                        {wld(row)}
+                      </td>
+                      <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
+                        {pct(row.winPct)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         </>
       )}

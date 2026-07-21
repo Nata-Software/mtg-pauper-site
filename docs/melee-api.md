@@ -14,16 +14,16 @@ plain Node/datacenter environment (no Cloudflare challenge).
 
 Key endpoints (all `GET`, `{id}` is a tournament/decklist/player id):
 
-| Endpoint | Returns |
-|---|---|
-| `/api/tournament/{id}` | tournament details |
-| `/api/tournament/list` | tournaments the user can access |
-| `/api/decklist/{id}` | one decklist **with cards** |
-| `/api/decklist/list/{id}` | all decklists in a tournament |
-| `/api/decklist/player/{id}` | a player's decklists |
-| `/api/match/list/round/{id}` | matches for a round |
-| `/api/standing/list/round/{id}` | standings for a round |
-| `/api/player/{id}` | player details |
+| Endpoint                        | Returns                         |
+| ------------------------------- | ------------------------------- |
+| `/api/tournament/{id}`          | tournament details              |
+| `/api/tournament/list`          | tournaments the user can access |
+| `/api/decklist/{id}`            | one decklist **with cards**     |
+| `/api/decklist/list/{id}`       | all decklists in a tournament   |
+| `/api/decklist/player/{id}`     | a player's decklists            |
+| `/api/match/list/round/{id}`    | matches for a round             |
+| `/api/standing/list/round/{id}` | standings for a round           |
+| `/api/player/{id}`              | player details                  |
 
 ## 2. Public web endpoints (what the app scrapes today, no auth)
 

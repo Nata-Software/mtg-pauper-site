@@ -13,6 +13,7 @@ export function PlayerSearchInput({
   placeholder,
   noResultsLabel,
   minimumLabel,
+  name = "player",
 }: {
   players: string[];
   selectedPlayer: string;
@@ -20,6 +21,7 @@ export function PlayerSearchInput({
   placeholder: string;
   noResultsLabel: string;
   minimumLabel: string;
+  name?: string;
 }) {
   const [query, setQuery] = useState(selectedPlayer);
   const [selected, setSelected] = useState(selectedPlayer);
@@ -71,7 +73,7 @@ export function PlayerSearchInput({
     <label className="relative flex flex-col gap-1 text-sm">
       {label}
 
-      <input type="hidden" name="player" value={selected} />
+      <input type="hidden" name={name} value={selected} />
 
       <input
         type="search"

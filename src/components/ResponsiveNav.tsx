@@ -18,7 +18,11 @@ const NAV_ITEMS = [
   // { href: "/metagame", en: "Metagame", pt: "Metagame" },
   { href: "/league", en: "League", pt: "Liga" },
   { href: "/data", en: "Data", pt: "Dados" },
-  { href: "/next-tournaments", en: "Next Tournaments", pt: "Próximos Torneios" },
+  {
+    href: "/next-tournaments",
+    en: "Next Tournaments",
+    pt: "Próximos Torneios",
+  },
   // { href: "/admin/upload", en: "Upload", pt: "Upload" },
 ];
 

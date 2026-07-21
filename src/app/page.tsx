@@ -44,7 +44,8 @@ export default async function MatchupsPage({
   const year = new Date().getUTCFullYear();
   const fromParam = first(sp.from);
   const toParam = first(sp.to);
-  const from = fromParam === undefined ? `${year}-01-01` : fromParam || undefined;
+  const from =
+    fromParam === undefined ? `${year}-01-01` : fromParam || undefined;
   const to = toParam === undefined ? `${year}-12-31` : toParam || undefined;
   const minPct = Number(first(sp.minPct) ?? 1) || 0;
   const sort = parseMatrixSort(first(sp.sort));
@@ -129,7 +130,10 @@ export default async function MatchupsPage({
       {matchRows.length === 0 ? (
         <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           {t(locale, "matchups.noDataBefore")}
-          <Link href="/admin/upload" className="text-violet-600 underline dark:text-violet-400">
+          <Link
+            href="/admin/upload"
+            className="text-violet-600 underline dark:text-violet-400"
+          >
             {t(locale, "nav.upload")}
           </Link>
           {t(locale, "matchups.noDataAfter")}

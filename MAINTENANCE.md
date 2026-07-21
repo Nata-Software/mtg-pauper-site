@@ -1,17 +1,17 @@
 # Maintaining & updating MTG Pauper Stats
 
-How to keep the site running and refresh its data. For what the app *does* and
+How to keep the site running and refresh its data. For what the app _does_ and
 the roadmap, see [README.md](./README.md).
 
 ## Where everything lives
 
-| Piece | Service | Notes |
-|---|---|---|
-| Site | **https://liga-pauper-mont.vercel.app** | Live URL |
-| Code | GitHub — `Nata-Software/mtg-pauper-site` (public) | Source of truth |
-| Hosting | **Vercel** (free Hobby plan) | Auto-deploys on every push to `main` |
-| Database | **Neon** (free Postgres, São Paulo) | Connection string = `DATABASE_URL` env var |
-| Source data | **melee.gg** tournaments | Scraped live by the app |
+| Piece       | Service                                           | Notes                                      |
+| ----------- | ------------------------------------------------- | ------------------------------------------ |
+| Site        | **https://liga-pauper-mont.vercel.app**           | Live URL                                   |
+| Code        | GitHub — `Nata-Software/mtg-pauper-site` (public) | Source of truth                            |
+| Hosting     | **Vercel** (free Hobby plan)                      | Auto-deploys on every push to `main`       |
+| Database    | **Neon** (free Postgres, São Paulo)               | Connection string = `DATABASE_URL` env var |
+| Source data | **melee.gg** tournaments                          | Scraped live by the app                    |
 
 **Data flow:** melee.gg tournament → app scrapes it (`/admin/upload`) → Neon →
 site reads Neon.
@@ -46,9 +46,9 @@ Both admin actions are **rate-limited** (20 requests / 10 min per IP).
 Set in **Vercel → Project → Settings → Environment Variables**, and for local
 dev in a gitignored **`.env`** (copy from `.env.example`):
 
-| Name | What it is |
-|---|---|
-| `DATABASE_URL` | Neon Postgres connection string |
+| Name              | What it is                                                            |
+| ----------------- | --------------------------------------------------------------------- |
+| `DATABASE_URL`    | Neon Postgres connection string                                       |
 | `UPLOAD_PASSWORD` | Shared password required to upload data. Unset locally = uploads open |
 
 **Never commit these values** — the repo is public.
