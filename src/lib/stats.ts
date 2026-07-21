@@ -1,17 +1,9 @@
 /**
  * Matchup-matrix statistics.
  *
-<<<<<<< Updated upstream
- * Winrate counts draws as non-wins:
- * winrate = wins / (wins + losses + draws).
- *
+ * Winrate counts draws as non-wins: winrate = wins / (wins + losses + draws).
  * "matches" counts every decided or drawn game between the two archetypes.
  * Confidence interval is the 95% Wilson score interval on wins vs non-wins.
-=======
- * Winrate ignores draws: winrate = wins / (wins + losses).
- * "matches" counts every decided or drawn game between the two archetypes.
- * Confidence interval is the 95% Wilson score interval on the winrate.
->>>>>>> Stashed changes
  */
 
 export type MatchRow = {
