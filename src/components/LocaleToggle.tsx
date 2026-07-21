@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
+<<<<<<< Updated upstream
 import { applyLocale } from "@/lib/i18n-client";
 import type { Locale } from "@/lib/i18n";
 
@@ -10,6 +11,9 @@ const OPTIONS: { code: Locale; label: string; title: string }[] = [
   { code: "en", label: "EN", title: "English" },
   { code: "pt-BR", label: "PT", title: "Português" },
 ];
+=======
+import { DEFAULT_LOCALE, LOCALE_COOKIE, parseLocale, type Locale } from "@/lib/i18n";
+>>>>>>> Stashed changes
 
 function readInitialLocale(): Locale {
   if (typeof document === "undefined") {
@@ -21,52 +25,51 @@ function readInitialLocale(): Locale {
     : "en";
 }
 
+function setLocaleCookie(locale: Locale) {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; SameSite=Lax`;
+}
+
 export function LocaleToggle() {
   const router = useRouter();
-  const [locale, setLocale] = useState<Locale>(readInitialLocale);
-  const [isPending, startTransition] = useTransition();
+  const [locale, setLocaleState] = useState<Locale>(readInitialLocale);
 
-  function select(next: Locale) {
-    if (next === locale) return;
+  function setLocale(nextLocale: Locale) {
+    setLocaleState(nextLocale);
 
-    document.documentElement.setAttribute("data-locale", next);
-    document.documentElement.setAttribute("lang", next);
+    document.documentElement.setAttribute("data-locale", nextLocale);
+    document.documentElement.setAttribute("lang", nextLocale);
 
-    setLocale(next);
-    applyLocale(next);
+    localStorage.setItem("locale", nextLocale);
+    setLocaleCookie(nextLocale);
 
-    startTransition(() => {
-      router.refresh();
-    });
+    router.refresh();
   }
 
   return (
-    <div
-      role="group"
-      aria-label="Language / Idioma"
-      aria-busy={isPending}
-      className="inline-flex items-center gap-0.5 rounded-md border border-neutral-300 bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-800"
-    >
-      {OPTIONS.map((option) => {
-        const active = locale === option.code;
+    <div className="inline-flex rounded-lg border border-neutral-300 bg-neutral-100 p-1 text-xs font-semibold dark:border-neutral-700 dark:bg-neutral-900">
+      <button
+        type="button"
+        onClick={() => setLocale("en")}
+        className={
+          locale === "en"
+            ? "rounded-md bg-emerald-600 px-3 py-1.5 text-white"
+            : "rounded-md px-3 py-1.5 text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
+        }
+      >
+        EN
+      </button>
 
-        return (
-          <button
-            key={option.code}
-            type="button"
-            onClick={() => select(option.code)}
-            aria-pressed={active}
-            title={option.title}
-            className={
-              active
-                ? "rounded bg-emerald-600 px-2 py-1 text-xs font-semibold text-white"
-                : "rounded px-2 py-1 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
-            }
-          >
-            {option.label}
-          </button>
-        );
-      })}
+      <button
+        type="button"
+        onClick={() => setLocale("pt-BR")}
+        className={
+          locale === "pt-BR"
+            ? "rounded-md bg-emerald-600 px-3 py-1.5 text-white"
+            : "rounded-md px-3 py-1.5 text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
+        }
+      >
+        PT
+      </button>
     </div>
   );
 }
