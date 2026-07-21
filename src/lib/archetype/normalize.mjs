@@ -122,7 +122,10 @@ export function display(cleaned) {
 export function canonicalDeck(archetype, deck, resolve) {
   const fromCards = archetype != null && String(archetype).trim() !== "";
   let cleaned = clean(fromCards ? archetype : deck);
-  if (!cleaned) return "";
+  // A player who forgot to register a decklist has no archetype and no typed
+  // name. Label it so their games still show (and count) in per-deck/player
+  // views instead of vanishing; the matrix filters it out via BYE_DECKS.
+  if (!cleaned) return "Unknown Deck";
 
   // Bare color-only raw names get folded into the player's dominant deck.
   if (!fromCards && isBare(cleaned) && resolve) {

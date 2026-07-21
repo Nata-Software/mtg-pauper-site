@@ -66,10 +66,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
+      kind: "scrape",
       event,
       tournamentId: scraped.tournamentId,
       tournamentName: scraped.tournamentName,
       date: scraped.date ? scraped.date.toISOString().slice(0, 10) : null,
+      warnings: scraped.warnings,
       ...result,
     });
   } catch (err) {

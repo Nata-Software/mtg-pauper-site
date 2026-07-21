@@ -14,6 +14,7 @@ type Result =
       date: string | null;
       matches: number;
       standings: number;
+      warnings?: string[];
     }
   | { ok: true; kind: "upload"; store: string; matches: number; standings: number }
   | { ok: false; error: string };
@@ -160,6 +161,16 @@ export function UploadForm({ locale }: { locale: Locale }) {
               <Link href="/" className="underline">
                 {t(locale, "upload.viewMatchups")}
               </Link>
+              {result.warnings && result.warnings.length > 0 && (
+                <div className="mt-3 rounded-md border border-amber-400 bg-amber-50 p-3 text-amber-900 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-200">
+                  <div className="font-semibold">⚠ {t(locale, "upload.partialWarning")}</div>
+                  <ul className="mt-1 list-disc pl-5">
+                    {result.warnings.map((w, i) => (
+                      <li key={i}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </>
           ) : result.ok ? (
             <>

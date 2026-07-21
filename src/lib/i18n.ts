@@ -155,6 +155,11 @@ const dict = {
   "upload.uploadBtn": { en: "Upload CSVs", "pt-BR": "Enviar CSVs" },
   "upload.uploading": { en: "Uploading…", "pt-BR": "Enviando…" },
   "upload.imported": { en: "Imported", "pt-BR": "Torneio importado:" },
+  "upload.partialWarning": {
+    en: "Import may be incomplete — some matches weren't finalized on melee yet. Re-import later.",
+    "pt-BR":
+      "A importação pode estar incompleta — algumas partidas ainda não foram finalizadas no melee. Reimporte mais tarde.",
+  },
   "upload.into": { en: "into", "pt-BR": "na liga" },
   "upload.matchRows": { en: "match rows", "pt-BR": "linhas de partidas" },
   "upload.standingsRows": { en: "standings", "pt-BR": "classificações" },

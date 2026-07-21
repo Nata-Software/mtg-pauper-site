@@ -118,6 +118,15 @@ function redCore(cards) {
   return RED_MADNESS.filter((s) => slugs.has(s)).length >= 2 ? "Madness" : "RDW";
 }
 
+// Kiln Fiend / "Hot Dogs": spells-combo aggro built on Kiln Fiend / Festival
+// Crasher + free pump (Assault Strobe, Temur Battle Rage). Its own archetype,
+// NOT RDW. Kiln Fiend / Festival Crasher see essentially no other play, so
+// their presence is a reliable signal. Checked before color routing so the
+// izzet build reads "Izzet Kiln Fiend" too.
+function isKilnFiend(cards) {
+  return hasName(cards, "kiln fiend") || hasName(cards, "festival crasher");
+}
+
 // Gruul: Ponza (land destruction) vs Ramp (Utopia Sprawl ramp) vs Aggro.
 function gruulCore(cards) {
   const ld = ["thermokarst", "mwonvuli acid-moss", "stone rain", "molten rain", "icequake"];
@@ -146,7 +155,8 @@ export function classifyDeck(cards, typedName, model) {
 
   // 1. signature overrides
   let label = null;
-  if (cs.has("U")) {
+  if (isKilnFiend(cards)) label = `${colorPrefix(cs)} Kiln Fiend`;
+  if (label === null && cs.has("U")) {
     const core = blueCore(cards);
     if (core) label = `${colorPrefix(cs)} ${core}`;
   }
