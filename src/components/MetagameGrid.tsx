@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+
+import { pct, winrateColor } from "@/lib/colors";
 import { t, type Locale } from "@/lib/i18n";
-import { winrateColor, pct } from "@/lib/colors";
 import type { MetagameDeckRow } from "@/lib/queries";
 
 function shareLabel(sharePct: number): string {
@@ -10,6 +11,7 @@ function shareLabel(sharePct: number): string {
 
 function deckHref(baseHref: string, deck: string): string {
   const sep = baseHref.includes("?") ? "&" : "?";
+
   return `${baseHref}${sep}deck=${encodeURIComponent(deck)}`;
 }
 
@@ -26,17 +28,21 @@ function DeckTile({
 }) {
   const { bgLight, fgLight, bgDark, fgDark } = winrateColor(
     row.winrate,
-    row.wins + row.losses,
+    row.matches,
   );
+
   const badgeStyle = {
     "--cb-l": bgLight,
     "--cf-l": fgLight,
     "--cb-d": bgDark,
     "--cf-d": fgDark,
   } as CSSProperties;
+
   const playerWord = t(
     locale,
-    row.entrants === 1 ? "metagame.entrants.singular" : "metagame.entrants.plural",
+    row.entrants === 1
+      ? "metagame.entrants.singular"
+      : "metagame.entrants.plural",
   );
 
   return (
@@ -51,7 +57,9 @@ function DeckTile({
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black" />
           )}
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/0" />
+
           <h2 className="absolute inset-x-0 bottom-0 line-clamp-2 px-3 pb-2 text-center text-base font-bold leading-snug text-white [text-shadow:0_1px_4px_rgb(0_0_0_/_0.85)]">
             {row.deck}
           </h2>
@@ -91,8 +99,10 @@ export function MetagameGrid({
 }) {
   if (decks.length === 0) {
     return (
-      <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        {t(locale, "metagame.noData")}
+      <p className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        {locale === "pt-BR"
+          ? "Nenhum dado de metagame encontrado."
+          : "No metagame data found."}
       </p>
     );
   }

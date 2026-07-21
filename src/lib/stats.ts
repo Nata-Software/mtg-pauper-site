@@ -1,9 +1,11 @@
 /**
  * Matchup-matrix statistics.
  *
- * Winrate ignores draws: winrate = wins / (wins + losses).
+ * Winrate counts draws as non-wins:
+ * winrate = wins / (wins + losses + draws).
+ *
  * "matches" counts every decided or drawn game between the two archetypes.
- * Confidence interval is the 95% Wilson score interval on the winrate.
+ * Confidence interval is the 95% Wilson score interval on wins vs non-wins.
  */
 
 export type MatchRow = {
@@ -69,7 +71,9 @@ export type DeckBreakdown = {
   drawPct: number;
 };
 
-const BYE_DECKS = new Set(["no deck (bye)", "bye", ""]);
+// "unknown deck" = a player who didn't register a decklist.
+// Kept OUT of the matchup matrix, like byes.
+const BYE_DECKS = new Set(["no deck (bye)", "bye", "", "unknown deck"]);
 
 export function isByeDeck(deck: string): boolean {
   return BYE_DECKS.has(deck.trim().toLowerCase());
@@ -99,13 +103,13 @@ function tally(cell: CellStat, result: string): void {
 
 export function wilson(
   wins: number,
-  losses: number,
+  nonWins: number,
 ): {
   winrate: number | null;
   low: number;
   high: number;
 } {
-  const n = wins + losses;
+  const n = wins + nonWins;
 
   if (n === 0) return { winrate: null, low: 0, high: 0 };
 
@@ -125,7 +129,7 @@ export function wilson(
 }
 
 function finalize(cell: CellStat): void {
-  const w = wilson(cell.wins, cell.losses);
+  const w = wilson(cell.wins, cell.losses + cell.draws);
 
   cell.winrate = w.winrate;
   cell.ciLow = w.low;

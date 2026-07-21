@@ -93,7 +93,7 @@ function cellHtml(stat: CellStat | undefined, href?: string): string {
 
   const { bgLight, fgLight, bgDark, fgDark } = winrateColor(
     stat.winrate,
-    stat.wins + stat.losses,
+    stat.matches,
   );
 
   const style = `--cb-l:${bgLight};--cf-l:${fgLight};--cb-d:${bgDark};--cf-d:${fgDark}`;
@@ -213,23 +213,12 @@ export function MatrixTable({
     locale,
   });
 
-  const drawNote =
-  locale === "pt-BR"
-    ? "A winrate da matriz ignora empates. A contagem de partidas inclui empates."
-    : "Matrix winrate excludes draws. Match count includes draws.";
-
   return (
-    <div className="space-y-2">
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">
-        {drawNote}
-      </p>
-
-      <div className="matrix-scroll overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-        <table
-          className="mx min-w-full"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      </div>
-    </div>
-  );
+  <div className="matrix-scroll overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+    <table
+      className="mx min-w-full"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  </div>
+);
 }
