@@ -33,7 +33,6 @@ function rowsWithFocus(
   if (!focusedDeck) return { rows };
 
   const target = focusedDeck.trim().toLowerCase();
-
   const focusedIndex = rows.findIndex(
     (row) => row.deck.trim().toLowerCase() === target,
   );

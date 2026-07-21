@@ -1,40 +1,46 @@
 /**
  * Matchup-matrix statistics.
  *
+<<<<<<< Updated upstream
  * Winrate counts draws as non-wins:
  * winrate = wins / (wins + losses + draws).
  *
  * "matches" counts every decided or drawn game between the two archetypes.
  * Confidence interval is the 95% Wilson score interval on wins vs non-wins.
+=======
+ * Winrate ignores draws: winrate = wins / (wins + losses).
+ * "matches" counts every decided or drawn game between the two archetypes.
+ * Confidence interval is the 95% Wilson score interval on the winrate.
+>>>>>>> Stashed changes
  */
 
 export type MatchRow = {
   deck: string;
   opponentDeck: string;
-  result: string;
+  result: string; // "win" | "loss" | "draw"
 };
 
 export type CellStat = {
   wins: number;
   losses: number;
   draws: number;
-  matches: number;
-  winrate: number | null;
+  matches: number; // wins + losses + draws
+  winrate: number | null; // null when no decided games
   ciLow: number;
   ciHigh: number;
 };
 
 export type ArchetypeRow = {
   deck: string;
-  matches: number;
+  matches: number; // total appearances across all opponents
   overall: CellStat;
   vs: Record<string, CellStat>;
 };
 
 export type Matrix = {
-  archetypes: string[];
+  archetypes: string[]; // column archetypes
   rows: ArchetypeRow[];
-  totalMatches: number;
+  totalMatches: number; // total mirrored rows considered
   minPct: number;
 };
 
@@ -101,6 +107,9 @@ function tally(cell: CellStat, result: string): void {
   cell.matches++;
 }
 
+/**
+ * 95% Wilson score interval for wins out of (wins+losses).
+ */
 export function wilson(
   wins: number,
   nonWins: number,
@@ -142,6 +151,7 @@ export function computeMatrix(
   const minPct = opts.minPct ?? 2;
   const columnMode = opts.columnMode ?? "rows";
 
+  // deck -> ArchetypeRow
   const map = new Map<string, ArchetypeRow>();
   const opponentTotals = new Map<string, number>();
   let totalRows = 0;
@@ -165,10 +175,12 @@ export function computeMatrix(
     const opp = m.opponentDeck.trim();
     const row = getRow(deck);
 
+    // OVERALL counts every match the deck played.
     row.matches++;
     totalRows++;
     tally(row.overall, m.result);
 
+    // Per-opponent cells only exist for known opponents.
     if (!isByeDeck(opp)) {
       if (!row.vs[opp]) row.vs[opp] = emptyCell();
 
@@ -177,12 +189,14 @@ export function computeMatrix(
     }
   }
 
+  // Presence filter: keep row decks with >= minPct% of all rows.
   const threshold = (minPct / 100) * totalRows;
 
   const present = [...map.values()]
-    .filter((row) => row.matches >= threshold)
+    .filter((r) => r.matches >= threshold)
     .sort((a, b) => b.matches - a.matches);
 
+  // Finalize stats for kept rows.
   for (const row of present) {
     finalize(row.overall);
 
@@ -204,7 +218,7 @@ export function computeMatrix(
             (opponentTotals.get(b) ?? 0) - (opponentTotals.get(a) ?? 0) ||
             a.localeCompare(b),
         )
-      : present.map((row) => row.deck);
+      : present.map((r) => r.deck);
 
   return {
     archetypes,
