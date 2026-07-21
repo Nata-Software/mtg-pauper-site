@@ -58,3 +58,6 @@ Rounds.csv
 
 # local DB backups
 /backups/
+
+# local-only context notes (may contain secrets — never commit)
+/LOCAL_CONTEXT.md
