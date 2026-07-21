@@ -100,7 +100,8 @@ function tally(cell: CellStat, result: string): void {
 }
 
 /**
- * 95% Wilson score interval for wins out of (wins+losses).
+ * 95% Wilson score interval for wins out of (wins + nonWins), where nonWins =
+ * losses + draws (draws count as non-wins).
  */
 export function wilson(
   wins: number,
