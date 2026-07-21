@@ -217,6 +217,7 @@ export async function addTournamentData(opts: {
         points: s.points,
         position: s.position,
         deck: s.deck,
+        archetype: s.archetype,
         tournamentId,
         tournamentName,
       })),
