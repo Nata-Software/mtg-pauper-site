@@ -15,6 +15,7 @@ import {
   clean,
   colorKey,
   display,
+  isBare,
   SYNONYMS,
 } from "./archetype/normalize.mjs";
 
@@ -36,6 +37,50 @@ function dateWhere(from?: string, to?: string) {
   if (to) date.lte = new Date(`${to}T23:59:59.999Z`);
 
   return Object.keys(date).length ? date : undefined;
+}
+
+function specificDisplayName(value: string | null | undefined): string | null {
+  const cleaned = SYNONYMS[clean(value)] ?? clean(value);
+
+  if (!cleaned || isBare(cleaned)) return null;
+
+  return display(cleaned);
+}
+
+function normalizedBareColorKey(
+  archetype: string | null | undefined,
+  deck: string | null | undefined,
+): string {
+  const cleanedArchetype = SYNONYMS[clean(archetype)] ?? clean(archetype);
+  const cleanedDeck = SYNONYMS[clean(deck)] ?? clean(deck);
+
+  return colorKey(cleanedArchetype) || colorKey(cleanedDeck);
+}
+
+function normalizeDeckName(
+  archetype: string | null | undefined,
+  deck: string | null | undefined,
+  resolve?: (colorKey: string) => string | undefined,
+): string {
+  const fromArchetype = specificDisplayName(archetype);
+
+  if (fromArchetype) return fromArchetype;
+
+  const fromDeck = specificDisplayName(deck);
+
+  if (fromDeck) return fromDeck;
+
+  const ck = normalizedBareColorKey(archetype, deck);
+
+  if (ck && resolve) {
+    const folded = resolve(ck);
+
+    if (folded) return folded;
+  }
+
+  const fallbackDeck = String(deck ?? "").trim() || String(archetype ?? "").trim();
+
+  return canonicalDeck(null, fallbackDeck, resolve);
 }
 
 export async function listStores(): Promise<string[]> {
@@ -92,29 +137,28 @@ const buildDeckResolver = cache(
     store: string,
   ): Promise<(player: string) => (ck: string) => string | undefined> => {
     const rows = await prisma.match.findMany({
-      where: { store, archetype: { not: null } },
-      select: { player: true, archetype: true },
+      where: { store },
+      select: { player: true, archetype: true, deck: true },
     });
 
     const counts = new Map<string, Map<string, Map<string, number>>>();
 
-    for (const r of rows) {
-      const a = r.archetype;
+    function addCandidate(player: string, value: string | null | undefined): void {
+      const c = SYNONYMS[clean(value)] ?? clean(value);
 
-      if (!a) continue;
+      if (!c || isBare(c)) return;
 
-      const c = clean(a);
       const ck = colorKey(c);
 
-      if (!ck) continue;
+      if (!ck) return;
 
-      const label = display(SYNONYMS[c] ?? c);
+      const label = display(c);
 
-      let byColor = counts.get(r.player);
+      let byColor = counts.get(player);
 
       if (!byColor) {
         byColor = new Map<string, Map<string, number>>();
-        counts.set(r.player, byColor);
+        counts.set(player, byColor);
       }
 
       let byLabel = byColor.get(ck);
@@ -125,6 +169,11 @@ const buildDeckResolver = cache(
       }
 
       byLabel.set(label, (byLabel.get(label) ?? 0) + 1);
+    }
+
+    for (const r of rows) {
+      addCandidate(r.player, r.archetype);
+      addCandidate(r.player, r.deck);
     }
 
     const dominant = new Map<string, Map<string, string>>();
@@ -178,8 +227,8 @@ export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
   ]);
 
   return rows.map((r) => ({
-    deck: canonicalDeck(r.archetype, r.deck, resolver(r.player)),
-    opponentDeck: canonicalDeck(
+    deck: normalizeDeckName(r.archetype, r.deck, resolver(r.player)),
+    opponentDeck: normalizeDeckName(
       r.opponentArchetype,
       r.opponentDeck,
       resolver(r.opponent),
@@ -326,7 +375,7 @@ export async function getPlayerDeckRows(opts: {
   const resolve = resolver(opts.player);
 
   return rows.map((r) => ({
-    deck: canonicalDeck(r.archetype, r.deck, resolve),
+    deck: normalizeDeckName(r.archetype, r.deck, resolve),
     result: r.result,
   }));
 }
@@ -723,7 +772,7 @@ export async function getMetagameData(
   let totalEntrants = 0;
 
   for (const r of rows) {
-    const deck = canonicalDeck(r.archetype, r.deck, resolver(r.player));
+    const deck = normalizeDeckName(r.archetype, r.deck, resolver(r.player));
 
     if (isByeDeck(deck)) continue;
 
@@ -866,7 +915,7 @@ export async function getDeckMatchLog(
 
   return rows
     .filter(
-      (r) => canonicalDeck(r.archetype, r.deck, resolver(r.player)) === deck,
+      (r) => normalizeDeckName(r.archetype, r.deck, resolver(r.player)) === deck,
     )
     .filter((r) => !isByeMatch(r))
     .map((r) => ({
@@ -874,7 +923,7 @@ export async function getDeckMatchLog(
       tournamentName: r.tournamentName || r.eventName,
       player: r.player,
       opponent: r.opponent,
-      opponentDeck: canonicalDeck(
+      opponentDeck: normalizeDeckName(
         r.opponentArchetype,
         r.opponentDeck,
         resolver(r.opponent),
@@ -1034,12 +1083,12 @@ export async function getDeckDrilldownData(
       players.add(playerKey);
     }
 
-    const rowDeck = canonicalDeck(row.archetype, row.deck, resolver(row.player));
+    const rowDeck = normalizeDeckName(row.archetype, row.deck, resolver(row.player));
 
     if (rowDeck !== deck) continue;
     if (isByeMatch(row)) continue;
 
-    const opponentDeck = canonicalDeck(
+    const opponentDeck = normalizeDeckName(
       row.opponentArchetype,
       row.opponentDeck,
       resolver(row.opponent),
@@ -1143,7 +1192,7 @@ export async function getDeckDrilldownData(
         player: playerKey,
         playerDisplay: displayName(row.nickname),
         position: row.position,
-        deck: canonicalDeck(null, row.deck),
+        deck: normalizeDeckName(null, row.deck),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
         playerCount: 0,
@@ -1619,7 +1668,7 @@ export async function getSinglePlayerData(f: {
   for (const row of fieldMatches) {
     if (isByeMatch(row)) continue;
 
-    const deck = canonicalDeck(row.archetype, row.deck, resolver(row.player));
+    const deck = normalizeDeckName(row.archetype, row.deck, resolver(row.player));
 
     if (isByeDeck(deck)) continue;
 
@@ -1692,8 +1741,8 @@ export async function getSinglePlayerData(f: {
 
   for (const row of filteredMatches) {
     const key = tournamentKey(row);
-    const deck = canonicalDeck(row.archetype, row.deck, resolvePlayerDeck);
-    const opponentDeck = canonicalDeck(
+    const deck = normalizeDeckName(row.archetype, row.deck, resolvePlayerDeck);
+    const opponentDeck = normalizeDeckName(
       row.opponentArchetype,
       row.opponentDeck,
       resolver(row.opponent),
@@ -1795,7 +1844,7 @@ export async function getSinglePlayerData(f: {
     if (playerKey === selectedPlayerKey) {
       playerStandings.set(key, {
         position: row.position,
-        deck: canonicalDeck(null, row.deck),
+        deck: normalizeDeckName(null, row.deck),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
       });
@@ -1809,7 +1858,7 @@ export async function getSinglePlayerData(f: {
       tournamentWinners.set(key, {
         player: playerKey,
         position: row.position,
-        deck: canonicalDeck(null, row.deck),
+        deck: normalizeDeckName(null, row.deck),
       });
     }
   }
