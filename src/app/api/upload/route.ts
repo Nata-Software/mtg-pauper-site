@@ -14,7 +14,10 @@ export async function POST(req: NextRequest) {
     const rl = await limitAdmin(req, "upload");
     if (!rl.allowed) {
       return NextResponse.json(
-        { ok: false, error: `Too many attempts. Try again in ${rl.retryAfterSec}s.` },
+        {
+          ok: false,
+          error: `Too many attempts. Try again in ${rl.retryAfterSec}s.`,
+        },
         { status: 429, headers: { "retry-after": String(rl.retryAfterSec) } },
       );
     }

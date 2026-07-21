@@ -11,9 +11,15 @@ import { fileURLToPath } from "url";
 import { classifyDeck } from "../../src/lib/archetype/classify.mjs";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const model = JSON.parse(fs.readFileSync(path.join(DIR, "../../src/lib/archetype/model.json")));
-const decks = JSON.parse(fs.readFileSync(path.join(DIR, "data/decklists.json")));
-const matches = JSON.parse(fs.readFileSync(path.join(DIR, "data/matches.json")));
+const model = JSON.parse(
+  fs.readFileSync(path.join(DIR, "../../src/lib/archetype/model.json")),
+);
+const decks = JSON.parse(
+  fs.readFileSync(path.join(DIR, "data/decklists.json")),
+);
+const matches = JSON.parse(
+  fs.readFileSync(path.join(DIR, "data/matches.json")),
+);
 
 // classify every decklist once
 const deckArch = {};
@@ -27,7 +33,10 @@ let noDeck = 0;
 for (const m of matches) {
   if (m.opp === "bye") continue;
   const a = m.deckId && deckArch[m.deckId];
-  if (!a) { noDeck++; continue; }
+  if (!a) {
+    noDeck++;
+    continue;
+  }
   tally[a] = (tally[a] || 0) + 1;
 }
 const ranked = Object.entries(tally).sort((a, b) => b[1] - a[1]);
@@ -40,4 +49,6 @@ console.log(
 );
 console.log("\n=== top archetypes ===");
 for (const [a, c] of real.slice(0, 30))
-  console.log(`  ${String(c).padStart(4)} (${((100 * c) / total).toFixed(1)}%)  ${a}`);
+  console.log(
+    `  ${String(c).padStart(4)} (${((100 * c) / total).toFixed(1)}%)  ${a}`,
+  );

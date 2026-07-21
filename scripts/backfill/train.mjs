@@ -15,10 +15,17 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { isBasic, colorSet, cosine, vec } from "../../src/lib/archetype/classify.mjs";
+import {
+  isBasic,
+  colorSet,
+  cosine,
+  vec,
+} from "../../src/lib/archetype/classify.mjs";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const decks = JSON.parse(fs.readFileSync(path.join(DIR, "data/decklists.json")));
+const decks = JSON.parse(
+  fs.readFileSync(path.join(DIR, "data/decklists.json")),
+);
 
 const ids = Object.keys(decks).filter((id) => decks[id].cards?.length);
 
@@ -35,7 +42,8 @@ for (const s in df) idfMap[s] = Math.log(N / df[s]);
 const idf = (s) => (s in idfMap ? idfMap[s] : Math.log(N));
 
 // per-deck vectors + dominant color
-const dvec = {}, dcol = {};
+const dvec = {},
+  dcol = {};
 for (const id of ids) {
   dvec[id] = vec(decks[id].cards, idf);
   dcol[id] = [...colorSet(decks[id].cards)].sort().join(",");
@@ -47,8 +55,12 @@ for (const id of ids) {
   const n = decks[id].name || "(none)";
   (byName[n] = byName[n] || []).push(id);
 }
-const cent = {}, cCol = {}, cCount = {};
-const addInto = (acc, v) => { for (const k in v) acc[k] = (acc[k] || 0) + v[k]; };
+const cent = {},
+  cCol = {},
+  cCount = {};
+const addInto = (acc, v) => {
+  for (const k in v) acc[k] = (acc[k] || 0) + v[k];
+};
 for (const [n, list] of Object.entries(byName)) {
   if (list.length < 3 || n === "(none)") continue;
   const c = {};
@@ -67,7 +79,10 @@ names.forEach((n) => (par[n] = n));
 const find = (x) => (par[x] === x ? x : (par[x] = find(par[x])));
 for (let i = 0; i < names.length; i++)
   for (let j = i + 1; j < names.length; j++)
-    if (cCol[names[i]] === cCol[names[j]] && cosine(cent[names[i]], cent[names[j]]) >= 0.5)
+    if (
+      cCol[names[i]] === cCol[names[j]] &&
+      cosine(cent[names[i]], cent[names[j]]) >= 0.5
+    )
       par[find(names[i])] = find(names[j]);
 
 const clusters = {};
@@ -82,7 +97,10 @@ for (const members of Object.values(clusters)) {
 }
 
 const model = { version: 1, trainedDecks: N, idf: idfMap, archetypes };
-fs.writeFileSync(path.join(DIR, "../../src/lib/archetype/model.json"), JSON.stringify(model));
+fs.writeFileSync(
+  path.join(DIR, "../../src/lib/archetype/model.json"),
+  JSON.stringify(model),
+);
 console.log(
   `model written: ${archetypes.length} archetype centroids, ${Object.keys(idfMap).length} cards, trained on ${N} decklists`,
 );

@@ -7,14 +7,14 @@ newly-imported tournaments classify automatically.
 
 ## Pieces
 
-| File | Role |
-|---|---|
-| `classify.mjs` | **The per-deck classifier.** `classifyDeck(cards, typedName, model)` → archetype. Deterministic — one deck in, same archetype out, no corpus needed. Holds the signature rules (red/blue/gruul splits, color-from-lands). **Port this to the app** to classify on import. |
-| `archetype-model.json` | **The frozen model** (learned): IDF weights + one TF-IDF centroid per clustered archetype. The other half of the classification. |
-| `train.mjs` | Rebuilds `archetype-model.json` from `data/decklists.json`. Re-run to re-derive archetypes from accumulated data. |
-| `apply.mjs` | Runs the frozen classifier over the cache and prints the archetype distribution (sanity check). |
-| `scrape.mjs` | Scrapes the org's league tournaments + decklists (matches + standings + card lists) into `data/`. For new backfills. |
-| `data/*.json` | Cached scrape (matches + 900+ decklists with cards). Lets you re-train **without re-scraping**. |
+| File                   | Role                                                                                                                                                                                                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `classify.mjs`         | **The per-deck classifier.** `classifyDeck(cards, typedName, model)` → archetype. Deterministic — one deck in, same archetype out, no corpus needed. Holds the signature rules (red/blue/gruul splits, color-from-lands). **Port this to the app** to classify on import. |
+| `archetype-model.json` | **The frozen model** (learned): IDF weights + one TF-IDF centroid per clustered archetype. The other half of the classification.                                                                                                                                          |
+| `train.mjs`            | Rebuilds `archetype-model.json` from `data/decklists.json`. Re-run to re-derive archetypes from accumulated data.                                                                                                                                                         |
+| `apply.mjs`            | Runs the frozen classifier over the cache and prints the archetype distribution (sanity check).                                                                                                                                                                           |
+| `scrape.mjs`           | Scrapes the org's league tournaments + decklists (matches + standings + card lists) into `data/`. For new backfills.                                                                                                                                                      |
+| `data/*.json`          | Cached scrape (matches + 900+ decklists with cards). Lets you re-train **without re-scraping**.                                                                                                                                                                           |
 
 ## Flow
 

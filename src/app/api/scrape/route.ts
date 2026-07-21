@@ -14,7 +14,10 @@ export async function POST(req: NextRequest) {
     const rl = await limitAdmin(req, "scrape");
     if (!rl.allowed) {
       return NextResponse.json(
-        { ok: false, error: `Too many attempts. Try again in ${rl.retryAfterSec}s.` },
+        {
+          ok: false,
+          error: `Too many attempts. Try again in ${rl.retryAfterSec}s.`,
+        },
         { status: 429, headers: { "retry-after": String(rl.retryAfterSec) } },
       );
     }
@@ -40,7 +43,10 @@ export async function POST(req: NextRequest) {
     }
     if (!EVENTS.has(event)) {
       return NextResponse.json(
-        { ok: false, error: "Choose which league to add it to (Tuesday or Friday)." },
+        {
+          ok: false,
+          error: "Choose which league to add it to (Tuesday or Friday).",
+        },
         { status: 400 },
       );
     }
@@ -48,7 +54,10 @@ export async function POST(req: NextRequest) {
     const scraped = await scrapeTournament(url);
     if (scraped.matches.length === 0 && scraped.standings.length === 0) {
       return NextResponse.json(
-        { ok: false, error: "No matches or standings found for that tournament." },
+        {
+          ok: false,
+          error: "No matches or standings found for that tournament.",
+        },
         { status: 400 },
       );
     }

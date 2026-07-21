@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { LeagueTable } from "@/components/LeagueTable";
 import { computePointsStandings } from "@/lib/stats";
-import { getPlayerRows, listMonths, listStores, monthRange } from "@/lib/queries";
+import {
+  getPlayerRows,
+  listMonths,
+  listStores,
+  monthRange,
+} from "@/lib/queries";
 import { t, type TranslationKey } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n.server";
 
@@ -12,11 +17,22 @@ const first = (v: string | string[] | undefined) =>
   Array.isArray(v) ? v[0] : v;
 
 const MONTH_KEYS: TranslationKey[] = [
-  "month.01", "month.02", "month.03", "month.04", "month.05", "month.06",
-  "month.07", "month.08", "month.09", "month.10", "month.11", "month.12",
+  "month.01",
+  "month.02",
+  "month.03",
+  "month.04",
+  "month.05",
+  "month.06",
+  "month.07",
+  "month.08",
+  "month.09",
+  "month.10",
+  "month.11",
+  "month.12",
 ];
 
-const btnActive = "rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white";
+const btnActive =
+  "rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white";
 const btnInactive =
   "rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800";
 const btnDisabled =
@@ -41,7 +57,9 @@ export default async function LeaguePage({
 
   const now = new Date();
   const currentYYYYMM = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-  const [defaultYear, defaultMonthNum] = (allMonths[0] || currentYYYYMM).split("-");
+  const [defaultYear, defaultMonthNum] = (allMonths[0] || currentYYYYMM).split(
+    "-",
+  );
 
   const years = new Set(allMonths.map((m) => m.slice(0, 4)));
   years.add(defaultYear);

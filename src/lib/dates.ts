@@ -118,7 +118,8 @@ export function buildDateResolver(
 
     const v = votes.get(p.year) ?? { dmy: 0, mdy: 0 };
 
-    if (p.a > 12) v.dmy++; // first part must be day
+    if (p.a > 12)
+      v.dmy++; // first part must be day
     else if (p.b > 12) v.mdy++; // second part must be day
 
     votes.set(p.year, v);

@@ -118,8 +118,7 @@ export function wilson(
   const z2 = z * z;
   const denom = 1 + z2 / n;
   const center = (p + z2 / (2 * n)) / denom;
-  const margin =
-    (z / denom) * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
+  const margin = (z / denom) * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n));
 
   return {
     winrate: p,

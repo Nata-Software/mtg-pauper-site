@@ -22,29 +22,71 @@
 
 // --- lands -> colors (basics + colored artifact lands + common dual/fixing) ---
 export const LAND_COLOR = {
-  mountain: "R", snowcoveredmountain: "R", island: "U", snowcoveredisland: "U",
-  swamp: "B", snowcoveredswamp: "B", forest: "G", snowcoveredforest: "G",
-  plains: "W", snowcoveredplains: "W",
-  greatfurnace: "R", seatofthesynod: "U", vaultofwhispers: "B", treeoftales: "G", ancientden: "W",
-  azoriusguildgate: "WU", dimirguildgate: "UB", rakdosguildgate: "BR", golgariguildgate: "BG",
-  gruulguildgate: "RG", borosguildgate: "RW", selesnyaguildgate: "GW", orzhovguildgate: "WB",
-  izzetguildgate: "UR", simicguildgate: "GU",
-  tranquilcove: "WU", dismalbackwater: "UB", bloodfellcaves: "BR", junglehollow: "BG",
-  ruggedhighlands: "RG", windscarredcrag: "RW", blossomingsands: "GW", scouredbarrens: "WB",
-  swiftwatercliffs: "UR", thornwoodfalls: "GU",
-  glacialfloodplain: "WU", icetunnel: "UB", sulfurousmire: "BR", alpinemeadow: "RW",
-  arctictreeline: "GW", snowfieldsinkhole: "WB", volatilefjord: "UR", woodlandchasm: "BG",
-  rimewoodfalls: "GU", contaminatedaquifer: "UB", geothermalbog: "BR",
+  mountain: "R",
+  snowcoveredmountain: "R",
+  island: "U",
+  snowcoveredisland: "U",
+  swamp: "B",
+  snowcoveredswamp: "B",
+  forest: "G",
+  snowcoveredforest: "G",
+  plains: "W",
+  snowcoveredplains: "W",
+  greatfurnace: "R",
+  seatofthesynod: "U",
+  vaultofwhispers: "B",
+  treeoftales: "G",
+  ancientden: "W",
+  azoriusguildgate: "WU",
+  dimirguildgate: "UB",
+  rakdosguildgate: "BR",
+  golgariguildgate: "BG",
+  gruulguildgate: "RG",
+  borosguildgate: "RW",
+  selesnyaguildgate: "GW",
+  orzhovguildgate: "WB",
+  izzetguildgate: "UR",
+  simicguildgate: "GU",
+  tranquilcove: "WU",
+  dismalbackwater: "UB",
+  bloodfellcaves: "BR",
+  junglehollow: "BG",
+  ruggedhighlands: "RG",
+  windscarredcrag: "RW",
+  blossomingsands: "GW",
+  scouredbarrens: "WB",
+  swiftwatercliffs: "UR",
+  thornwoodfalls: "GU",
+  glacialfloodplain: "WU",
+  icetunnel: "UB",
+  sulfurousmire: "BR",
+  alpinemeadow: "RW",
+  arctictreeline: "GW",
+  snowfieldsinkhole: "WB",
+  volatilefjord: "UR",
+  woodlandchasm: "BG",
+  rimewoodfalls: "GU",
+  contaminatedaquifer: "UB",
+  geothermalbog: "BR",
 };
 
 const NAME = { W: "White", U: "Blue", B: "Black", R: "Red", G: "Green" };
 const GUILD = {
-  "B,U": "Dimir", "B,R": "Rakdos", "B,G": "Golgari", "R,U": "Izzet", "G,R": "Gruul",
-  "U,W": "Azorius", "B,W": "Orzhov", "R,W": "Boros", "G,W": "Selesnya", "G,U": "Simic",
+  "B,U": "Dimir",
+  "B,R": "Rakdos",
+  "B,G": "Golgari",
+  "R,U": "Izzet",
+  "G,R": "Gruul",
+  "U,W": "Azorius",
+  "B,W": "Orzhov",
+  "R,W": "Boros",
+  "G,W": "Selesnya",
+  "G,U": "Simic",
 };
 
 export const isBasic = (s) =>
-  /^(snowcovered)?(plains|island|swamp|mountain|forest)$/.test(s) || s === "wastes";
+  /^(snowcovered)?(plains|island|swamp|mountain|forest)$/.test(s) ||
+  s === "wastes";
 
 /** Colors present via >=3 land sources (so light off-color splashes don't count). */
 export function colorSet(cards) {
@@ -77,14 +119,24 @@ export function vec(cards, idf) {
 }
 
 export function cosine(a, b) {
-  let d = 0, na = 0, nb = 0;
-  for (const k in a) { na += a[k] * a[k]; if (b[k]) d += a[k] * b[k]; }
+  let d = 0,
+    na = 0,
+    nb = 0;
+  for (const k in a) {
+    na += a[k] * a[k];
+    if (b[k]) d += a[k] * b[k];
+  }
   for (const k in b) nb += b[k] * b[k];
   return na && nb ? d / Math.sqrt(na * nb) : 0;
 }
 
 // --- signature rules (domain knowledge; the "our classification" part) ---
-const RED_MADNESS = ["voldarenepicure", "kessigflamebreather", "fierytemper", "sneakysnacker"];
+const RED_MADNESS = [
+  "voldarenepicure",
+  "kessigflamebreather",
+  "fierytemper",
+  "sneakysnacker",
+];
 
 // Final display renames (cluster labels come from the plurality typed name;
 // override these where we prefer a different name).
@@ -115,7 +167,9 @@ function blueCore(cards) {
 // Mono-red: Madness (Voldaren Epicure / Kessig Flamebreather package) vs RDW.
 function redCore(cards) {
   const slugs = new Set(cards.map((c) => c.slug));
-  return RED_MADNESS.filter((s) => slugs.has(s)).length >= 2 ? "Madness" : "RDW";
+  return RED_MADNESS.filter((s) => slugs.has(s)).length >= 2
+    ? "Madness"
+    : "RDW";
 }
 
 // Kiln Fiend / "Hot Dogs": spells-combo aggro built on Kiln Fiend / Festival
@@ -129,7 +183,13 @@ function isKilnFiend(cards) {
 
 // Gruul: Ponza (land destruction) vs Ramp (Utopia Sprawl ramp) vs Aggro.
 function gruulCore(cards) {
-  const ld = ["thermokarst", "mwonvuli acid-moss", "stone rain", "molten rain", "icequake"];
+  const ld = [
+    "thermokarst",
+    "mwonvuli acid-moss",
+    "stone rain",
+    "molten rain",
+    "icequake",
+  ];
   if (ld.some((n) => hasName(cards, n))) return "Ponza";
   if (hasName(cards, "utopia sprawl")) return "Ramp";
   return "Aggro";
@@ -165,10 +225,14 @@ export function classifyDeck(cards, typedName, model) {
 
   // 2. nearest frozen centroid (small same-color bonus)
   if (label === null) {
-    let best = null, bs = 0;
+    let best = null,
+      bs = 0;
     for (const a of model.archetypes) {
       const s = cosine(v, a.centroid) + (a.col === dcol ? 0.05 : 0);
-      if (s > bs) { bs = s; best = a; }
+      if (s > bs) {
+        bs = s;
+        best = a;
+      }
     }
     label = best && bs >= 0.36 ? best.name : `rogue: ${typedName || "unknown"}`;
     // gruul re-split by signature (color detection under-reads dork/ramp decks)

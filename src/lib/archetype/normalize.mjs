@@ -24,11 +24,15 @@
 
 /** lowercase, drop internal "rogue:" prefix, unify separators/spacing. */
 export function clean(name) {
-  let s = String(name ?? "").trim().toLowerCase();
+  let s = String(name ?? "")
+    .trim()
+    .toLowerCase();
   s = s.replace(/^rogue:\s*/, "");
   s = s.replace(/\s+/g, " ");
   // Spelling unifications that are pure aliases, not judgment calls.
-  s = s.replace(/\bcawgate\b/g, "caw-gates").replace(/\bcaw-gate\b/g, "caw-gates");
+  s = s
+    .replace(/\bcawgate\b/g, "caw-gates")
+    .replace(/\bcaw-gate\b/g, "caw-gates");
   return s.trim();
 }
 
@@ -58,10 +62,26 @@ export const SYNONYMS = {
  * key like "R" or "B,R,U" (WUBRG-sorted), or "" if it can't be determined.
  */
 const GUILDS = {
-  azorius: "WU", dimir: "UB", rakdos: "BR", gruul: "RG", selesnya: "GW",
-  orzhov: "WB", izzet: "UR", golgari: "BG", boros: "RW", simic: "GU",
-  bant: "GWU", esper: "WUB", grixis: "UBR", jund: "BRG", naya: "RGW",
-  mardu: "RWB", temur: "GUR", abzan: "WBG", jeskai: "URW", sultai: "BGU",
+  azorius: "WU",
+  dimir: "UB",
+  rakdos: "BR",
+  gruul: "RG",
+  selesnya: "GW",
+  orzhov: "WB",
+  izzet: "UR",
+  golgari: "BG",
+  boros: "RW",
+  simic: "GU",
+  bant: "GWU",
+  esper: "WUB",
+  grixis: "UBR",
+  jund: "BRG",
+  naya: "RGW",
+  mardu: "RWB",
+  temur: "GUR",
+  abzan: "WBG",
+  jeskai: "URW",
+  sultai: "BGU",
 };
 const MONO = { white: "W", blue: "U", black: "B", red: "R", green: "G" };
 const ORDER = "WUBRG";

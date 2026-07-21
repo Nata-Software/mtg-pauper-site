@@ -61,11 +61,21 @@ export function DeckMatchLog({
             <thead>
               <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
                 <th className="px-3 py-2">{t(locale, "metagame.col.date")}</th>
-                <th className="px-3 py-2">{t(locale, "metagame.col.tournament")}</th>
-                <th className="px-3 py-2">{t(locale, "metagame.col.player")}</th>
-                <th className="px-3 py-2">{t(locale, "metagame.col.opponent")}</th>
-                <th className="px-3 py-2">{t(locale, "metagame.col.opponentDeck")}</th>
-                <th className="px-3 py-2 text-right">{t(locale, "metagame.col.result")}</th>
+                <th className="px-3 py-2">
+                  {t(locale, "metagame.col.tournament")}
+                </th>
+                <th className="px-3 py-2">
+                  {t(locale, "metagame.col.player")}
+                </th>
+                <th className="px-3 py-2">
+                  {t(locale, "metagame.col.opponent")}
+                </th>
+                <th className="px-3 py-2">
+                  {t(locale, "metagame.col.opponentDeck")}
+                </th>
+                <th className="px-3 py-2 text-right">
+                  {t(locale, "metagame.col.result")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -77,11 +87,15 @@ export function DeckMatchLog({
                   <td className="px-3 py-1.5 tabular-nums text-neutral-600 dark:text-neutral-300">
                     {r.date || "—"}
                   </td>
-                  <td className="px-3 py-1.5 font-medium">{r.tournamentName}</td>
+                  <td className="px-3 py-1.5 font-medium">
+                    {r.tournamentName}
+                  </td>
                   <td className="px-3 py-1.5">{r.player}</td>
                   <td className="px-3 py-1.5">{r.opponent}</td>
                   <td className="px-3 py-1.5">{r.opponentDeck}</td>
-                  <td className={`px-3 py-1.5 text-right font-semibold ${resultClass(r.result)}`}>
+                  <td
+                    className={`px-3 py-1.5 text-right font-semibold ${resultClass(r.result)}`}
+                  >
                     {resultLabel(r.result, locale)}
                   </td>
                 </tr>

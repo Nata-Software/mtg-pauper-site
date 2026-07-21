@@ -25,7 +25,9 @@ export function DeckBreakdownTable({
         <div>
           <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">
             {t(locale, "deck.titlePrefix")} —{" "}
-            <span className="text-violet-600 dark:text-violet-400">{player}</span>
+            <span className="text-violet-600 dark:text-violet-400">
+              {player}
+            </span>
           </h2>
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             {t(locale, "deck.subtitle", {
@@ -33,7 +35,9 @@ export function DeckBreakdownTable({
               count: rows.length,
               deckWord: t(
                 locale,
-                rows.length === 1 ? "deck.deckWord.singular" : "deck.deckWord.plural",
+                rows.length === 1
+                  ? "deck.deckWord.singular"
+                  : "deck.deckWord.plural",
               ),
             })}
           </p>
@@ -56,11 +60,21 @@ export function DeckBreakdownTable({
             <thead>
               <tr className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
                 <th className="px-3 py-2">{t(locale, "table.deck")}</th>
-                <th className="px-3 py-2 text-right">{t(locale, "table.matches")}</th>
-                <th className="px-3 py-2 text-center">{t(locale, "table.wld")}</th>
-                <th className="px-3 py-2 text-right">{t(locale, "table.winPct")}</th>
-                <th className="px-3 py-2 text-right">{t(locale, "table.lossPct")}</th>
-                <th className="px-3 py-2 text-right">{t(locale, "table.drawPct")}</th>
+                <th className="px-3 py-2 text-right">
+                  {t(locale, "table.matches")}
+                </th>
+                <th className="px-3 py-2 text-center">
+                  {t(locale, "table.wld")}
+                </th>
+                <th className="px-3 py-2 text-right">
+                  {t(locale, "table.winPct")}
+                </th>
+                <th className="px-3 py-2 text-right">
+                  {t(locale, "table.lossPct")}
+                </th>
+                <th className="px-3 py-2 text-right">
+                  {t(locale, "table.drawPct")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -69,7 +83,9 @@ export function DeckBreakdownTable({
                   key={r.deck}
                   className="border-t border-neutral-200 odd:bg-neutral-50 dark:border-neutral-800/60 dark:odd:bg-neutral-900/30"
                 >
-                  <td className="px-3 py-1.5 font-medium">{prettyDeck(r.deck)}</td>
+                  <td className="px-3 py-1.5 font-medium">
+                    {prettyDeck(r.deck)}
+                  </td>
                   <td className="px-3 py-1.5 text-right tabular-nums text-neutral-600 dark:text-neutral-300">
                     {r.matches.toLocaleString()}
                   </td>

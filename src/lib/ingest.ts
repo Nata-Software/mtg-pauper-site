@@ -43,7 +43,9 @@ function num(v: unknown, fallback = 0): number {
 }
 
 function str(v: unknown): string {
-  return String(v ?? "").trim().toLowerCase();
+  return String(v ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 /** Rounds tab: date, round, player_1, deck_player_1, points_player_1, result, player_2, deck_player_2, points_player_2, event_name */
@@ -149,8 +151,16 @@ export async function addTournamentData(opts: {
   standings: ScrapedStanding[];
   decklists: ScrapedDecklist[];
 }): Promise<{ matches: number; standings: number; decklists: number }> {
-  const { store, event, tournamentId, tournamentName, date, matches, standings, decklists } =
-    opts;
+  const {
+    store,
+    event,
+    tournamentId,
+    tournamentName,
+    date,
+    matches,
+    standings,
+    decklists,
+  } = opts;
 
   await prisma.$transaction([
     prisma.match.deleteMany({ where: { store, tournamentId } }),

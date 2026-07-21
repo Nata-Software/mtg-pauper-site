@@ -4,11 +4,7 @@ import type { PlayerStat } from "@/lib/stats";
 import { t, type Locale } from "@/lib/i18n";
 
 export type PlayerSortKey =
-  | "player"
-  | "matches"
-  | "winPct"
-  | "lossPct"
-  | "drawPct";
+  "player" | "matches" | "winPct" | "lossPct" | "drawPct";
 
 export type SortDir = "asc" | "desc";
 
@@ -118,8 +114,12 @@ export function PlayerTable({
   return (
     <section className="mb-8">
       <div className="mb-2">
-        <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">{title}</h2>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">{subtitle}</p>
+        <h2 className="text-lg font-semibold text-neutral-950 dark:text-white">
+          {title}
+        </h2>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          {subtitle}
+        </p>
       </div>
 
       {shown.length === 0 ? (

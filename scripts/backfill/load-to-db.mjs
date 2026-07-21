@@ -17,8 +17,12 @@ import "dotenv/config";
 import { classifyDeck } from "../../src/lib/archetype/classify.mjs";
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const matches = JSON.parse(fs.readFileSync(path.join(DIR, "data/matches.json")));
-const decks = JSON.parse(fs.readFileSync(path.join(DIR, "data/decklists.json")));
+const matches = JSON.parse(
+  fs.readFileSync(path.join(DIR, "data/matches.json")),
+);
+const decks = JSON.parse(
+  fs.readFileSync(path.join(DIR, "data/decklists.json")),
+);
 const model = JSON.parse(
   fs.readFileSync(path.join(DIR, "../../src/lib/archetype/model.json")),
 );
@@ -33,27 +37,52 @@ for (const id in decks) {
   if (!d.cards?.length) continue;
   const a = classifyDeck(d.cards, d.name, model);
   archetypeOf[id] = a;
-  deckRows.push({ id, tournamentId: null, player: "", rawName: d.name || "", archetype: a, cards: d.cards });
+  deckRows.push({
+    id,
+    tournamentId: null,
+    player: "",
+    rawName: d.name || "",
+    archetype: a,
+    cards: d.cards,
+  });
 }
 // fill each decklist's player + tournament from the matches that reference it
-const tourOf = {}, playerOf = {};
+const tourOf = {},
+  playerOf = {};
 for (const m of matches) {
-  if (m.deckId) { tourOf[m.deckId] = String(m.t); if (!playerOf[m.deckId]) playerOf[m.deckId] = m.player; }
+  if (m.deckId) {
+    tourOf[m.deckId] = String(m.t);
+    if (!playerOf[m.deckId]) playerOf[m.deckId] = m.player;
+  }
 }
-for (const r of deckRows) { r.tournamentId = tourOf[r.id] ?? null; r.player = playerOf[r.id] ?? ""; }
+for (const r of deckRows) {
+  r.tournamentId = tourOf[r.id] ?? null;
+  r.player = playerOf[r.id] ?? "";
+}
 
 const SCORE = { win: [2, 0], loss: [0, 2], draw: [1, 1] };
 function matchRow(m) {
   const [ps, os] = SCORE[m.result] || [1, 1];
-  const oppDeck = m.opp === "bye" ? "no deck (bye)" : decks[m.oppDeckId]?.name || "";
+  const oppDeck =
+    m.opp === "bye" ? "no deck (bye)" : decks[m.oppDeckId]?.name || "";
   return {
-    store: STORE, eventName: m.day, date: m.date + "T00:00:00Z", round: m.round,
-    player: m.player, deck: m.deckName || "", decklistId: m.deckId || null,
-    archetype: m.deckId ? archetypeOf[m.deckId] ?? null : null,
-    playerScore: ps, result: m.result, opponent: m.opp, opponentDeck: oppDeck,
+    store: STORE,
+    eventName: m.day,
+    date: m.date + "T00:00:00Z",
+    round: m.round,
+    player: m.player,
+    deck: m.deckName || "",
+    decklistId: m.deckId || null,
+    archetype: m.deckId ? (archetypeOf[m.deckId] ?? null) : null,
+    playerScore: ps,
+    result: m.result,
+    opponent: m.opp,
+    opponentDeck: oppDeck,
     opponentDecklistId: m.oppDeckId || null,
-    opponentArchetype: m.oppDeckId ? archetypeOf[m.oppDeckId] ?? null : null,
-    opponentScore: os, tournamentId: String(m.t), tournamentName: null,
+    opponentArchetype: m.oppDeckId ? (archetypeOf[m.oppDeckId] ?? null) : null,
+    opponentScore: os,
+    tournamentId: String(m.t),
+    tournamentName: null,
   };
 }
 
@@ -65,7 +94,9 @@ async function insertBatch(client, table, cols, rows, jsonCols = []) {
     const tuples = batch.map((row) => {
       const ph = cols.map((c) => {
         params.push(jsonCols.includes(c) ? JSON.stringify(row[c]) : row[c]);
-        return jsonCols.includes(c) ? `$${params.length}::jsonb` : `$${params.length}`;
+        return jsonCols.includes(c)
+          ? `$${params.length}::jsonb`
+          : `$${params.length}`;
       });
       return `(${ph.join(",")})`;
     });
@@ -84,19 +115,44 @@ const del1 = await client.query(
   [STORE],
 );
 const del2 = await client.query(`DELETE FROM "Decklist"`);
-console.log(`cleared: ${del1.rowCount} old 2026 league matches, ${del2.rowCount} decklists`);
+console.log(
+  `cleared: ${del1.rowCount} old 2026 league matches, ${del2.rowCount} decklists`,
+);
 
-await insertBatch(client, "Decklist",
+await insertBatch(
+  client,
+  "Decklist",
   ["id", "tournamentId", "player", "rawName", "archetype", "cards"],
-  deckRows, ["cards"]);
+  deckRows,
+  ["cards"],
+);
 console.log(`inserted ${deckRows.length} decklists`);
 
 const mRows = matches.map(matchRow);
-await insertBatch(client, "Match",
-  ["store", "eventName", "date", "round", "player", "deck", "decklistId", "archetype",
-   "playerScore", "result", "opponent", "opponentDeck", "opponentDecklistId",
-   "opponentArchetype", "opponentScore", "tournamentId", "tournamentName"],
-  mRows);
+await insertBatch(
+  client,
+  "Match",
+  [
+    "store",
+    "eventName",
+    "date",
+    "round",
+    "player",
+    "deck",
+    "decklistId",
+    "archetype",
+    "playerScore",
+    "result",
+    "opponent",
+    "opponentDeck",
+    "opponentDecklistId",
+    "opponentArchetype",
+    "opponentScore",
+    "tournamentId",
+    "tournamentName",
+  ],
+  mRows,
+);
 console.log(`inserted ${mRows.length} matches`);
 
 await client.end();

@@ -20,13 +20,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      data-theme="dark"
-      data-locale="en"
-      suppressHydrationWarning
-    >
-      <body className="min-h-full bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <html lang="en" data-theme="dark" data-locale="en" suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className="min-h-full bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100"
+      >
         <Script id="init-theme-locale" strategy="beforeInteractive">
           {INIT_SCRIPT}
         </Script>

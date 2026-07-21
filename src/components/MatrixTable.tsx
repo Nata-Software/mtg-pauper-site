@@ -214,11 +214,11 @@ export function MatrixTable({
   });
 
   return (
-  <div className="matrix-scroll overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-    <table
-      className="mx min-w-full"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  </div>
-);
+    <div className="matrix-scroll overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <table
+        className="mx min-w-full"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
+  );
 }

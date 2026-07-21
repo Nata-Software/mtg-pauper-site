@@ -22,7 +22,8 @@ function copy(locale: Locale) {
       archetypeWins: "Vitórias por Arquétipo",
       archetypeWinsSubtitle: "Quantas vezes cada arquétipo venceu um torneio.",
       tournamentWinners: "Vencedores de Torneios",
-      tournamentWinnersSubtitle: "Jogadores que venceram pelo menos um torneio.",
+      tournamentWinnersSubtitle:
+        "Jogadores que venceram pelo menos um torneio.",
       noTournamentWins: "Nenhum vencedor de torneio encontrado ainda.",
       noArchetypeWins: "Nenhuma vitória por arquétipo encontrada ainda.",
       noPlayerWins: "Nenhum vencedor encontrado ainda.",
@@ -179,9 +180,7 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
                 <thead className="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-900">
                   <tr>
                     <th className={tableHeadCell}>{c.archetype}</th>
-                    <th className={`${tableHeadCell} text-right`}>
-                      {c.wins}
-                    </th>
+                    <th className={`${tableHeadCell} text-right`}>{c.wins}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -219,9 +218,7 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
                 <thead className="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-900">
                   <tr>
                     <th className={tableHeadCell}>{c.player}</th>
-                    <th className={`${tableHeadCell} text-right`}>
-                      {c.wins}
-                    </th>
+                    <th className={`${tableHeadCell} text-right`}>{c.wins}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">

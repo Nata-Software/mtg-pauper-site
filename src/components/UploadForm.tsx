@@ -16,7 +16,13 @@ type Result =
       standings: number;
       warnings?: string[];
     }
-  | { ok: true; kind: "upload"; store: string; matches: number; standings: number }
+  | {
+      ok: true;
+      kind: "upload";
+      store: string;
+      matches: number;
+      standings: number;
+    }
   | { ok: false; error: string };
 
 const inputCls =
@@ -84,7 +90,9 @@ export function UploadForm({ locale }: { locale: Locale }) {
             <option value="" disabled>
               {t(locale, "upload.chooseLeague")}
             </option>
-            <option value="Tuesday">{t(locale, "standings.tab.tuesday")}</option>
+            <option value="Tuesday">
+              {t(locale, "standings.tab.tuesday")}
+            </option>
             <option value="Friday">{t(locale, "standings.tab.friday")}</option>
           </select>
         </label>
@@ -103,7 +111,9 @@ export function UploadForm({ locale }: { locale: Locale }) {
         <input type="hidden" name="store" value="default" />
 
         <button type="submit" disabled={busy !== null} className={btnCls}>
-          {busy === "scrape" ? t(locale, "upload.importing") : t(locale, "upload.importBtn")}
+          {busy === "scrape"
+            ? t(locale, "upload.importing")
+            : t(locale, "upload.importBtn")}
         </button>
       </form>
 
@@ -121,7 +131,9 @@ export function UploadForm({ locale }: { locale: Locale }) {
             <input name="store" defaultValue="default" className={inputCls} />
           </label>
           <label className="block">
-            <span className={labelSpan}>{t(locale, "upload.passwordLabel")}</span>
+            <span className={labelSpan}>
+              {t(locale, "upload.passwordLabel")}
+            </span>
             <input
               type="password"
               name="password"
@@ -130,15 +142,31 @@ export function UploadForm({ locale }: { locale: Locale }) {
             />
           </label>
           <label className="block">
-            <span className={labelSpan}>{t(locale, "upload.roundsCsvLabel")}</span>
-            <input type="file" name="rounds" accept=".csv,text/csv" className={fileCls} />
+            <span className={labelSpan}>
+              {t(locale, "upload.roundsCsvLabel")}
+            </span>
+            <input
+              type="file"
+              name="rounds"
+              accept=".csv,text/csv"
+              className={fileCls}
+            />
           </label>
           <label className="block">
-            <span className={labelSpan}>{t(locale, "upload.rankingCsvLabel")}</span>
-            <input type="file" name="ranking" accept=".csv,text/csv" className={fileCls} />
+            <span className={labelSpan}>
+              {t(locale, "upload.rankingCsvLabel")}
+            </span>
+            <input
+              type="file"
+              name="ranking"
+              accept=".csv,text/csv"
+              className={fileCls}
+            />
           </label>
           <button type="submit" disabled={busy !== null} className={btnCls}>
-            {busy === "upload" ? t(locale, "upload.uploading") : t(locale, "upload.uploadBtn")}
+            {busy === "upload"
+              ? t(locale, "upload.uploading")
+              : t(locale, "upload.uploadBtn")}
           </button>
         </form>
       </details>
@@ -153,17 +181,21 @@ export function UploadForm({ locale }: { locale: Locale }) {
         >
           {result.ok && result.kind === "scrape" ? (
             <>
-              {t(locale, "upload.imported")} <strong>{result.tournamentName}</strong>
-              {result.date ? ` (${result.date})` : ""} {t(locale, "upload.into")}{" "}
-              <strong>{result.event}</strong>: {result.matches.toLocaleString()}{" "}
-              {t(locale, "upload.matchRows")}, {result.standings.toLocaleString()}{" "}
+              {t(locale, "upload.imported")}{" "}
+              <strong>{result.tournamentName}</strong>
+              {result.date ? ` (${result.date})` : ""}{" "}
+              {t(locale, "upload.into")} <strong>{result.event}</strong>:{" "}
+              {result.matches.toLocaleString()} {t(locale, "upload.matchRows")},{" "}
+              {result.standings.toLocaleString()}{" "}
               {t(locale, "upload.standingsRows")}.{" "}
               <Link href="/" className="underline">
                 {t(locale, "upload.viewMatchups")}
               </Link>
               {result.warnings && result.warnings.length > 0 && (
                 <div className="mt-3 rounded-md border border-amber-400 bg-amber-50 p-3 text-amber-900 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-200">
-                  <div className="font-semibold">⚠ {t(locale, "upload.partialWarning")}</div>
+                  <div className="font-semibold">
+                    ⚠ {t(locale, "upload.partialWarning")}
+                  </div>
                   <ul className="mt-1 list-disc pl-5">
                     {result.warnings.map((w, i) => (
                       <li key={i}>{w}</li>
@@ -174,9 +206,11 @@ export function UploadForm({ locale }: { locale: Locale }) {
             </>
           ) : result.ok ? (
             <>
-              {t(locale, "upload.uploadedIntoStore")} <strong>{result.store}</strong>:{" "}
-              {result.matches.toLocaleString()} {t(locale, "upload.matchRows")},{" "}
-              {result.standings.toLocaleString()} {t(locale, "upload.standingsRows")}.{" "}
+              {t(locale, "upload.uploadedIntoStore")}{" "}
+              <strong>{result.store}</strong>: {result.matches.toLocaleString()}{" "}
+              {t(locale, "upload.matchRows")},{" "}
+              {result.standings.toLocaleString()}{" "}
+              {t(locale, "upload.standingsRows")}.{" "}
               <Link href="/" className="underline">
                 {t(locale, "upload.viewMatchups")}
               </Link>
