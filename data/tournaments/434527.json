@@ -1,0 +1,4713 @@
+{
+  "tournament": {
+    "id": "434527",
+    "name": "Mont Weekly Pauper",
+    "format": "Pauper",
+    "game": "Magic: The Gathering",
+    "url": "https://melee.gg/Tournament/View/434527",
+    "round_used_for_standings": "Round 4"
+  },
+  "players": [
+    {
+      "player_name": "Leshira",
+      "username": "Leshira",
+      "rank": 1,
+      "points": 10,
+      "match_record": "3-0-1",
+      "game_record": "6-3-3",
+      "decklist_id": "7694b9a9-6776-4051-87e7-b46b016398a7",
+      "decklist_name": "Mono-Blue Delver",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Cryptic Serpent",
+              "quantity": 4
+            },
+            {
+              "name": "Delver of Secrets // Insectile Aberration",
+              "quantity": 4
+            },
+            {
+              "name": "Tolarian Terror",
+              "quantity": 4
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Lórien Revealed",
+              "quantity": 4
+            },
+            {
+              "name": "Ponder",
+              "quantity": 2
+            },
+            {
+              "name": "Sleep of the Dead",
+              "quantity": 2
+            },
+            {
+              "name": "Artful Dodge",
+              "quantity": 1
+            },
+            {
+              "name": "Deep Analysis",
+              "quantity": 1
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Brainstorm",
+              "quantity": 4
+            },
+            {
+              "name": "Counterspell",
+              "quantity": 4
+            },
+            {
+              "name": "Mental Note",
+              "quantity": 4
+            },
+            {
+              "name": "Thought Scour",
+              "quantity": 4
+            },
+            {
+              "name": "Boomerang",
+              "quantity": 2
+            },
+            {
+              "name": "Force Spike",
+              "quantity": 2
+            },
+            {
+              "name": "Spell Pierce",
+              "quantity": 2
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Dragon Wings",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Island",
+              "quantity": 15
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Hydroblast",
+              "quantity": 4
+            },
+            {
+              "name": "Piracy Charm",
+              "quantity": 3
+            },
+            {
+              "name": "Annul",
+              "quantity": 2
+            },
+            {
+              "name": "Blue Elemental Blast",
+              "quantity": 2
+            },
+            {
+              "name": "Dispel",
+              "quantity": 2
+            },
+            {
+              "name": "Envelop",
+              "quantity": 2
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Cryptic Serpent",
+            "quantity": 4
+          },
+          {
+            "name": "Delver of Secrets // Insectile Aberration",
+            "quantity": 4
+          },
+          {
+            "name": "Tolarian Terror",
+            "quantity": 4
+          },
+          {
+            "name": "Lórien Revealed",
+            "quantity": 4
+          },
+          {
+            "name": "Ponder",
+            "quantity": 2
+          },
+          {
+            "name": "Sleep of the Dead",
+            "quantity": 2
+          },
+          {
+            "name": "Artful Dodge",
+            "quantity": 1
+          },
+          {
+            "name": "Deep Analysis",
+            "quantity": 1
+          },
+          {
+            "name": "Brainstorm",
+            "quantity": 4
+          },
+          {
+            "name": "Counterspell",
+            "quantity": 4
+          },
+          {
+            "name": "Mental Note",
+            "quantity": 4
+          },
+          {
+            "name": "Thought Scour",
+            "quantity": 4
+          },
+          {
+            "name": "Boomerang",
+            "quantity": 2
+          },
+          {
+            "name": "Force Spike",
+            "quantity": 2
+          },
+          {
+            "name": "Spell Pierce",
+            "quantity": 2
+          },
+          {
+            "name": "Dragon Wings",
+            "quantity": 1
+          },
+          {
+            "name": "Island",
+            "quantity": 15
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Hydroblast",
+            "quantity": 4
+          },
+          {
+            "name": "Piracy Charm",
+            "quantity": 3
+          },
+          {
+            "name": "Annul",
+            "quantity": 2
+          },
+          {
+            "name": "Blue Elemental Blast",
+            "quantity": 2
+          },
+          {
+            "name": "Dispel",
+            "quantity": 2
+          },
+          {
+            "name": "Envelop",
+            "quantity": 2
+          }
+        ],
+        "id": "7694b9a9-6776-4051-87e7-b46b016398a7",
+        "url": "https://melee.gg/Decklist/View/7694b9a9-6776-4051-87e7-b46b016398a7"
+      }
+    },
+    {
+      "player_name": "Felipe Darbello Felipe",
+      "username": "Felove10",
+      "rank": 2,
+      "points": 10,
+      "match_record": "3-0-1",
+      "game_record": "6-3-3",
+      "decklist_id": "bf580807-2b28-4414-bf43-b46b015e8f77",
+      "decklist_name": "Dimir",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Sneaky Snacker",
+              "quantity": 4
+            },
+            {
+              "name": "Tolarian Terror",
+              "quantity": 4
+            },
+            {
+              "name": "Gurmag Angler",
+              "quantity": 2
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Lórien Revealed",
+              "quantity": 4
+            },
+            {
+              "name": "Ponder",
+              "quantity": 2
+            },
+            {
+              "name": "Deep Analysis",
+              "quantity": 1
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Brainstorm",
+              "quantity": 4
+            },
+            {
+              "name": "Counterspell",
+              "quantity": 4
+            },
+            {
+              "name": "Mental Note",
+              "quantity": 4
+            },
+            {
+              "name": "Snuff Out",
+              "quantity": 4
+            },
+            {
+              "name": "Thought Scour",
+              "quantity": 4
+            },
+            {
+              "name": "Abandon Attachments",
+              "quantity": 2
+            },
+            {
+              "name": "Spell Pierce",
+              "quantity": 2
+            },
+            {
+              "name": "Cast Down",
+              "quantity": 1
+            },
+            {
+              "name": "Suffocating Fumes",
+              "quantity": 1
+            },
+            {
+              "name": "Unexpected Fangs",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Island",
+              "quantity": 10
+            },
+            {
+              "name": "Contaminated Aquifer",
+              "quantity": 4
+            },
+            {
+              "name": "Ice Tunnel",
+              "quantity": 2
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Annul",
+              "quantity": 3
+            },
+            {
+              "name": "Blue Elemental Blast",
+              "quantity": 3
+            },
+            {
+              "name": "Arms of Hadar",
+              "quantity": 2
+            },
+            {
+              "name": "Extract a Confession",
+              "quantity": 2
+            },
+            {
+              "name": "Hydroblast",
+              "quantity": 2
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 2
+            },
+            {
+              "name": "Unexpected Fangs",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Sneaky Snacker",
+            "quantity": 4
+          },
+          {
+            "name": "Tolarian Terror",
+            "quantity": 4
+          },
+          {
+            "name": "Gurmag Angler",
+            "quantity": 2
+          },
+          {
+            "name": "Lórien Revealed",
+            "quantity": 4
+          },
+          {
+            "name": "Ponder",
+            "quantity": 2
+          },
+          {
+            "name": "Deep Analysis",
+            "quantity": 1
+          },
+          {
+            "name": "Brainstorm",
+            "quantity": 4
+          },
+          {
+            "name": "Counterspell",
+            "quantity": 4
+          },
+          {
+            "name": "Mental Note",
+            "quantity": 4
+          },
+          {
+            "name": "Snuff Out",
+            "quantity": 4
+          },
+          {
+            "name": "Thought Scour",
+            "quantity": 4
+          },
+          {
+            "name": "Abandon Attachments",
+            "quantity": 2
+          },
+          {
+            "name": "Spell Pierce",
+            "quantity": 2
+          },
+          {
+            "name": "Cast Down",
+            "quantity": 1
+          },
+          {
+            "name": "Suffocating Fumes",
+            "quantity": 1
+          },
+          {
+            "name": "Unexpected Fangs",
+            "quantity": 1
+          },
+          {
+            "name": "Island",
+            "quantity": 10
+          },
+          {
+            "name": "Contaminated Aquifer",
+            "quantity": 4
+          },
+          {
+            "name": "Ice Tunnel",
+            "quantity": 2
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Annul",
+            "quantity": 3
+          },
+          {
+            "name": "Blue Elemental Blast",
+            "quantity": 3
+          },
+          {
+            "name": "Arms of Hadar",
+            "quantity": 2
+          },
+          {
+            "name": "Extract a Confession",
+            "quantity": 2
+          },
+          {
+            "name": "Hydroblast",
+            "quantity": 2
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 2
+          },
+          {
+            "name": "Unexpected Fangs",
+            "quantity": 1
+          }
+        ],
+        "id": "bf580807-2b28-4414-bf43-b46b015e8f77",
+        "url": "https://melee.gg/Decklist/View/bf580807-2b28-4414-bf43-b46b015e8f77"
+      }
+    },
+    {
+      "player_name": "Tiomax",
+      "username": "Tiomax",
+      "rank": 3,
+      "points": 10,
+      "match_record": "3-0-1",
+      "game_record": "7-1-0",
+      "decklist_id": "f4deaaaf-4ccc-4247-8887-b46b014ebb0c",
+      "decklist_name": "Naya Aggro",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Arbor Elf",
+              "quantity": 4
+            },
+            {
+              "name": "Avenging Hunter",
+              "quantity": 4
+            },
+            {
+              "name": "Goliath Paladin",
+              "quantity": 4
+            },
+            {
+              "name": "Jewel Thief",
+              "quantity": 4
+            },
+            {
+              "name": "Sagu Wildling // Roost Seek",
+              "quantity": 4
+            },
+            {
+              "name": "Writhing Chrysalis",
+              "quantity": 4
+            },
+            {
+              "name": "Boarding Party",
+              "quantity": 2
+            },
+            {
+              "name": "Nyxborn Hydra",
+              "quantity": 2
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Malevolent Rumble",
+              "quantity": 3
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Thraben Charm",
+              "quantity": 3
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Trailblazer's Torch",
+              "quantity": 2
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Utopia Sprawl",
+              "quantity": 4
+            },
+            {
+              "name": "Wild Growth",
+              "quantity": 3
+            }
+          ],
+          "Land": [
+            {
+              "name": "Forest",
+              "quantity": 12
+            },
+            {
+              "name": "Mountain",
+              "quantity": 2
+            },
+            {
+              "name": "Plains",
+              "quantity": 2
+            },
+            {
+              "name": "Sheltering Landscape",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Pyroblast",
+              "quantity": 4
+            },
+            {
+              "name": "Weather the Storm",
+              "quantity": 4
+            },
+            {
+              "name": "Breath Weapon",
+              "quantity": 3
+            },
+            {
+              "name": "Circle of Protection: Red",
+              "quantity": 2
+            },
+            {
+              "name": "Flaring Pain",
+              "quantity": 2
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Arbor Elf",
+            "quantity": 4
+          },
+          {
+            "name": "Avenging Hunter",
+            "quantity": 4
+          },
+          {
+            "name": "Goliath Paladin",
+            "quantity": 4
+          },
+          {
+            "name": "Jewel Thief",
+            "quantity": 4
+          },
+          {
+            "name": "Sagu Wildling // Roost Seek",
+            "quantity": 4
+          },
+          {
+            "name": "Writhing Chrysalis",
+            "quantity": 4
+          },
+          {
+            "name": "Boarding Party",
+            "quantity": 2
+          },
+          {
+            "name": "Nyxborn Hydra",
+            "quantity": 2
+          },
+          {
+            "name": "Malevolent Rumble",
+            "quantity": 3
+          },
+          {
+            "name": "Thraben Charm",
+            "quantity": 3
+          },
+          {
+            "name": "Trailblazer's Torch",
+            "quantity": 2
+          },
+          {
+            "name": "Utopia Sprawl",
+            "quantity": 4
+          },
+          {
+            "name": "Wild Growth",
+            "quantity": 3
+          },
+          {
+            "name": "Forest",
+            "quantity": 12
+          },
+          {
+            "name": "Mountain",
+            "quantity": 2
+          },
+          {
+            "name": "Plains",
+            "quantity": 2
+          },
+          {
+            "name": "Sheltering Landscape",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Pyroblast",
+            "quantity": 4
+          },
+          {
+            "name": "Weather the Storm",
+            "quantity": 4
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 3
+          },
+          {
+            "name": "Circle of Protection: Red",
+            "quantity": 2
+          },
+          {
+            "name": "Flaring Pain",
+            "quantity": 2
+          }
+        ],
+        "id": "f4deaaaf-4ccc-4247-8887-b46b014ebb0c",
+        "url": "https://melee.gg/Decklist/View/f4deaaaf-4ccc-4247-8887-b46b014ebb0c"
+      }
+    },
+    {
+      "player_name": "Awemax",
+      "username": "Awemax",
+      "rank": 4,
+      "points": 9,
+      "match_record": "3-1-0",
+      "game_record": "7-4-0",
+      "decklist_id": null,
+      "decklist_name": null,
+      "decklist": null
+    },
+    {
+      "player_name": "Rafael Franco",
+      "username": "rafaelbfranco",
+      "rank": 5,
+      "points": 9,
+      "match_record": "3-1-0",
+      "game_record": "7-2-0",
+      "decklist_id": "5819769f-7672-448e-8d05-b46b01740469",
+      "decklist_name": "Mono-Red",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Kessig Flamebreather",
+              "quantity": 4
+            },
+            {
+              "name": "Sneaky Snacker",
+              "quantity": 4
+            },
+            {
+              "name": "Voldaren Epicure",
+              "quantity": 4
+            },
+            {
+              "name": "Guttersnipe",
+              "quantity": 3
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Faithless Looting",
+              "quantity": 4
+            },
+            {
+              "name": "Grab the Prize",
+              "quantity": 4
+            },
+            {
+              "name": "Highway Robbery",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Fiery Temper",
+              "quantity": 4
+            },
+            {
+              "name": "Lava Dart",
+              "quantity": 4
+            },
+            {
+              "name": "Lightning Bolt",
+              "quantity": 4
+            },
+            {
+              "name": "Fireblast",
+              "quantity": 3
+            }
+          ],
+          "Land": [
+            {
+              "name": "Mountain",
+              "quantity": 18
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Cast into the Fire",
+              "quantity": 4
+            },
+            {
+              "name": "Masked Meower",
+              "quantity": 4
+            },
+            {
+              "name": "Pyroblast",
+              "quantity": 3
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 3
+            },
+            {
+              "name": "Searing Blaze",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Kessig Flamebreather",
+            "quantity": 4
+          },
+          {
+            "name": "Sneaky Snacker",
+            "quantity": 4
+          },
+          {
+            "name": "Voldaren Epicure",
+            "quantity": 4
+          },
+          {
+            "name": "Guttersnipe",
+            "quantity": 3
+          },
+          {
+            "name": "Faithless Looting",
+            "quantity": 4
+          },
+          {
+            "name": "Grab the Prize",
+            "quantity": 4
+          },
+          {
+            "name": "Highway Robbery",
+            "quantity": 4
+          },
+          {
+            "name": "Fiery Temper",
+            "quantity": 4
+          },
+          {
+            "name": "Lava Dart",
+            "quantity": 4
+          },
+          {
+            "name": "Lightning Bolt",
+            "quantity": 4
+          },
+          {
+            "name": "Fireblast",
+            "quantity": 3
+          },
+          {
+            "name": "Mountain",
+            "quantity": 18
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Cast into the Fire",
+            "quantity": 4
+          },
+          {
+            "name": "Masked Meower",
+            "quantity": 4
+          },
+          {
+            "name": "Pyroblast",
+            "quantity": 3
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 3
+          },
+          {
+            "name": "Searing Blaze",
+            "quantity": 1
+          }
+        ],
+        "id": "5819769f-7672-448e-8d05-b46b01740469",
+        "url": "https://melee.gg/Decklist/View/5819769f-7672-448e-8d05-b46b01740469"
+      }
+    },
+    {
+      "player_name": "BRUNONOGUEIRAPEDRO",
+      "username": "BRUNONOGUEIRAPEDRO",
+      "rank": 6,
+      "points": 9,
+      "match_record": "3-1-0",
+      "game_record": "7-3-0",
+      "decklist_id": "282ff586-3aa2-4fb6-8836-b46c0014186a",
+      "decklist_name": "Dimir Faeries",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Augur of Bolas",
+              "quantity": 4
+            },
+            {
+              "name": "Faerie Seer",
+              "quantity": 4
+            },
+            {
+              "name": "Spellstutter Sprite",
+              "quantity": 4
+            },
+            {
+              "name": "Ninja of the Deep Hours",
+              "quantity": 2
+            },
+            {
+              "name": "Thorn of the Black Rose",
+              "quantity": 2
+            },
+            {
+              "name": "Moon-Circuit Hacker",
+              "quantity": 1
+            },
+            {
+              "name": "Mukotai Ambusher",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Lórien Revealed",
+              "quantity": 4
+            },
+            {
+              "name": "Extract a Confession",
+              "quantity": 1
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Brainstorm",
+              "quantity": 4
+            },
+            {
+              "name": "Counterspell",
+              "quantity": 4
+            },
+            {
+              "name": "Snuff Out",
+              "quantity": 4
+            },
+            {
+              "name": "Cast Down",
+              "quantity": 2
+            },
+            {
+              "name": "Dispel",
+              "quantity": 2
+            },
+            {
+              "name": "Agony Warp",
+              "quantity": 1
+            },
+            {
+              "name": "Suffocating Fumes",
+              "quantity": 1
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Sewer-veillance Cam",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Island",
+              "quantity": 10
+            },
+            {
+              "name": "Contaminated Aquifer",
+              "quantity": 4
+            },
+            {
+              "name": "Bojuka Bog",
+              "quantity": 1
+            },
+            {
+              "name": "Dimir Aqueduct",
+              "quantity": 1
+            },
+            {
+              "name": "Seething Landscape",
+              "quantity": 1
+            },
+            {
+              "name": "Swamp",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Blue Elemental Blast",
+              "quantity": 4
+            },
+            {
+              "name": "Annul",
+              "quantity": 3
+            },
+            {
+              "name": "Hydroblast",
+              "quantity": 2
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 2
+            },
+            {
+              "name": "Arms of Hadar",
+              "quantity": 1
+            },
+            {
+              "name": "Campfire",
+              "quantity": 1
+            },
+            {
+              "name": "Mukotai Ambusher",
+              "quantity": 1
+            },
+            {
+              "name": "Murmuring Mystic",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Augur of Bolas",
+            "quantity": 4
+          },
+          {
+            "name": "Faerie Seer",
+            "quantity": 4
+          },
+          {
+            "name": "Spellstutter Sprite",
+            "quantity": 4
+          },
+          {
+            "name": "Ninja of the Deep Hours",
+            "quantity": 2
+          },
+          {
+            "name": "Thorn of the Black Rose",
+            "quantity": 2
+          },
+          {
+            "name": "Moon-Circuit Hacker",
+            "quantity": 1
+          },
+          {
+            "name": "Mukotai Ambusher",
+            "quantity": 1
+          },
+          {
+            "name": "Lórien Revealed",
+            "quantity": 4
+          },
+          {
+            "name": "Extract a Confession",
+            "quantity": 1
+          },
+          {
+            "name": "Brainstorm",
+            "quantity": 4
+          },
+          {
+            "name": "Counterspell",
+            "quantity": 4
+          },
+          {
+            "name": "Snuff Out",
+            "quantity": 4
+          },
+          {
+            "name": "Cast Down",
+            "quantity": 2
+          },
+          {
+            "name": "Dispel",
+            "quantity": 2
+          },
+          {
+            "name": "Agony Warp",
+            "quantity": 1
+          },
+          {
+            "name": "Suffocating Fumes",
+            "quantity": 1
+          },
+          {
+            "name": "Sewer-veillance Cam",
+            "quantity": 1
+          },
+          {
+            "name": "Island",
+            "quantity": 10
+          },
+          {
+            "name": "Contaminated Aquifer",
+            "quantity": 4
+          },
+          {
+            "name": "Bojuka Bog",
+            "quantity": 1
+          },
+          {
+            "name": "Dimir Aqueduct",
+            "quantity": 1
+          },
+          {
+            "name": "Seething Landscape",
+            "quantity": 1
+          },
+          {
+            "name": "Swamp",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Blue Elemental Blast",
+            "quantity": 4
+          },
+          {
+            "name": "Annul",
+            "quantity": 3
+          },
+          {
+            "name": "Hydroblast",
+            "quantity": 2
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 2
+          },
+          {
+            "name": "Arms of Hadar",
+            "quantity": 1
+          },
+          {
+            "name": "Campfire",
+            "quantity": 1
+          },
+          {
+            "name": "Mukotai Ambusher",
+            "quantity": 1
+          },
+          {
+            "name": "Murmuring Mystic",
+            "quantity": 1
+          }
+        ],
+        "id": "282ff586-3aa2-4fb6-8836-b46c0014186a",
+        "url": "https://melee.gg/Decklist/View/282ff586-3aa2-4fb6-8836-b46c0014186a"
+      }
+    },
+    {
+      "player_name": "VitorOliveiraTIM",
+      "username": "VitorOliveiraTIM",
+      "rank": 7,
+      "points": 7,
+      "match_record": "2-1-1",
+      "game_record": "4-3-3",
+      "decklist_id": "1a7f30fe-acac-42aa-ab56-b46b015f14c0",
+      "decklist_name": "Golgari",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Cauldron Familiar",
+              "quantity": 3
+            },
+            {
+              "name": "Troll of Khazad-dûm",
+              "quantity": 3
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Cast Down",
+              "quantity": 4
+            },
+            {
+              "name": "Eviscerator's Insight",
+              "quantity": 4
+            },
+            {
+              "name": "Fanatical Offering",
+              "quantity": 4
+            },
+            {
+              "name": "Heritage Reclamation",
+              "quantity": 1
+            },
+            {
+              "name": "Snuff Out",
+              "quantity": 1
+            },
+            {
+              "name": "Tragic Slip",
+              "quantity": 1
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Lembas",
+              "quantity": 4
+            },
+            {
+              "name": "Nutrient Block",
+              "quantity": 4
+            },
+            {
+              "name": "Campfire",
+              "quantity": 3
+            },
+            {
+              "name": "Ichor Wellspring",
+              "quantity": 2
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 2
+            },
+            {
+              "name": "Tithing Blade // Consuming Sepulcher",
+              "quantity": 2
+            },
+            {
+              "name": "Heaped Harvest",
+              "quantity": 1
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Pestilence",
+              "quantity": 3
+            }
+          ],
+          "Land": [
+            {
+              "name": "Swamp",
+              "quantity": 9
+            },
+            {
+              "name": "Khalni Garden",
+              "quantity": 4
+            },
+            {
+              "name": "Bojuka Bog",
+              "quantity": 2
+            },
+            {
+              "name": "Golgari Rot Farm",
+              "quantity": 2
+            },
+            {
+              "name": "Haunted Mire",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Weather the Storm",
+              "quantity": 4
+            },
+            {
+              "name": "Troublemaker Ouphe",
+              "quantity": 3
+            },
+            {
+              "name": "Drown in Sorrow",
+              "quantity": 2
+            },
+            {
+              "name": "Faerie Macabre",
+              "quantity": 2
+            },
+            {
+              "name": "Extract a Confession",
+              "quantity": 1
+            },
+            {
+              "name": "Moment's Peace",
+              "quantity": 1
+            },
+            {
+              "name": "Snuff Out",
+              "quantity": 1
+            },
+            {
+              "name": "Tragic Slip",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Cauldron Familiar",
+            "quantity": 3
+          },
+          {
+            "name": "Troll of Khazad-dûm",
+            "quantity": 3
+          },
+          {
+            "name": "Cast Down",
+            "quantity": 4
+          },
+          {
+            "name": "Eviscerator's Insight",
+            "quantity": 4
+          },
+          {
+            "name": "Fanatical Offering",
+            "quantity": 4
+          },
+          {
+            "name": "Heritage Reclamation",
+            "quantity": 1
+          },
+          {
+            "name": "Snuff Out",
+            "quantity": 1
+          },
+          {
+            "name": "Tragic Slip",
+            "quantity": 1
+          },
+          {
+            "name": "Lembas",
+            "quantity": 4
+          },
+          {
+            "name": "Nutrient Block",
+            "quantity": 4
+          },
+          {
+            "name": "Campfire",
+            "quantity": 3
+          },
+          {
+            "name": "Ichor Wellspring",
+            "quantity": 2
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 2
+          },
+          {
+            "name": "Tithing Blade // Consuming Sepulcher",
+            "quantity": 2
+          },
+          {
+            "name": "Heaped Harvest",
+            "quantity": 1
+          },
+          {
+            "name": "Pestilence",
+            "quantity": 3
+          },
+          {
+            "name": "Swamp",
+            "quantity": 9
+          },
+          {
+            "name": "Khalni Garden",
+            "quantity": 4
+          },
+          {
+            "name": "Bojuka Bog",
+            "quantity": 2
+          },
+          {
+            "name": "Golgari Rot Farm",
+            "quantity": 2
+          },
+          {
+            "name": "Haunted Mire",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Weather the Storm",
+            "quantity": 4
+          },
+          {
+            "name": "Troublemaker Ouphe",
+            "quantity": 3
+          },
+          {
+            "name": "Drown in Sorrow",
+            "quantity": 2
+          },
+          {
+            "name": "Faerie Macabre",
+            "quantity": 2
+          },
+          {
+            "name": "Extract a Confession",
+            "quantity": 1
+          },
+          {
+            "name": "Moment's Peace",
+            "quantity": 1
+          },
+          {
+            "name": "Snuff Out",
+            "quantity": 1
+          },
+          {
+            "name": "Tragic Slip",
+            "quantity": 1
+          }
+        ],
+        "id": "1a7f30fe-acac-42aa-ab56-b46b015f14c0",
+        "url": "https://melee.gg/Decklist/View/1a7f30fe-acac-42aa-ab56-b46b015f14c0"
+      }
+    },
+    {
+      "player_name": "Darbello",
+      "username": "Darbello",
+      "rank": 8,
+      "points": 7,
+      "match_record": "2-1-1",
+      "game_record": "5-3-0",
+      "decklist_id": "4995c994-c4ef-4dca-a474-b46b014a0bb6",
+      "decklist_name": "Grixis Affinity",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Myr Enforcer",
+              "quantity": 4
+            },
+            {
+              "name": "Refurbished Familiar",
+              "quantity": 4
+            },
+            {
+              "name": "Utrom Monitor",
+              "quantity": 4
+            },
+            {
+              "name": "Krark-Clan Shaman",
+              "quantity": 3
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Thoughtcast",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Galvanic Blast",
+              "quantity": 4
+            },
+            {
+              "name": "Reckoner's Bargain",
+              "quantity": 4
+            },
+            {
+              "name": "Toxin Analysis",
+              "quantity": 3
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Ichor Wellspring",
+              "quantity": 4
+            },
+            {
+              "name": "Blood Fountain",
+              "quantity": 2
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 2
+            },
+            {
+              "name": "Sewer-veillance Cam",
+              "quantity": 2
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Makeshift Munitions",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Mistvault Bridge",
+              "quantity": 4
+            },
+            {
+              "name": "Drossforge Bridge",
+              "quantity": 3
+            },
+            {
+              "name": "Great Furnace",
+              "quantity": 3
+            },
+            {
+              "name": "Seat of the Synod",
+              "quantity": 3
+            },
+            {
+              "name": "Vault of Whispers",
+              "quantity": 3
+            },
+            {
+              "name": "Silverbluff Bridge",
+              "quantity": 2
+            },
+            {
+              "name": "Swamp",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Hydroblast",
+              "quantity": 4
+            },
+            {
+              "name": "Pyroblast",
+              "quantity": 3
+            },
+            {
+              "name": "Breath Weapon",
+              "quantity": 2
+            },
+            {
+              "name": "Envelop",
+              "quantity": 2
+            },
+            {
+              "name": "Extract a Confession",
+              "quantity": 2
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 1
+            },
+            {
+              "name": "Unexpected Fangs",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Myr Enforcer",
+            "quantity": 4
+          },
+          {
+            "name": "Refurbished Familiar",
+            "quantity": 4
+          },
+          {
+            "name": "Utrom Monitor",
+            "quantity": 4
+          },
+          {
+            "name": "Krark-Clan Shaman",
+            "quantity": 3
+          },
+          {
+            "name": "Thoughtcast",
+            "quantity": 4
+          },
+          {
+            "name": "Galvanic Blast",
+            "quantity": 4
+          },
+          {
+            "name": "Reckoner's Bargain",
+            "quantity": 4
+          },
+          {
+            "name": "Toxin Analysis",
+            "quantity": 3
+          },
+          {
+            "name": "Ichor Wellspring",
+            "quantity": 4
+          },
+          {
+            "name": "Blood Fountain",
+            "quantity": 2
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 2
+          },
+          {
+            "name": "Sewer-veillance Cam",
+            "quantity": 2
+          },
+          {
+            "name": "Makeshift Munitions",
+            "quantity": 1
+          },
+          {
+            "name": "Mistvault Bridge",
+            "quantity": 4
+          },
+          {
+            "name": "Drossforge Bridge",
+            "quantity": 3
+          },
+          {
+            "name": "Great Furnace",
+            "quantity": 3
+          },
+          {
+            "name": "Seat of the Synod",
+            "quantity": 3
+          },
+          {
+            "name": "Vault of Whispers",
+            "quantity": 3
+          },
+          {
+            "name": "Silverbluff Bridge",
+            "quantity": 2
+          },
+          {
+            "name": "Swamp",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Hydroblast",
+            "quantity": 4
+          },
+          {
+            "name": "Pyroblast",
+            "quantity": 3
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 2
+          },
+          {
+            "name": "Envelop",
+            "quantity": 2
+          },
+          {
+            "name": "Extract a Confession",
+            "quantity": 2
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 1
+          },
+          {
+            "name": "Unexpected Fangs",
+            "quantity": 1
+          }
+        ],
+        "id": "4995c994-c4ef-4dca-a474-b46b014a0bb6",
+        "url": "https://melee.gg/Decklist/View/4995c994-c4ef-4dca-a474-b46b014a0bb6"
+      }
+    },
+    {
+      "player_name": "Guilherme Gomes",
+      "username": "gomes_gui06",
+      "rank": 9,
+      "points": 6,
+      "match_record": "2-2-0",
+      "game_record": "5-4-0",
+      "decklist_id": "2c7bc9dc-748d-4823-b5e5-b46a011eb625",
+      "decklist_name": "Mono-Red Madness Burn",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Guttersnipe",
+              "quantity": 4
+            },
+            {
+              "name": "Sneaky Snacker",
+              "quantity": 4
+            },
+            {
+              "name": "Voldaren Epicure",
+              "quantity": 4
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Grab the Prize",
+              "quantity": 4
+            },
+            {
+              "name": "Highway Robbery",
+              "quantity": 4
+            },
+            {
+              "name": "Faithless Looting",
+              "quantity": 2
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Fiery Temper",
+              "quantity": 4
+            },
+            {
+              "name": "Fireblast",
+              "quantity": 4
+            },
+            {
+              "name": "Lava Dart",
+              "quantity": 4
+            },
+            {
+              "name": "Lightning Bolt",
+              "quantity": 4
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Melded Moxite",
+              "quantity": 4
+            }
+          ],
+          "Land": [
+            {
+              "name": "Mountain",
+              "quantity": 18
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Pyroblast",
+              "quantity": 4
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 3
+            },
+            {
+              "name": "Cast into the Fire",
+              "quantity": 2
+            },
+            {
+              "name": "Electrickery",
+              "quantity": 2
+            },
+            {
+              "name": "Searing Blaze",
+              "quantity": 2
+            },
+            {
+              "name": "Smash to Smithereens",
+              "quantity": 2
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Guttersnipe",
+            "quantity": 4
+          },
+          {
+            "name": "Sneaky Snacker",
+            "quantity": 4
+          },
+          {
+            "name": "Voldaren Epicure",
+            "quantity": 4
+          },
+          {
+            "name": "Grab the Prize",
+            "quantity": 4
+          },
+          {
+            "name": "Highway Robbery",
+            "quantity": 4
+          },
+          {
+            "name": "Faithless Looting",
+            "quantity": 2
+          },
+          {
+            "name": "Fiery Temper",
+            "quantity": 4
+          },
+          {
+            "name": "Fireblast",
+            "quantity": 4
+          },
+          {
+            "name": "Lava Dart",
+            "quantity": 4
+          },
+          {
+            "name": "Lightning Bolt",
+            "quantity": 4
+          },
+          {
+            "name": "Melded Moxite",
+            "quantity": 4
+          },
+          {
+            "name": "Mountain",
+            "quantity": 18
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Pyroblast",
+            "quantity": 4
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 3
+          },
+          {
+            "name": "Cast into the Fire",
+            "quantity": 2
+          },
+          {
+            "name": "Electrickery",
+            "quantity": 2
+          },
+          {
+            "name": "Searing Blaze",
+            "quantity": 2
+          },
+          {
+            "name": "Smash to Smithereens",
+            "quantity": 2
+          }
+        ],
+        "id": "2c7bc9dc-748d-4823-b5e5-b46a011eb625",
+        "url": "https://melee.gg/Decklist/View/2c7bc9dc-748d-4823-b5e5-b46a011eb625"
+      }
+    },
+    {
+      "player_name": "Scotilen",
+      "username": "Scotilen",
+      "rank": 10,
+      "points": 6,
+      "match_record": "2-2-0",
+      "game_record": "5-4-0",
+      "decklist_id": "5b81360f-121e-4526-9216-b46b015aad7d",
+      "decklist_name": "Simic Rogue",
+      "decklist": {
+        "categories": {
+          "Sorcery": [
+            {
+              "name": "Contentious Plan",
+              "quantity": 4
+            },
+            {
+              "name": "Vivisurgeon's Insight",
+              "quantity": 4
+            },
+            {
+              "name": "Thirsting Roots",
+              "quantity": 1
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Experimental Augury",
+              "quantity": 4
+            },
+            {
+              "name": "Moment's Peace",
+              "quantity": 4
+            },
+            {
+              "name": "Prologue to Phyresis",
+              "quantity": 4
+            },
+            {
+              "name": "Steady Progress",
+              "quantity": 4
+            },
+            {
+              "name": "Tangle",
+              "quantity": 4
+            },
+            {
+              "name": "Weather the Storm",
+              "quantity": 4
+            },
+            {
+              "name": "Brainstorm",
+              "quantity": 3
+            },
+            {
+              "name": "Fog",
+              "quantity": 2
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Pentad Prism",
+              "quantity": 4
+            }
+          ],
+          "Land": [
+            {
+              "name": "Island",
+              "quantity": 5
+            },
+            {
+              "name": "Hickory Woodlot",
+              "quantity": 4
+            },
+            {
+              "name": "Saprazzan Skerry",
+              "quantity": 4
+            },
+            {
+              "name": "Forest",
+              "quantity": 3
+            },
+            {
+              "name": "Khalni Garden",
+              "quantity": 2
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Focus the Mind",
+              "quantity": 4
+            },
+            {
+              "name": "Keep Watch",
+              "quantity": 4
+            },
+            {
+              "name": "Dispel",
+              "quantity": 3
+            },
+            {
+              "name": "Bonder's Ornament",
+              "quantity": 1
+            },
+            {
+              "name": "Gingerbrute",
+              "quantity": 1
+            },
+            {
+              "name": "Mystic Remora",
+              "quantity": 1
+            },
+            {
+              "name": "Shred Memory",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Contentious Plan",
+            "quantity": 4
+          },
+          {
+            "name": "Vivisurgeon's Insight",
+            "quantity": 4
+          },
+          {
+            "name": "Thirsting Roots",
+            "quantity": 1
+          },
+          {
+            "name": "Experimental Augury",
+            "quantity": 4
+          },
+          {
+            "name": "Moment's Peace",
+            "quantity": 4
+          },
+          {
+            "name": "Prologue to Phyresis",
+            "quantity": 4
+          },
+          {
+            "name": "Steady Progress",
+            "quantity": 4
+          },
+          {
+            "name": "Tangle",
+            "quantity": 4
+          },
+          {
+            "name": "Weather the Storm",
+            "quantity": 4
+          },
+          {
+            "name": "Brainstorm",
+            "quantity": 3
+          },
+          {
+            "name": "Fog",
+            "quantity": 2
+          },
+          {
+            "name": "Pentad Prism",
+            "quantity": 4
+          },
+          {
+            "name": "Island",
+            "quantity": 5
+          },
+          {
+            "name": "Hickory Woodlot",
+            "quantity": 4
+          },
+          {
+            "name": "Saprazzan Skerry",
+            "quantity": 4
+          },
+          {
+            "name": "Forest",
+            "quantity": 3
+          },
+          {
+            "name": "Khalni Garden",
+            "quantity": 2
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Focus the Mind",
+            "quantity": 4
+          },
+          {
+            "name": "Keep Watch",
+            "quantity": 4
+          },
+          {
+            "name": "Dispel",
+            "quantity": 3
+          },
+          {
+            "name": "Bonder's Ornament",
+            "quantity": 1
+          },
+          {
+            "name": "Gingerbrute",
+            "quantity": 1
+          },
+          {
+            "name": "Mystic Remora",
+            "quantity": 1
+          },
+          {
+            "name": "Shred Memory",
+            "quantity": 1
+          }
+        ],
+        "id": "5b81360f-121e-4526-9216-b46b015aad7d",
+        "url": "https://melee.gg/Decklist/View/5b81360f-121e-4526-9216-b46b015aad7d"
+      }
+    },
+    {
+      "player_name": "Gregorio",
+      "username": "Gregorio",
+      "rank": 11,
+      "points": 6,
+      "match_record": "2-2-0",
+      "game_record": "6-5-0",
+      "decklist_id": "3841fc53-1013-46c8-bf54-b46b015f54db",
+      "decklist_name": "Gruul Tron",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Boulderbranch Golem",
+              "quantity": 4
+            },
+            {
+              "name": "Bramble Wurm",
+              "quantity": 4
+            },
+            {
+              "name": "Generous Ent",
+              "quantity": 4
+            },
+            {
+              "name": "Maelstrom Colossus",
+              "quantity": 4
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Ancient Stirrings",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Breath Weapon",
+              "quantity": 2
+            },
+            {
+              "name": "Crop Rotation",
+              "quantity": 2
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Candy Trail",
+              "quantity": 4
+            },
+            {
+              "name": "Expedition Map",
+              "quantity": 4
+            },
+            {
+              "name": "Pinnacle Kill-Ship",
+              "quantity": 4
+            },
+            {
+              "name": "Barrels of Blasting Jelly",
+              "quantity": 2
+            },
+            {
+              "name": "Bonder's Ornament",
+              "quantity": 2
+            },
+            {
+              "name": "Prophetic Prism",
+              "quantity": 2
+            }
+          ],
+          "Land": [
+            {
+              "name": "Urza's Mine",
+              "quantity": 4
+            },
+            {
+              "name": "Urza's Power Plant",
+              "quantity": 4
+            },
+            {
+              "name": "Urza's Tower",
+              "quantity": 4
+            },
+            {
+              "name": "Conduit Pylons",
+              "quantity": 2
+            },
+            {
+              "name": "Forest",
+              "quantity": 2
+            },
+            {
+              "name": "Bojuka Bog",
+              "quantity": 1
+            },
+            {
+              "name": "Wooded Ridgeline",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Weather the Storm",
+              "quantity": 4
+            },
+            {
+              "name": "Deglamer",
+              "quantity": 3
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 3
+            },
+            {
+              "name": "Breath Weapon",
+              "quantity": 2
+            },
+            {
+              "name": "Monstrous Emergence",
+              "quantity": 2
+            },
+            {
+              "name": "Kaervek's Torch",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Boulderbranch Golem",
+            "quantity": 4
+          },
+          {
+            "name": "Bramble Wurm",
+            "quantity": 4
+          },
+          {
+            "name": "Generous Ent",
+            "quantity": 4
+          },
+          {
+            "name": "Maelstrom Colossus",
+            "quantity": 4
+          },
+          {
+            "name": "Ancient Stirrings",
+            "quantity": 4
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 2
+          },
+          {
+            "name": "Crop Rotation",
+            "quantity": 2
+          },
+          {
+            "name": "Candy Trail",
+            "quantity": 4
+          },
+          {
+            "name": "Expedition Map",
+            "quantity": 4
+          },
+          {
+            "name": "Pinnacle Kill-Ship",
+            "quantity": 4
+          },
+          {
+            "name": "Barrels of Blasting Jelly",
+            "quantity": 2
+          },
+          {
+            "name": "Bonder's Ornament",
+            "quantity": 2
+          },
+          {
+            "name": "Prophetic Prism",
+            "quantity": 2
+          },
+          {
+            "name": "Urza's Mine",
+            "quantity": 4
+          },
+          {
+            "name": "Urza's Power Plant",
+            "quantity": 4
+          },
+          {
+            "name": "Urza's Tower",
+            "quantity": 4
+          },
+          {
+            "name": "Conduit Pylons",
+            "quantity": 2
+          },
+          {
+            "name": "Forest",
+            "quantity": 2
+          },
+          {
+            "name": "Bojuka Bog",
+            "quantity": 1
+          },
+          {
+            "name": "Wooded Ridgeline",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Weather the Storm",
+            "quantity": 4
+          },
+          {
+            "name": "Deglamer",
+            "quantity": 3
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 3
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 2
+          },
+          {
+            "name": "Monstrous Emergence",
+            "quantity": 2
+          },
+          {
+            "name": "Kaervek's Torch",
+            "quantity": 1
+          }
+        ],
+        "id": "3841fc53-1013-46c8-bf54-b46b015f54db",
+        "url": "https://melee.gg/Decklist/View/3841fc53-1013-46c8-bf54-b46b015f54db"
+      }
+    },
+    {
+      "player_name": "TheJoOkeR",
+      "username": "TheJoOkeR",
+      "rank": 12,
+      "points": 6,
+      "match_record": "2-2-0",
+      "game_record": "4-4-0",
+      "decklist_id": "bd3c1519-1a2a-47cf-8a08-b46b013b8df4",
+      "decklist_name": "Gruul Cawgate",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Arbor Elf",
+              "quantity": 4
+            },
+            {
+              "name": "Boarding Party",
+              "quantity": 4
+            },
+            {
+              "name": "Writhing Chrysalis",
+              "quantity": 4
+            },
+            {
+              "name": "Annoyed Altisaur",
+              "quantity": 3
+            },
+            {
+              "name": "Avenging Hunter",
+              "quantity": 3
+            },
+            {
+              "name": "Eldrazi Repurposer",
+              "quantity": 3
+            },
+            {
+              "name": "Generous Ent",
+              "quantity": 2
+            },
+            {
+              "name": "Nyxborn Hydra",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Mwonvuli Acid-Moss",
+              "quantity": 4
+            },
+            {
+              "name": "Thermokarst",
+              "quantity": 4
+            },
+            {
+              "name": "Malevolent Rumble",
+              "quantity": 2
+            },
+            {
+              "name": "Stone Rain",
+              "quantity": 1
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Bonder's Ornament",
+              "quantity": 1
+            },
+            {
+              "name": "Colossal Dreadmask",
+              "quantity": 1
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Utopia Sprawl",
+              "quantity": 4
+            },
+            {
+              "name": "Wild Growth",
+              "quantity": 4
+            }
+          ],
+          "Land": [
+            {
+              "name": "Forest",
+              "quantity": 13
+            },
+            {
+              "name": "Mountain",
+              "quantity": 2
+            },
+            {
+              "name": "Wooded Ridgeline",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Breath Weapon",
+              "quantity": 3
+            },
+            {
+              "name": "Deglamer",
+              "quantity": 3
+            },
+            {
+              "name": "Cast into the Fire",
+              "quantity": 2
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 2
+            },
+            {
+              "name": "Trufflesnout",
+              "quantity": 2
+            },
+            {
+              "name": "Weather the Storm",
+              "quantity": 2
+            },
+            {
+              "name": "Feed the Clan",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Arbor Elf",
+            "quantity": 4
+          },
+          {
+            "name": "Boarding Party",
+            "quantity": 4
+          },
+          {
+            "name": "Writhing Chrysalis",
+            "quantity": 4
+          },
+          {
+            "name": "Annoyed Altisaur",
+            "quantity": 3
+          },
+          {
+            "name": "Avenging Hunter",
+            "quantity": 3
+          },
+          {
+            "name": "Eldrazi Repurposer",
+            "quantity": 3
+          },
+          {
+            "name": "Generous Ent",
+            "quantity": 2
+          },
+          {
+            "name": "Nyxborn Hydra",
+            "quantity": 1
+          },
+          {
+            "name": "Mwonvuli Acid-Moss",
+            "quantity": 4
+          },
+          {
+            "name": "Thermokarst",
+            "quantity": 4
+          },
+          {
+            "name": "Malevolent Rumble",
+            "quantity": 2
+          },
+          {
+            "name": "Stone Rain",
+            "quantity": 1
+          },
+          {
+            "name": "Bonder's Ornament",
+            "quantity": 1
+          },
+          {
+            "name": "Colossal Dreadmask",
+            "quantity": 1
+          },
+          {
+            "name": "Utopia Sprawl",
+            "quantity": 4
+          },
+          {
+            "name": "Wild Growth",
+            "quantity": 4
+          },
+          {
+            "name": "Forest",
+            "quantity": 13
+          },
+          {
+            "name": "Mountain",
+            "quantity": 2
+          },
+          {
+            "name": "Wooded Ridgeline",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Breath Weapon",
+            "quantity": 3
+          },
+          {
+            "name": "Deglamer",
+            "quantity": 3
+          },
+          {
+            "name": "Cast into the Fire",
+            "quantity": 2
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 2
+          },
+          {
+            "name": "Trufflesnout",
+            "quantity": 2
+          },
+          {
+            "name": "Weather the Storm",
+            "quantity": 2
+          },
+          {
+            "name": "Feed the Clan",
+            "quantity": 1
+          }
+        ],
+        "id": "bd3c1519-1a2a-47cf-8a08-b46b013b8df4",
+        "url": "https://melee.gg/Decklist/View/bd3c1519-1a2a-47cf-8a08-b46b013b8df4"
+      }
+    },
+    {
+      "player_name": "mathevs",
+      "username": "mathevs",
+      "rank": 13,
+      "points": 6,
+      "match_record": "2-2-0",
+      "game_record": "4-4-0",
+      "decklist_id": "682877a7-bbe0-47cf-a32b-b46b016e683e",
+      "decklist_name": "Dimir Faeries",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Faerie Miscreant",
+              "quantity": 4
+            },
+            {
+              "name": "Faerie Seer",
+              "quantity": 4
+            },
+            {
+              "name": "Spellstutter Sprite",
+              "quantity": 4
+            },
+            {
+              "name": "Moon-Circuit Hacker",
+              "quantity": 2
+            },
+            {
+              "name": "Ninja of the Deep Hours",
+              "quantity": 2
+            },
+            {
+              "name": "Thorn of the Black Rose",
+              "quantity": 2
+            },
+            {
+              "name": "Mukotai Ambusher",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Lórien Revealed",
+              "quantity": 4
+            },
+            {
+              "name": "Extract a Confession",
+              "quantity": 1
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Counterspell",
+              "quantity": 4
+            },
+            {
+              "name": "Snuff Out",
+              "quantity": 4
+            },
+            {
+              "name": "Brainstorm",
+              "quantity": 3
+            },
+            {
+              "name": "Cast Down",
+              "quantity": 2
+            },
+            {
+              "name": "Dispel",
+              "quantity": 2
+            },
+            {
+              "name": "Agony Warp",
+              "quantity": 1
+            },
+            {
+              "name": "Spell Pierce",
+              "quantity": 1
+            },
+            {
+              "name": "Suffocating Fumes",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Island",
+              "quantity": 10
+            },
+            {
+              "name": "Contaminated Aquifer",
+              "quantity": 4
+            },
+            {
+              "name": "Bojuka Bog",
+              "quantity": 2
+            },
+            {
+              "name": "Contaminated Landscape",
+              "quantity": 1
+            },
+            {
+              "name": "Swamp",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Blue Elemental Blast",
+              "quantity": 4
+            },
+            {
+              "name": "Annul",
+              "quantity": 3
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 2
+            },
+            {
+              "name": "Arms of Hadar",
+              "quantity": 1
+            },
+            {
+              "name": "Campfire",
+              "quantity": 1
+            },
+            {
+              "name": "Hydroblast",
+              "quantity": 1
+            },
+            {
+              "name": "Mukotai Ambusher",
+              "quantity": 1
+            },
+            {
+              "name": "Murmuring Mystic",
+              "quantity": 1
+            },
+            {
+              "name": "Okiba-Gang Shinobi",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Faerie Miscreant",
+            "quantity": 4
+          },
+          {
+            "name": "Faerie Seer",
+            "quantity": 4
+          },
+          {
+            "name": "Spellstutter Sprite",
+            "quantity": 4
+          },
+          {
+            "name": "Moon-Circuit Hacker",
+            "quantity": 2
+          },
+          {
+            "name": "Ninja of the Deep Hours",
+            "quantity": 2
+          },
+          {
+            "name": "Thorn of the Black Rose",
+            "quantity": 2
+          },
+          {
+            "name": "Mukotai Ambusher",
+            "quantity": 1
+          },
+          {
+            "name": "Lórien Revealed",
+            "quantity": 4
+          },
+          {
+            "name": "Extract a Confession",
+            "quantity": 1
+          },
+          {
+            "name": "Counterspell",
+            "quantity": 4
+          },
+          {
+            "name": "Snuff Out",
+            "quantity": 4
+          },
+          {
+            "name": "Brainstorm",
+            "quantity": 3
+          },
+          {
+            "name": "Cast Down",
+            "quantity": 2
+          },
+          {
+            "name": "Dispel",
+            "quantity": 2
+          },
+          {
+            "name": "Agony Warp",
+            "quantity": 1
+          },
+          {
+            "name": "Spell Pierce",
+            "quantity": 1
+          },
+          {
+            "name": "Suffocating Fumes",
+            "quantity": 1
+          },
+          {
+            "name": "Island",
+            "quantity": 10
+          },
+          {
+            "name": "Contaminated Aquifer",
+            "quantity": 4
+          },
+          {
+            "name": "Bojuka Bog",
+            "quantity": 2
+          },
+          {
+            "name": "Contaminated Landscape",
+            "quantity": 1
+          },
+          {
+            "name": "Swamp",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Blue Elemental Blast",
+            "quantity": 4
+          },
+          {
+            "name": "Annul",
+            "quantity": 3
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 2
+          },
+          {
+            "name": "Arms of Hadar",
+            "quantity": 1
+          },
+          {
+            "name": "Campfire",
+            "quantity": 1
+          },
+          {
+            "name": "Hydroblast",
+            "quantity": 1
+          },
+          {
+            "name": "Mukotai Ambusher",
+            "quantity": 1
+          },
+          {
+            "name": "Murmuring Mystic",
+            "quantity": 1
+          },
+          {
+            "name": "Okiba-Gang Shinobi",
+            "quantity": 1
+          }
+        ],
+        "id": "682877a7-bbe0-47cf-a32b-b46b016e683e",
+        "url": "https://melee.gg/Decklist/View/682877a7-bbe0-47cf-a32b-b46b016e683e"
+      }
+    },
+    {
+      "player_name": "Lucas Buzon",
+      "username": "Buzon",
+      "rank": 14,
+      "points": 5,
+      "match_record": "1-1-2",
+      "game_record": "3-4-3",
+      "decklist_id": "4f82e36c-1716-4da4-886c-b46b016d3707",
+      "decklist_name": "Azorius Familiars",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Sunscape Familiar",
+              "quantity": 4
+            },
+            {
+              "name": "Archaeomancer",
+              "quantity": 3
+            },
+            {
+              "name": "God-Pharaoh's Faithful",
+              "quantity": 3
+            },
+            {
+              "name": "Mulldrifter",
+              "quantity": 3
+            },
+            {
+              "name": "Sea Gate Oracle",
+              "quantity": 3
+            },
+            {
+              "name": "Murmuring Mystic",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Lórien Revealed",
+              "quantity": 4
+            },
+            {
+              "name": "Preordain",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Snap",
+              "quantity": 4
+            },
+            {
+              "name": "Ephemerate",
+              "quantity": 3
+            },
+            {
+              "name": "Meeting of Minds",
+              "quantity": 3
+            },
+            {
+              "name": "Prohibit",
+              "quantity": 2
+            },
+            {
+              "name": "Ghostly Flicker",
+              "quantity": 1
+            },
+            {
+              "name": "Negate",
+              "quantity": 1
+            },
+            {
+              "name": "Prismatic Strands",
+              "quantity": 1
+            },
+            {
+              "name": "Remove Soul",
+              "quantity": 1
+            },
+            {
+              "name": "Thraben Charm",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Island",
+              "quantity": 8
+            },
+            {
+              "name": "Azorius Chancery",
+              "quantity": 3
+            },
+            {
+              "name": "Contaminated Landscape",
+              "quantity": 3
+            },
+            {
+              "name": "Plains",
+              "quantity": 2
+            },
+            {
+              "name": "Idyllic Beachfront",
+              "quantity": 1
+            },
+            {
+              "name": "Mortuary Mire",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Blue Elemental Blast",
+              "quantity": 4
+            },
+            {
+              "name": "Steel Sabotage",
+              "quantity": 3
+            },
+            {
+              "name": "Last Breath",
+              "quantity": 2
+            },
+            {
+              "name": "Loyal Sentry",
+              "quantity": 2
+            },
+            {
+              "name": "Negate",
+              "quantity": 2
+            },
+            {
+              "name": "Remove Soul",
+              "quantity": 1
+            },
+            {
+              "name": "Stonehorn Dignitary",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Sunscape Familiar",
+            "quantity": 4
+          },
+          {
+            "name": "Archaeomancer",
+            "quantity": 3
+          },
+          {
+            "name": "God-Pharaoh's Faithful",
+            "quantity": 3
+          },
+          {
+            "name": "Mulldrifter",
+            "quantity": 3
+          },
+          {
+            "name": "Sea Gate Oracle",
+            "quantity": 3
+          },
+          {
+            "name": "Murmuring Mystic",
+            "quantity": 1
+          },
+          {
+            "name": "Lórien Revealed",
+            "quantity": 4
+          },
+          {
+            "name": "Preordain",
+            "quantity": 4
+          },
+          {
+            "name": "Snap",
+            "quantity": 4
+          },
+          {
+            "name": "Ephemerate",
+            "quantity": 3
+          },
+          {
+            "name": "Meeting of Minds",
+            "quantity": 3
+          },
+          {
+            "name": "Prohibit",
+            "quantity": 2
+          },
+          {
+            "name": "Ghostly Flicker",
+            "quantity": 1
+          },
+          {
+            "name": "Negate",
+            "quantity": 1
+          },
+          {
+            "name": "Prismatic Strands",
+            "quantity": 1
+          },
+          {
+            "name": "Remove Soul",
+            "quantity": 1
+          },
+          {
+            "name": "Thraben Charm",
+            "quantity": 1
+          },
+          {
+            "name": "Island",
+            "quantity": 8
+          },
+          {
+            "name": "Azorius Chancery",
+            "quantity": 3
+          },
+          {
+            "name": "Contaminated Landscape",
+            "quantity": 3
+          },
+          {
+            "name": "Plains",
+            "quantity": 2
+          },
+          {
+            "name": "Idyllic Beachfront",
+            "quantity": 1
+          },
+          {
+            "name": "Mortuary Mire",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Blue Elemental Blast",
+            "quantity": 4
+          },
+          {
+            "name": "Steel Sabotage",
+            "quantity": 3
+          },
+          {
+            "name": "Last Breath",
+            "quantity": 2
+          },
+          {
+            "name": "Loyal Sentry",
+            "quantity": 2
+          },
+          {
+            "name": "Negate",
+            "quantity": 2
+          },
+          {
+            "name": "Remove Soul",
+            "quantity": 1
+          },
+          {
+            "name": "Stonehorn Dignitary",
+            "quantity": 1
+          }
+        ],
+        "id": "4f82e36c-1716-4da4-886c-b46b016d3707",
+        "url": "https://melee.gg/Decklist/View/4f82e36c-1716-4da4-886c-b46b016d3707"
+      }
+    },
+    {
+      "player_name": "Maurício Junior",
+      "username": "OtalDoBilada",
+      "rank": 15,
+      "points": 4,
+      "match_record": "1-2-1",
+      "game_record": "5-6-0",
+      "decklist_id": "b2c20303-d8a8-4518-a39c-b46b01596344",
+      "decklist_name": "Mono-Black Aristocrats",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Bloodthrone Vampire",
+              "quantity": 4
+            },
+            {
+              "name": "Carrion Feeder",
+              "quantity": 4
+            },
+            {
+              "name": "Infestation Sage",
+              "quantity": 4
+            },
+            {
+              "name": "Mortician Beetle",
+              "quantity": 4
+            },
+            {
+              "name": "Nested Shambler",
+              "quantity": 4
+            },
+            {
+              "name": "Nezumi Linkbreaker",
+              "quantity": 4
+            },
+            {
+              "name": "Accursed Marauder",
+              "quantity": 2
+            },
+            {
+              "name": "Shambling Ghast",
+              "quantity": 2
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Rite of Consumption",
+              "quantity": 2
+            },
+            {
+              "name": "Unearth",
+              "quantity": 2
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Village Rites",
+              "quantity": 4
+            },
+            {
+              "name": "Supernatural Stamina",
+              "quantity": 3
+            },
+            {
+              "name": "Snuff Out",
+              "quantity": 2
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Sadistic Glee",
+              "quantity": 2
+            }
+          ],
+          "Land": [
+            {
+              "name": "Swamp",
+              "quantity": 17
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Mesmeric Fiend",
+              "quantity": 3
+            },
+            {
+              "name": "Tragic Slip",
+              "quantity": 3
+            },
+            {
+              "name": "Drown in Sorrow",
+              "quantity": 2
+            },
+            {
+              "name": "Rotten Reunion",
+              "quantity": 2
+            },
+            {
+              "name": "Vampiric Link",
+              "quantity": 2
+            },
+            {
+              "name": "Accursed Marauder",
+              "quantity": 1
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 1
+            },
+            {
+              "name": "Spinning Darkness",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Bloodthrone Vampire",
+            "quantity": 4
+          },
+          {
+            "name": "Carrion Feeder",
+            "quantity": 4
+          },
+          {
+            "name": "Infestation Sage",
+            "quantity": 4
+          },
+          {
+            "name": "Mortician Beetle",
+            "quantity": 4
+          },
+          {
+            "name": "Nested Shambler",
+            "quantity": 4
+          },
+          {
+            "name": "Nezumi Linkbreaker",
+            "quantity": 4
+          },
+          {
+            "name": "Accursed Marauder",
+            "quantity": 2
+          },
+          {
+            "name": "Shambling Ghast",
+            "quantity": 2
+          },
+          {
+            "name": "Rite of Consumption",
+            "quantity": 2
+          },
+          {
+            "name": "Unearth",
+            "quantity": 2
+          },
+          {
+            "name": "Village Rites",
+            "quantity": 4
+          },
+          {
+            "name": "Supernatural Stamina",
+            "quantity": 3
+          },
+          {
+            "name": "Snuff Out",
+            "quantity": 2
+          },
+          {
+            "name": "Sadistic Glee",
+            "quantity": 2
+          },
+          {
+            "name": "Swamp",
+            "quantity": 17
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Mesmeric Fiend",
+            "quantity": 3
+          },
+          {
+            "name": "Tragic Slip",
+            "quantity": 3
+          },
+          {
+            "name": "Drown in Sorrow",
+            "quantity": 2
+          },
+          {
+            "name": "Rotten Reunion",
+            "quantity": 2
+          },
+          {
+            "name": "Vampiric Link",
+            "quantity": 2
+          },
+          {
+            "name": "Accursed Marauder",
+            "quantity": 1
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 1
+          },
+          {
+            "name": "Spinning Darkness",
+            "quantity": 1
+          }
+        ],
+        "id": "b2c20303-d8a8-4518-a39c-b46b01596344",
+        "url": "https://melee.gg/Decklist/View/b2c20303-d8a8-4518-a39c-b46b01596344"
+      }
+    },
+    {
+      "player_name": "Camata",
+      "username": "Camata",
+      "rank": 16,
+      "points": 3,
+      "match_record": "1-3-0",
+      "game_record": "2-6-0",
+      "decklist_id": "b4456e9a-b476-40c0-9799-b46b017953a3",
+      "decklist_name": "Mono-White White Weenie",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Kor Skyfisher",
+              "quantity": 4
+            },
+            {
+              "name": "Lunarch Veteran // Luminous Phantom",
+              "quantity": 4
+            },
+            {
+              "name": "Novice Inspector",
+              "quantity": 4
+            },
+            {
+              "name": "Raffine's Informant",
+              "quantity": 4
+            },
+            {
+              "name": "Thraben Inspector",
+              "quantity": 4
+            },
+            {
+              "name": "Leonardo, Big Brother",
+              "quantity": 3
+            },
+            {
+              "name": "Spider-Man, Web-Slinger",
+              "quantity": 2
+            },
+            {
+              "name": "Eagles of the North",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Battle Screech",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Thraben Charm",
+              "quantity": 4
+            },
+            {
+              "name": "Prismatic Strands",
+              "quantity": 3
+            },
+            {
+              "name": "Guardians' Pledge",
+              "quantity": 2
+            },
+            {
+              "name": "Ramosian Rally",
+              "quantity": 1
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 1
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Journey to Nowhere",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Plains",
+              "quantity": 16
+            },
+            {
+              "name": "Idyllic Grange",
+              "quantity": 2
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Dust to Dust",
+              "quantity": 4
+            },
+            {
+              "name": "Martyr of Sands",
+              "quantity": 4
+            },
+            {
+              "name": "Holy Light",
+              "quantity": 2
+            },
+            {
+              "name": "Journey to Nowhere",
+              "quantity": 2
+            },
+            {
+              "name": "Obsidian Acolyte",
+              "quantity": 1
+            },
+            {
+              "name": "Palace Sentinels",
+              "quantity": 1
+            },
+            {
+              "name": "Standard Bearer",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Kor Skyfisher",
+            "quantity": 4
+          },
+          {
+            "name": "Lunarch Veteran // Luminous Phantom",
+            "quantity": 4
+          },
+          {
+            "name": "Novice Inspector",
+            "quantity": 4
+          },
+          {
+            "name": "Raffine's Informant",
+            "quantity": 4
+          },
+          {
+            "name": "Thraben Inspector",
+            "quantity": 4
+          },
+          {
+            "name": "Leonardo, Big Brother",
+            "quantity": 3
+          },
+          {
+            "name": "Spider-Man, Web-Slinger",
+            "quantity": 2
+          },
+          {
+            "name": "Eagles of the North",
+            "quantity": 1
+          },
+          {
+            "name": "Battle Screech",
+            "quantity": 4
+          },
+          {
+            "name": "Thraben Charm",
+            "quantity": 4
+          },
+          {
+            "name": "Prismatic Strands",
+            "quantity": 3
+          },
+          {
+            "name": "Guardians' Pledge",
+            "quantity": 2
+          },
+          {
+            "name": "Ramosian Rally",
+            "quantity": 1
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 1
+          },
+          {
+            "name": "Journey to Nowhere",
+            "quantity": 1
+          },
+          {
+            "name": "Plains",
+            "quantity": 16
+          },
+          {
+            "name": "Idyllic Grange",
+            "quantity": 2
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Dust to Dust",
+            "quantity": 4
+          },
+          {
+            "name": "Martyr of Sands",
+            "quantity": 4
+          },
+          {
+            "name": "Holy Light",
+            "quantity": 2
+          },
+          {
+            "name": "Journey to Nowhere",
+            "quantity": 2
+          },
+          {
+            "name": "Obsidian Acolyte",
+            "quantity": 1
+          },
+          {
+            "name": "Palace Sentinels",
+            "quantity": 1
+          },
+          {
+            "name": "Standard Bearer",
+            "quantity": 1
+          }
+        ],
+        "id": "b4456e9a-b476-40c0-9799-b46b017953a3",
+        "url": "https://melee.gg/Decklist/View/b4456e9a-b476-40c0-9799-b46b017953a3"
+      }
+    },
+    {
+      "player_name": "RaulNania",
+      "username": "RaulNania",
+      "rank": 17,
+      "points": 3,
+      "match_record": "1-3-0",
+      "game_record": "3-6-0",
+      "decklist_id": "d8b2c795-4107-4a40-8a04-b46b0177523b",
+      "decklist_name": "Colorless Affinity",
+      "decklist": {
+        "categories": {
+          "Artifact": [
+            {
+              "name": "Cryogen Relic",
+              "quantity": 1
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Makeshift Munitions",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Swamp",
+              "quantity": 1
+            }
+          ],
+          "Deck": [
+            {
+              "name": "4 Drossforge Bridge",
+              "quantity": 4
+            },
+            {
+              "name": "4 Galvanic Blast",
+              "quantity": 4
+            },
+            {
+              "name": "4 Ichor Wellspring",
+              "quantity": 4
+            },
+            {
+              "name": "4 Mistvault Bridge",
+              "quantity": 4
+            },
+            {
+              "name": "4 Myr Enforcer",
+              "quantity": 4
+            },
+            {
+              "name": "4 Reckoner's Bargain",
+              "quantity": 4
+            },
+            {
+              "name": "4 Refurbished Familiar",
+              "quantity": 4
+            },
+            {
+              "name": "4 Thoughtcast",
+              "quantity": 4
+            },
+            {
+              "name": "3 Great Furnace",
+              "quantity": 3
+            },
+            {
+              "name": "3 Krark-Clan Shaman",
+              "quantity": 3
+            },
+            {
+              "name": "3 Nihil Spellbomb",
+              "quantity": 3
+            },
+            {
+              "name": "3 Seat of the Synod",
+              "quantity": 3
+            },
+            {
+              "name": "3 Toxin Analysis",
+              "quantity": 3
+            },
+            {
+              "name": "3 Utrom Monitor",
+              "quantity": 3
+            },
+            {
+              "name": "3 Vault of Whispers",
+              "quantity": 3
+            },
+            {
+              "name": "2 Blood Fountain",
+              "quantity": 2
+            },
+            {
+              "name": "2 Silverbluff Bridge",
+              "quantity": 2
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "4 Blue Elemental Blast",
+              "quantity": 4
+            },
+            {
+              "name": "4 Red Elemental Blast",
+              "quantity": 4
+            },
+            {
+              "name": "2 Envelop",
+              "quantity": 2
+            },
+            {
+              "name": "2 Hydroblast",
+              "quantity": 2
+            },
+            {
+              "name": "2 Pyroblast",
+              "quantity": 2
+            },
+            {
+              "name": "Breath Weapon",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Cryogen Relic",
+            "quantity": 1
+          },
+          {
+            "name": "Makeshift Munitions",
+            "quantity": 1
+          },
+          {
+            "name": "Swamp",
+            "quantity": 1
+          },
+          {
+            "name": "4 Drossforge Bridge",
+            "quantity": 4
+          },
+          {
+            "name": "4 Galvanic Blast",
+            "quantity": 4
+          },
+          {
+            "name": "4 Ichor Wellspring",
+            "quantity": 4
+          },
+          {
+            "name": "4 Mistvault Bridge",
+            "quantity": 4
+          },
+          {
+            "name": "4 Myr Enforcer",
+            "quantity": 4
+          },
+          {
+            "name": "4 Reckoner's Bargain",
+            "quantity": 4
+          },
+          {
+            "name": "4 Refurbished Familiar",
+            "quantity": 4
+          },
+          {
+            "name": "4 Thoughtcast",
+            "quantity": 4
+          },
+          {
+            "name": "3 Great Furnace",
+            "quantity": 3
+          },
+          {
+            "name": "3 Krark-Clan Shaman",
+            "quantity": 3
+          },
+          {
+            "name": "3 Nihil Spellbomb",
+            "quantity": 3
+          },
+          {
+            "name": "3 Seat of the Synod",
+            "quantity": 3
+          },
+          {
+            "name": "3 Toxin Analysis",
+            "quantity": 3
+          },
+          {
+            "name": "3 Utrom Monitor",
+            "quantity": 3
+          },
+          {
+            "name": "3 Vault of Whispers",
+            "quantity": 3
+          },
+          {
+            "name": "2 Blood Fountain",
+            "quantity": 2
+          },
+          {
+            "name": "2 Silverbluff Bridge",
+            "quantity": 2
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "4 Blue Elemental Blast",
+            "quantity": 4
+          },
+          {
+            "name": "4 Red Elemental Blast",
+            "quantity": 4
+          },
+          {
+            "name": "2 Envelop",
+            "quantity": 2
+          },
+          {
+            "name": "2 Hydroblast",
+            "quantity": 2
+          },
+          {
+            "name": "2 Pyroblast",
+            "quantity": 2
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 1
+          }
+        ],
+        "id": "d8b2c795-4107-4a40-8a04-b46b0177523b",
+        "url": "https://melee.gg/Decklist/View/d8b2c795-4107-4a40-8a04-b46b0177523b"
+      }
+    },
+    {
+      "player_name": "eggBR",
+      "username": "eggBR",
+      "rank": 18,
+      "points": 3,
+      "match_record": "1-3-0",
+      "game_record": "3-6-0",
+      "decklist_id": "183ec50a-691e-414b-a559-b46b016b778a",
+      "decklist_name": "Jund",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Refurbished Familiar",
+              "quantity": 4
+            },
+            {
+              "name": "Writhing Chrysalis",
+              "quantity": 4
+            },
+            {
+              "name": "Gixian Infiltrator",
+              "quantity": 3
+            },
+            {
+              "name": "Krark-Clan Shaman",
+              "quantity": 3
+            },
+            {
+              "name": "Sagu Wildling // Roost Seek",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Cleansing Wildfire",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Fanatical Offering",
+              "quantity": 4
+            },
+            {
+              "name": "Cast Down",
+              "quantity": 3
+            },
+            {
+              "name": "Eviscerator's Insight",
+              "quantity": 2
+            },
+            {
+              "name": "Terminate",
+              "quantity": 1
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Ichor Wellspring",
+              "quantity": 4
+            },
+            {
+              "name": "Lembas",
+              "quantity": 3
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 3
+            }
+          ],
+          "Enchantment": [
+            {
+              "name": "Makeshift Munitions",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Drossforge Bridge",
+              "quantity": 4
+            },
+            {
+              "name": "Slagwoods Bridge",
+              "quantity": 4
+            },
+            {
+              "name": "Twisted Landscape",
+              "quantity": 4
+            },
+            {
+              "name": "Swamp",
+              "quantity": 3
+            },
+            {
+              "name": "Forest",
+              "quantity": 2
+            },
+            {
+              "name": "Vault of Whispers",
+              "quantity": 2
+            },
+            {
+              "name": "Mountain",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Weather the Storm",
+              "quantity": 4
+            },
+            {
+              "name": "Troublemaker Ouphe",
+              "quantity": 3
+            },
+            {
+              "name": "Breath Weapon",
+              "quantity": 2
+            },
+            {
+              "name": "Duress",
+              "quantity": 2
+            },
+            {
+              "name": "Faerie Macabre",
+              "quantity": 2
+            },
+            {
+              "name": "Ancient Grudge",
+              "quantity": 1
+            },
+            {
+              "name": "Terminate",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Refurbished Familiar",
+            "quantity": 4
+          },
+          {
+            "name": "Writhing Chrysalis",
+            "quantity": 4
+          },
+          {
+            "name": "Gixian Infiltrator",
+            "quantity": 3
+          },
+          {
+            "name": "Krark-Clan Shaman",
+            "quantity": 3
+          },
+          {
+            "name": "Sagu Wildling // Roost Seek",
+            "quantity": 1
+          },
+          {
+            "name": "Cleansing Wildfire",
+            "quantity": 4
+          },
+          {
+            "name": "Fanatical Offering",
+            "quantity": 4
+          },
+          {
+            "name": "Cast Down",
+            "quantity": 3
+          },
+          {
+            "name": "Eviscerator's Insight",
+            "quantity": 2
+          },
+          {
+            "name": "Terminate",
+            "quantity": 1
+          },
+          {
+            "name": "Ichor Wellspring",
+            "quantity": 4
+          },
+          {
+            "name": "Lembas",
+            "quantity": 3
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 3
+          },
+          {
+            "name": "Makeshift Munitions",
+            "quantity": 1
+          },
+          {
+            "name": "Drossforge Bridge",
+            "quantity": 4
+          },
+          {
+            "name": "Slagwoods Bridge",
+            "quantity": 4
+          },
+          {
+            "name": "Twisted Landscape",
+            "quantity": 4
+          },
+          {
+            "name": "Swamp",
+            "quantity": 3
+          },
+          {
+            "name": "Forest",
+            "quantity": 2
+          },
+          {
+            "name": "Vault of Whispers",
+            "quantity": 2
+          },
+          {
+            "name": "Mountain",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Weather the Storm",
+            "quantity": 4
+          },
+          {
+            "name": "Troublemaker Ouphe",
+            "quantity": 3
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 2
+          },
+          {
+            "name": "Duress",
+            "quantity": 2
+          },
+          {
+            "name": "Faerie Macabre",
+            "quantity": 2
+          },
+          {
+            "name": "Ancient Grudge",
+            "quantity": 1
+          },
+          {
+            "name": "Terminate",
+            "quantity": 1
+          }
+        ],
+        "id": "183ec50a-691e-414b-a559-b46b016b778a",
+        "url": "https://melee.gg/Decklist/View/183ec50a-691e-414b-a559-b46b016b778a"
+      }
+    },
+    {
+      "player_name": "kikuTz",
+      "username": "kikuTz",
+      "rank": 19,
+      "points": 0,
+      "match_record": "0-2-0",
+      "game_record": "0-4-0",
+      "decklist_id": "96d293a1-42e8-46ca-9cdb-b46b016c997e",
+      "decklist_name": "Esper",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Moon-Circuit Hacker",
+              "quantity": 4
+            },
+            {
+              "name": "Ornithopter",
+              "quantity": 4
+            },
+            {
+              "name": "Refurbished Familiar",
+              "quantity": 4
+            },
+            {
+              "name": "Thraben Inspector",
+              "quantity": 4
+            },
+            {
+              "name": "Utrom Monitor",
+              "quantity": 4
+            },
+            {
+              "name": "Leonardo, Big Brother",
+              "quantity": 3
+            },
+            {
+              "name": "Novice Inspector",
+              "quantity": 3
+            },
+            {
+              "name": "Gingerbrute",
+              "quantity": 1
+            },
+            {
+              "name": "Ninja of the Deep Hours",
+              "quantity": 1
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Thoughtcast",
+              "quantity": 4
+            },
+            {
+              "name": "Of One Mind",
+              "quantity": 2
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Metallic Rebuke",
+              "quantity": 2
+            },
+            {
+              "name": "Rally the Peasants",
+              "quantity": 2
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Springleaf Drum",
+              "quantity": 4
+            },
+            {
+              "name": "Sewer-veillance Cam",
+              "quantity": 2
+            }
+          ],
+          "Land": [
+            {
+              "name": "Ancient Den",
+              "quantity": 4
+            },
+            {
+              "name": "Island",
+              "quantity": 4
+            },
+            {
+              "name": "Seat of the Synod",
+              "quantity": 4
+            },
+            {
+              "name": "Plains",
+              "quantity": 3
+            },
+            {
+              "name": "Silverbluff Bridge",
+              "quantity": 1
+            },
+            {
+              "name": "Vault of Whispers",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Hydroblast",
+              "quantity": 4
+            },
+            {
+              "name": "Revoke Existence",
+              "quantity": 3
+            },
+            {
+              "name": "Thraben Charm",
+              "quantity": 3
+            },
+            {
+              "name": "Crimson Acolyte",
+              "quantity": 2
+            },
+            {
+              "name": "Turn Aside",
+              "quantity": 2
+            },
+            {
+              "name": "Metallic Rebuke",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Moon-Circuit Hacker",
+            "quantity": 4
+          },
+          {
+            "name": "Ornithopter",
+            "quantity": 4
+          },
+          {
+            "name": "Refurbished Familiar",
+            "quantity": 4
+          },
+          {
+            "name": "Thraben Inspector",
+            "quantity": 4
+          },
+          {
+            "name": "Utrom Monitor",
+            "quantity": 4
+          },
+          {
+            "name": "Leonardo, Big Brother",
+            "quantity": 3
+          },
+          {
+            "name": "Novice Inspector",
+            "quantity": 3
+          },
+          {
+            "name": "Gingerbrute",
+            "quantity": 1
+          },
+          {
+            "name": "Ninja of the Deep Hours",
+            "quantity": 1
+          },
+          {
+            "name": "Thoughtcast",
+            "quantity": 4
+          },
+          {
+            "name": "Of One Mind",
+            "quantity": 2
+          },
+          {
+            "name": "Metallic Rebuke",
+            "quantity": 2
+          },
+          {
+            "name": "Rally the Peasants",
+            "quantity": 2
+          },
+          {
+            "name": "Springleaf Drum",
+            "quantity": 4
+          },
+          {
+            "name": "Sewer-veillance Cam",
+            "quantity": 2
+          },
+          {
+            "name": "Ancient Den",
+            "quantity": 4
+          },
+          {
+            "name": "Island",
+            "quantity": 4
+          },
+          {
+            "name": "Seat of the Synod",
+            "quantity": 4
+          },
+          {
+            "name": "Plains",
+            "quantity": 3
+          },
+          {
+            "name": "Silverbluff Bridge",
+            "quantity": 1
+          },
+          {
+            "name": "Vault of Whispers",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Hydroblast",
+            "quantity": 4
+          },
+          {
+            "name": "Revoke Existence",
+            "quantity": 3
+          },
+          {
+            "name": "Thraben Charm",
+            "quantity": 3
+          },
+          {
+            "name": "Crimson Acolyte",
+            "quantity": 2
+          },
+          {
+            "name": "Turn Aside",
+            "quantity": 2
+          },
+          {
+            "name": "Metallic Rebuke",
+            "quantity": 1
+          }
+        ],
+        "id": "96d293a1-42e8-46ca-9cdb-b46b016c997e",
+        "url": "https://melee.gg/Decklist/View/96d293a1-42e8-46ca-9cdb-b46b016c997e"
+      }
+    },
+    {
+      "player_name": "Gabriel Pinheiro",
+      "username": "Rhods",
+      "rank": 20,
+      "points": 0,
+      "match_record": "0-2-0",
+      "game_record": "1-4-0",
+      "decklist_id": "171c1d31-7900-42b7-a8c8-b46b01788163",
+      "decklist_name": "Rakdos Madness Burn",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Kitchen Imp",
+              "quantity": 4
+            },
+            {
+              "name": "Sneaky Snacker",
+              "quantity": 4
+            },
+            {
+              "name": "Voldaren Epicure",
+              "quantity": 4
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Alms of the Vein",
+              "quantity": 4
+            },
+            {
+              "name": "Faithless Looting",
+              "quantity": 4
+            },
+            {
+              "name": "Grab the Prize",
+              "quantity": 4
+            },
+            {
+              "name": "Highway Robbery",
+              "quantity": 4
+            },
+            {
+              "name": "Vampire's Kiss",
+              "quantity": 4
+            },
+            {
+              "name": "Tectonic Hazard",
+              "quantity": 1
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Fiery Temper",
+              "quantity": 4
+            },
+            {
+              "name": "Lightning Bolt",
+              "quantity": 4
+            }
+          ],
+          "Land": [
+            {
+              "name": "Mountain",
+              "quantity": 8
+            },
+            {
+              "name": "Swamp",
+              "quantity": 5
+            },
+            {
+              "name": "Jagged Barrens",
+              "quantity": 4
+            },
+            {
+              "name": "Razortrap Gorge",
+              "quantity": 2
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Breath Weapon",
+              "quantity": 3
+            },
+            {
+              "name": "Cast into the Fire",
+              "quantity": 3
+            },
+            {
+              "name": "Dark Withering",
+              "quantity": 3
+            },
+            {
+              "name": "Duress",
+              "quantity": 2
+            },
+            {
+              "name": "Extract a Confession",
+              "quantity": 2
+            },
+            {
+              "name": "Nihil Spellbomb",
+              "quantity": 2
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Kitchen Imp",
+            "quantity": 4
+          },
+          {
+            "name": "Sneaky Snacker",
+            "quantity": 4
+          },
+          {
+            "name": "Voldaren Epicure",
+            "quantity": 4
+          },
+          {
+            "name": "Alms of the Vein",
+            "quantity": 4
+          },
+          {
+            "name": "Faithless Looting",
+            "quantity": 4
+          },
+          {
+            "name": "Grab the Prize",
+            "quantity": 4
+          },
+          {
+            "name": "Highway Robbery",
+            "quantity": 4
+          },
+          {
+            "name": "Vampire's Kiss",
+            "quantity": 4
+          },
+          {
+            "name": "Tectonic Hazard",
+            "quantity": 1
+          },
+          {
+            "name": "Fiery Temper",
+            "quantity": 4
+          },
+          {
+            "name": "Lightning Bolt",
+            "quantity": 4
+          },
+          {
+            "name": "Mountain",
+            "quantity": 8
+          },
+          {
+            "name": "Swamp",
+            "quantity": 5
+          },
+          {
+            "name": "Jagged Barrens",
+            "quantity": 4
+          },
+          {
+            "name": "Razortrap Gorge",
+            "quantity": 2
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Breath Weapon",
+            "quantity": 3
+          },
+          {
+            "name": "Cast into the Fire",
+            "quantity": 3
+          },
+          {
+            "name": "Dark Withering",
+            "quantity": 3
+          },
+          {
+            "name": "Duress",
+            "quantity": 2
+          },
+          {
+            "name": "Extract a Confession",
+            "quantity": 2
+          },
+          {
+            "name": "Nihil Spellbomb",
+            "quantity": 2
+          }
+        ],
+        "id": "171c1d31-7900-42b7-a8c8-b46b01788163",
+        "url": "https://melee.gg/Decklist/View/171c1d31-7900-42b7-a8c8-b46b01788163"
+      }
+    },
+    {
+      "player_name": "gustavorg",
+      "username": "gustavorg",
+      "rank": 21,
+      "points": 0,
+      "match_record": "0-3-0",
+      "game_record": "1-6-0",
+      "decklist_id": "319373be-02a5-440d-8bcb-b46b013f326d",
+      "decklist_name": "Temur Monster Tron",
+      "decklist": {
+        "categories": {
+          "Creature": [
+            {
+              "name": "Boulderbranch Golem",
+              "quantity": 4
+            },
+            {
+              "name": "Bramble Wurm",
+              "quantity": 4
+            },
+            {
+              "name": "Generous Ent",
+              "quantity": 4
+            },
+            {
+              "name": "Maelstrom Colossus",
+              "quantity": 4
+            }
+          ],
+          "Sorcery": [
+            {
+              "name": "Ancient Stirrings",
+              "quantity": 4
+            }
+          ],
+          "Instant": [
+            {
+              "name": "Breath Weapon",
+              "quantity": 2
+            },
+            {
+              "name": "Crop Rotation",
+              "quantity": 2
+            },
+            {
+              "name": "Unfathomable Truths",
+              "quantity": 2
+            }
+          ],
+          "Artifact": [
+            {
+              "name": "Candy Trail",
+              "quantity": 4
+            },
+            {
+              "name": "Expedition Map",
+              "quantity": 4
+            },
+            {
+              "name": "Pinnacle Kill-Ship",
+              "quantity": 4
+            },
+            {
+              "name": "Bonder's Ornament",
+              "quantity": 3
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 1
+            }
+          ],
+          "Land": [
+            {
+              "name": "Urza's Mine",
+              "quantity": 4
+            },
+            {
+              "name": "Urza's Power Plant",
+              "quantity": 4
+            },
+            {
+              "name": "Urza's Tower",
+              "quantity": 4
+            },
+            {
+              "name": "Crystal Grotto",
+              "quantity": 2
+            },
+            {
+              "name": "Forest",
+              "quantity": 2
+            },
+            {
+              "name": "Bojuka Bog",
+              "quantity": 1
+            },
+            {
+              "name": "Wooded Ridgeline",
+              "quantity": 1
+            }
+          ],
+          "Sideboard": [
+            {
+              "name": "Monstrous Emergence",
+              "quantity": 3
+            },
+            {
+              "name": "Breath Weapon",
+              "quantity": 2
+            },
+            {
+              "name": "Heritage Reclamation",
+              "quantity": 2
+            },
+            {
+              "name": "Kaervek's Torch",
+              "quantity": 2
+            },
+            {
+              "name": "Relic of Progenitus",
+              "quantity": 2
+            },
+            {
+              "name": "Zuko's Exile",
+              "quantity": 2
+            },
+            {
+              "name": "Avenging Hunter",
+              "quantity": 1
+            },
+            {
+              "name": "Staunch Throneguard",
+              "quantity": 1
+            }
+          ]
+        },
+        "mainboard": [
+          {
+            "name": "Boulderbranch Golem",
+            "quantity": 4
+          },
+          {
+            "name": "Bramble Wurm",
+            "quantity": 4
+          },
+          {
+            "name": "Generous Ent",
+            "quantity": 4
+          },
+          {
+            "name": "Maelstrom Colossus",
+            "quantity": 4
+          },
+          {
+            "name": "Ancient Stirrings",
+            "quantity": 4
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 2
+          },
+          {
+            "name": "Crop Rotation",
+            "quantity": 2
+          },
+          {
+            "name": "Unfathomable Truths",
+            "quantity": 2
+          },
+          {
+            "name": "Candy Trail",
+            "quantity": 4
+          },
+          {
+            "name": "Expedition Map",
+            "quantity": 4
+          },
+          {
+            "name": "Pinnacle Kill-Ship",
+            "quantity": 4
+          },
+          {
+            "name": "Bonder's Ornament",
+            "quantity": 3
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 1
+          },
+          {
+            "name": "Urza's Mine",
+            "quantity": 4
+          },
+          {
+            "name": "Urza's Power Plant",
+            "quantity": 4
+          },
+          {
+            "name": "Urza's Tower",
+            "quantity": 4
+          },
+          {
+            "name": "Crystal Grotto",
+            "quantity": 2
+          },
+          {
+            "name": "Forest",
+            "quantity": 2
+          },
+          {
+            "name": "Bojuka Bog",
+            "quantity": 1
+          },
+          {
+            "name": "Wooded Ridgeline",
+            "quantity": 1
+          }
+        ],
+        "sideboard": [
+          {
+            "name": "Monstrous Emergence",
+            "quantity": 3
+          },
+          {
+            "name": "Breath Weapon",
+            "quantity": 2
+          },
+          {
+            "name": "Heritage Reclamation",
+            "quantity": 2
+          },
+          {
+            "name": "Kaervek's Torch",
+            "quantity": 2
+          },
+          {
+            "name": "Relic of Progenitus",
+            "quantity": 2
+          },
+          {
+            "name": "Zuko's Exile",
+            "quantity": 2
+          },
+          {
+            "name": "Avenging Hunter",
+            "quantity": 1
+          },
+          {
+            "name": "Staunch Throneguard",
+            "quantity": 1
+          }
+        ],
+        "id": "319373be-02a5-440d-8bcb-b46b013f326d",
+        "url": "https://melee.gg/Decklist/View/319373be-02a5-440d-8bcb-b46b013f326d"
+      }
+    }
+  ]
+}
