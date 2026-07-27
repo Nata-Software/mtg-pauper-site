@@ -1,0 +1,338 @@
+[
+ {
+  "ordinal": 1,
+  "player": "Erick Meneghin",
+  "source": "Arcade - Vaga 1",
+  "date": "2026-03-23",
+  "standingsRef": "Arcade - Vaga 1",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 2,
+  "player": "Alaor Júnior",
+  "source": "Imperium TCG - Vaga 1",
+  "date": "2026-04-12",
+  "standingsRef": "Imperium TCG - Vaga 1",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 3,
+  "player": "Michel Carlin",
+  "source": "Imperium TCG - Vaga 2",
+  "date": "2026-05-17",
+  "standingsRef": "Imperium TCG - Vaga 2",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 4,
+  "player": "Lucas Safra",
+  "source": "Imperium TCG - Vaga 3",
+  "date": "2026-06-05",
+  "standingsRef": "Imperium TCG - Vaga 3",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 5,
+  "player": "Eduardo Couto",
+  "source": "Imperium TCG - Vaga 4",
+  "date": "2026-07-02",
+  "standingsRef": "Imperium TCG - Vaga 4",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 6,
+  "player": "Richard Alex Inácio dos Santos",
+  "source": "Imperium TCG - Vaga 5",
+  "date": "2026-07-19",
+  "standingsRef": "Imperium TCG - Vaga 5",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 7,
+  "player": "Elvis Machado",
+  "source": "Taverna Games - Vaga 1",
+  "date": "2026-02-28",
+  "standingsRef": "Taverna Games - Vaga 1",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 8,
+  "player": "Rodolfo",
+  "source": "Taverna Games - Vaga 2",
+  "date": "2026-03-28",
+  "standingsRef": "",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 9,
+  "player": "Rodrigo Oboli",
+  "source": "Coliseu - Vaga 1",
+  "date": "2026-03-17",
+  "standingsRef": "Coliseu - Vaga 1",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 10,
+  "player": "João Camata",
+  "source": "Magic Invest - Vaga 1",
+  "date": "2026-07-01",
+  "standingsRef": "Magic Invest - Vaga 1",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 11,
+  "player": "Francisco Pontin",
+  "source": "Ranking Paralelo Fevereiro Mont - Terça",
+  "date": "2026-02-24",
+  "standingsRef": "Ranking Paralelo Fevereiro Mont - Terça",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 12,
+  "player": "Rafael Franco",
+  "source": "Ranking Paralelo Março Mont - Terça",
+  "date": "2026-03-31",
+  "standingsRef": "Ranking Paralelo Março Mont - Terça",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 13,
+  "player": "Yutha",
+  "source": "Ranking Paralelo Abril Mont - Terça",
+  "date": "2026-04-14",
+  "standingsRef": "Ranking Paralelo Abril Mont - Terça",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 14,
+  "player": "Tim",
+  "source": "Ranking Paralelo Maio Mont - Terça",
+  "date": "2026-05-26",
+  "standingsRef": "Ranking Paralelo Maio Mont - Terça",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 15,
+  "player": "Shira",
+  "source": "Ranking Paralelo Junho Mont - Terça",
+  "date": "2026-06-30",
+  "standingsRef": "Ranking Paralelo Junho Mont - Terça",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 16,
+  "player": "Tiago Gutiérrez",
+  "source": "Ranking Paralelo Fevereiro Mont - Sexta",
+  "date": "2026-02-27",
+  "standingsRef": "Ranking Paralelo Fevereiro Mont - Sexta",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 17,
+  "player": "Lucas Kendi",
+  "source": "Ranking Paralelo Março Mont - Sexta",
+  "date": "2026-03-27",
+  "standingsRef": "Ranking Paralelo Março Mont - Sexta",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 18,
+  "player": "Buzon",
+  "source": "Ranking Paralelo Abril Mont - Sexta",
+  "date": "2026-04-24",
+  "standingsRef": "Ranking Paralelo Abril Mont - Sexta",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 19,
+  "player": "Boleto",
+  "source": "Ranking Paralelo Maio Mont - Sexta",
+  "date": "2026-05-29",
+  "standingsRef": "Ranking Paralelo Maio Mont - Sexta",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 20,
+  "player": "Maurício Júnior",
+  "source": "Ranking Paralelo Maio Mont - Sexta",
+  "date": "2026-05-29",
+  "standingsRef": "Ranking Paralelo Maio Mont - Sexta",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 21,
+  "player": "Gustavo Sousa",
+  "source": "Ranking Paralelo Junho Mont - Sexta",
+  "date": "2026-06-26",
+  "standingsRef": "Ranking Paralelo Junho Mont - Sexta",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 22,
+  "player": "José Guilherme de Almeida Ramos",
+  "source": "1º Open MPL - Mont",
+  "date": "2026-02-28",
+  "standingsRef": "Standings 1º Open MPL",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 23,
+  "player": "Guilherme Machado",
+  "source": "1º Open MPL - Mont",
+  "date": "2026-02-28",
+  "standingsRef": "Standings 1º Open MPL",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 24,
+  "player": "Felipe Barreto",
+  "source": "2º Open MPL - Mont",
+  "date": "2026-03-28",
+  "standingsRef": "Standings 2º Open MPL",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 25,
+  "player": "Marcelo Miziara",
+  "source": "2º Open MPL - Mont",
+  "date": "2026-03-28",
+  "standingsRef": "Standings 2º Open MPL",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 26,
+  "player": "Guilherme Gomes",
+  "source": "3º Open MPL - Trios - Mont",
+  "date": "2026-04-25",
+  "standingsRef": "Standings 3º Open MPL - Trios",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 27,
+  "player": "Lucciano",
+  "source": "3º Open MPL - Trios - Mont",
+  "date": "2026-04-25",
+  "standingsRef": "Standings 3º Open MPL - Trios",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 28,
+  "player": "Gabriel Pinheiro",
+  "source": "3º Open MPL - Trios - Mont",
+  "date": "2026-04-25",
+  "standingsRef": "Standings 3º Open MPL - Trios",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 29,
+  "player": "Bruno Nogueira",
+  "source": "5º Open MPL - Mont",
+  "date": "2026-06-20",
+  "standingsRef": "Standings 5º Open MPL",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 30,
+  "player": "Thyago de Carvalho Reis",
+  "source": "5º Open MPL - Mont",
+  "date": "2026-06-20",
+  "standingsRef": "Standings 5º Open MPL",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 31,
+  "player": "Eduardo Goethe",
+  "source": "6º Open MPL - Mont",
+  "date": "2026-07-25",
+  "standingsRef": "Standings 6º Open MPL",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 32,
+  "player": "Bruno do Carmo",
+  "source": "6º Open MPL - Mont",
+  "date": "2026-07-25",
+  "standingsRef": "Standings 6º Open MPL",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 33,
+  "player": "Lucas Dantas Simoes",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 34,
+  "player": "Erick Esteves Jones",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 35,
+  "player": "Diego Carvalho",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 36,
+  "player": "Alessandro Queiroz",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 37,
+  "player": "PEDRO JUNIOR",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 38,
+  "player": "Eric Goldszmidt Gerevini",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 39,
+  "player": "Victor Hugo",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 40,
+  "player": "Valter Alexsandro",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 41,
+  "player": "Robson luiz manoel",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ },
+ {
+  "ordinal": 42,
+  "player": "Daniel Jung",
+  "source": "Super Pauper 35k - Mont",
+  "date": "2026-05-23",
+  "standingsRef": "Standings - 4º Open MPL - Super Pauper 35k",
+  "mural": "SIM"
+ }
+]
