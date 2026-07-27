@@ -83,3 +83,70 @@ model Standing {
   @@index([store, date])
   @@index([store, tournamentId])
 }
+
+// ── Mont Pauper League (MPL) ─────────────────────────────────────────────────
+// The yearly league — entirely separate from the weekly matchup data above.
+// These tables are never joined to Match/Standing and never surface in the
+// matchup/standings/metagame pages. Data source: melee Opens standings (scraped)
+// + the store's "classified players" sheet. See src/lib/mpl/.
+
+// One MPL Open (monthly stage). Points come straight from the melee standings.
+model MplStage {
+  id               Int         @id @default(autoincrement())
+  season           Int // e.g. 2026
+  kind             String      @default("open")
+  ordinal          Int // 1..N within the season
+  name             String // melee tournament name
+  date             DateTime?
+  meleeId          String? // melee Tournament/View id — lets us re-scrape/refresh
+  format           String      @default("individual") // "individual" | "trios"
+  countsForRanking Boolean     @default(true) // trios/team events are excluded from the points ranking
+  playerCount      Int?
+  results          MplResult[]
+  createdAt        DateTime    @default(now())
+
+  @@unique([season, kind, ordinal])
+  @@index([season])
+}
+
+// One player's finish in one Open. Aggregated across Opens by `username` —
+// melee's per-tournament player `ID` is NOT stable (a new id per registration),
+// but the account `username` is, so it's the identity key.
+model MplResult {
+  id       Int      @id @default(autoincrement())
+  stageId  Int
+  stage    MplStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  username String // stable melee account handle (lowercased) — aggregation key
+  player   String // melee display name at scrape time
+  rank     Int
+  record   String? // melee "W-L-D"
+  points   Int
+  omw      Float?
+  tgw      Float?
+  ogw      Float?
+
+  @@index([stageId])
+  @@index([username])
+}
+
+// A confirmed Final spot (the "classified players" master list). Sources span
+// Opens, Mont weeklies, and partner stores. `meleeUsername` bridges a spot to
+// its Opens identity when known (resolved at seed time via the alias map), so
+// the ranking can tell who already holds a spot.
+model MplSpot {
+  id            Int       @id @default(autoincrement())
+  season        Int
+  ordinal       Int // row # in the sheet
+  player        String // real name from the sheet
+  meleeUsername String? // bridge to the Opens `username`, when determinable
+  source        String // e.g. "1º Open MPL - Mont", "Arcade - Vaga 1"
+  sourceType    String // "open" | "parallel_mont" | "partner_store" | "last_chance"
+  store         String?
+  date          DateTime?
+  standingsRef  String?
+  mural         String?
+  createdAt     DateTime  @default(now())
+
+  @@index([season])
+  @@index([meleeUsername])
+}

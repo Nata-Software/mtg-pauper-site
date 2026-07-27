@@ -16,7 +16,7 @@ function Bilingual({ en, pt }: { en: string; pt: string }) {
 const NAV_ITEMS = [
   { href: "/", en: "Matchups", pt: "Confrontos" },
   // { href: "/metagame", en: "Metagame", pt: "Metagame" },
-  { href: "/league", en: "League", pt: "Liga" },
+  { href: "/league", en: "Monthly League", pt: "Liga Mensal" },
   { href: "/data", en: "Data", pt: "Dados" },
   {
     href: "/next-tournaments",

@@ -195,7 +195,7 @@ const dict = {
   },
   "upload.error": { en: "Error", "pt-BR": "Erro" },
 
-  "league.title": { en: "League", "pt-BR": "Liga" },
+  "league.title": { en: "Monthly League", "pt-BR": "Liga Mensal" },
   "league.subtitle": {
     en: "Points-based ranking for each weekly league (win 3 · draw 1 · loss 0), for the selected month.",
     "pt-BR":
@@ -206,6 +206,63 @@ const dict = {
   "league.noData": {
     en: "No matches for this league in the selected month.",
     "pt-BR": "Nenhuma partida dessa liga no mês selecionado.",
+  },
+
+  // ── MPL (Mont Pauper League) — yearly league ──
+  "mpl.title": { en: "Mont Pauper League", "pt-BR": "Mont Pauper League" },
+  "mpl.subtitle": {
+    en: "The yearly league — monthly Opens, cumulative ranking, and Final spots. Season {season}.",
+    "pt-BR":
+      "A liga anual — Opens mensais, ranking acumulado e vagas para a Final. Temporada {season}.",
+  },
+  "mpl.view.ranking": { en: "Opens Ranking", "pt-BR": "Ranking dos Opens" },
+  "mpl.view.stages": { en: "Stages", "pt-BR": "Etapas" },
+  "mpl.view.classified": { en: "Classified", "pt-BR": "Classificados" },
+  "mpl.ranking.subtitle": {
+    en: "Cumulative melee points across every Open (win 3 · draw 1 · loss 0). The top {spots} not already holding a spot qualify for the Final. Trios stage excluded.",
+    "pt-BR":
+      "Pontos acumulados do melee em todos os Opens (vitória 3 · empate 1 · derrota 0). Os {spots} melhores que ainda não têm vaga se classificam para a Final. Etapa de Trios excluída.",
+  },
+  "mpl.ranking.hideClassified": {
+    en: "Hide players who already have a spot",
+    "pt-BR": "Ocultar jogadores que já têm vaga",
+  },
+  "mpl.ranking.show": { en: "Show all", "pt-BR": "Mostrar todos" },
+  "mpl.ranking.hide": { en: "Hide classified", "pt-BR": "Ocultar classificados" },
+  "mpl.col.events": { en: "Opens", "pt-BR": "Opens" },
+  "mpl.col.avgRank": { en: "Avg. place", "pt-BR": "Colocação méd." },
+  "mpl.badge.classified": { en: "Has spot", "pt-BR": "Tem vaga" },
+  "mpl.badge.qualifies": { en: "Qualifies", "pt-BR": "Classifica" },
+  "mpl.cutoff": {
+    en: "Top {spots} — Final spots",
+    "pt-BR": "Top {spots} — vagas na Final",
+  },
+  "mpl.stages.subtitle": {
+    en: "Each Open's standings and who took a direct Final spot there.",
+    "pt-BR":
+      "As classificações de cada Open e quem levou vaga direta para a Final ali.",
+  },
+  "mpl.stages.spotWinners": {
+    en: "Final spots from this Open",
+    "pt-BR": "Vagas na Final por este Open",
+  },
+  "mpl.stages.players": { en: "players", "pt-BR": "jogadores" },
+  "mpl.stages.trios": { en: "Trios (team) — not in ranking", "pt-BR": "Trios (equipes) — fora do ranking" },
+  "mpl.stages.viewMelee": { en: "View on melee", "pt-BR": "Ver no melee" },
+  "mpl.stages.more": { en: "+{n} more", "pt-BR": "+{n} mais" },
+  "mpl.classified.subtitle": {
+    en: "Everyone holding a Final spot — from Opens, Mont weeklies, and partner stores. {count} classified.",
+    "pt-BR":
+      "Todos com vaga na Final — dos Opens, semanais da Mont e lojas parceiras. {count} classificados.",
+  },
+  "mpl.classified.via": { en: "Classified by", "pt-BR": "Classificado por" },
+  "mpl.source.open": { en: "Open", "pt-BR": "Open" },
+  "mpl.source.parallel_mont": { en: "Mont weekly", "pt-BR": "Semanal Mont" },
+  "mpl.source.partner_store": { en: "Partner store", "pt-BR": "Loja parceira" },
+  "mpl.source.last_chance": { en: "Last Chance", "pt-BR": "Last Chance" },
+  "mpl.noData": {
+    en: "No MPL data seeded yet.",
+    "pt-BR": "Nenhum dado da MPL carregado ainda.",
   },
 
   "nextTournaments.title": {
