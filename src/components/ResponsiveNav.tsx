@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/", en: "Matchups", pt: "Confrontos" },
   // { href: "/metagame", en: "Metagame", pt: "Metagame" },
   { href: "/league", en: "Monthly League", pt: "Liga Mensal" },
+  { href: "/mpl", en: "MPL", pt: "MPL" },
   { href: "/data", en: "Data", pt: "Dados" },
   {
     href: "/next-tournaments",
