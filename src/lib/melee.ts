@@ -419,11 +419,164 @@ export async function scrapeTournament(input: string): Promise<ScrapeResult> {
   };
 }
 
+// --- MPL (yearly league) ---------------------------------------------------
+//
+// The MPL Opens are scraped STANDINGS-ONLY, on purpose. The yearly league is a
+// points race, so it needs finishes and nothing else — and pulling matches or
+// decklists would put Opens games into the weekly matchup tables, which must
+// never happen (see scripts/split-mpl-events.mjs for the cleanup after the CSV
+// import did exactly that). Keeping this a separate function from
+// scrapeTournament is what makes that guarantee structural rather than a
+// convention someone has to remember.
+
+export type ScrapedMplResult = {
+  /** Stable melee account handle, lowercased — the cross-Open aggregation key. */
+  username: string;
+  /** Display name at scrape time (melee exposes no real name). */
+  player: string;
+  rank: number;
+  record: string | null;
+  points: number;
+  omw: number | null;
+  tgw: number | null;
+  ogw: number | null;
+};
+
+export type MplScrapeResult = {
+  tournamentId: string;
+  tournamentName: string;
+  date: Date | null;
+  /** Stage number parsed from the name ("7º Open MPL" -> 7), else null. */
+  ordinal: number | null;
+  /** Team event guessed from the name — see looksLikeTeamEvent. */
+  isTeamEvent: boolean;
+  results: ScrapedMplResult[];
+};
+
+/**
+ * Whether a tournament looks like a team event (Trios), which is recorded as a
+ * stage but excluded from the individual points ranking.
+ *
+ * This has to go by name: melee's GetRoundStandings returns one representative
+ * per team (`Team.Players` is length 1 and `Team.Name` is null even for the
+ * Trios Open), so the payload carries no usable team size. The caller can force
+ * it on for a team event whose name doesn't say so.
+ */
+export function looksLikeTeamEvent(name: string): boolean {
+  return /\b(trios?|duplas?|equipes?|teams?)\b/i.test(String(name ?? ""));
+}
+
+/**
+ * Stage number from a melee tournament name: "7º Open MPL - Mont" -> 7.
+ * Accepts "7º", "7o", "7ª" or a bare leading "7". Returns null when the name
+ * carries no number (e.g. "Super Pauper 30K"), so the caller can ask.
+ */
+export function parseStageOrdinal(name: string): number | null {
+  const m = String(name ?? "")
+    .trim()
+    .match(/^(\d{1,2})\s*[ºoª°]?\s/);
+  const n = m ? Number(m[1]) : NaN;
+
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/** The tournament's scheduled start, from the ISO timestamp on its page. */
+function tournamentDateFromPage(html: string): Date | null {
+  const m = html.match(/\d{4}-\d{2}-\d{2}T[\d:.]+/);
+  if (!m) return null;
+  const d = new Date(m[0].slice(0, 19) + "Z");
+
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Scrape one MPL Open's final standings. Never returns matches or decklists —
+ * see the note above.
+ */
+export async function scrapeMplStandings(
+  input: string,
+): Promise<MplScrapeResult> {
+  const tournamentId = parseTournamentId(input);
+  if (!tournamentId) {
+    throw new Error(
+      "Could not read a tournament id. Paste a melee.gg/Tournament/View/<id> URL.",
+    );
+  }
+
+  const html = await fetchPage(tournamentId);
+  const roundIds = roundIdsFromPage(html);
+  if (roundIds.length === 0) {
+    throw new Error("No rounds found on the tournament page.");
+  }
+  const tournamentName = tournamentNameFromPage(html);
+
+  const body = dataTablesColumns([
+    "Rank",
+    "Player",
+    "Decklists",
+    "MatchRecord",
+    "GameRecord",
+    "Points",
+    "OpponentMatchWinPercentage",
+    "TeamGameWinPercentage",
+    "OpponentGameWinPercentage",
+    "FinalTiebreaker",
+    "OpponentCount",
+  ]);
+  body.set("start", "0");
+  body.set("length", "1000");
+  body.set("roundId", roundIds[roundIds.length - 1]);
+
+  const res = await fetch("https://melee.gg/Standing/GetRoundStandings", {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body,
+  });
+  if (res.status !== 200) {
+    throw new Error(`GetRoundStandings returned HTTP ${res.status}`);
+  }
+  const json = (await res.json()) as { data?: MeleeMplStanding[] };
+
+  const results: ScrapedMplResult[] = [];
+  for (const rec of json.data ?? []) {
+    const p = rec.Team?.Players?.[0];
+    // Username is the stable identity; DisplayName is mutable and only shown.
+    const username = lc(p?.Username) || lc(p?.DisplayName);
+    if (!username) continue;
+    results.push({
+      username,
+      player: p?.DisplayName || p?.Username || "",
+      rank: Number(rec.Rank) || 0,
+      record: rec.MatchRecord ?? null,
+      points: Number(rec.Points) || 0,
+      omw: rec.OpponentMatchWinPercentage ?? null,
+      tgw: rec.TeamGameWinPercentage ?? null,
+      ogw: rec.OpponentGameWinPercentage ?? null,
+    });
+  }
+  results.sort((a, b) => a.rank - b.rank);
+
+  if (results.length === 0) {
+    throw new Error("No standings found for that tournament.");
+  }
+
+  return {
+    tournamentId,
+    tournamentName,
+    date: tournamentDateFromPage(html),
+    ordinal: parseStageOrdinal(tournamentName),
+    isTeamEvent: looksLikeTeamEvent(tournamentName),
+    results,
+  };
+}
+
 // --- Minimal shapes of the melee JSON we read ---
 
 type MeleePlayer = {
   DisplayName?: string;
   DisplayNameLastFirst?: string;
+  /** Stable account handle. The sibling `ID` is per-registration, not per-person. */
+  Username?: string;
 };
 type MeleeCompetitor = {
   Team?: { Players?: MeleePlayer[] };
@@ -442,4 +595,9 @@ type MeleeStanding = {
   Points?: number;
   Rank?: number;
   MatchRecord?: string;
+};
+type MeleeMplStanding = MeleeStanding & {
+  OpponentMatchWinPercentage?: number | null;
+  TeamGameWinPercentage?: number | null;
+  OpponentGameWinPercentage?: number | null;
 };
