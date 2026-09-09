@@ -7,6 +7,7 @@ export function classifyDeck(
 ): string;
 export function isBasic(slug: string): boolean;
 export function colorSet(cards: Card[]): Set<string>;
+export function colorSources(cards: Card[]): Record<string, number>;
 export function colorPrefix(set: Set<string>): string;
 export function vec(
   cards: Card[],

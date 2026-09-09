@@ -68,6 +68,78 @@ export const LAND_COLOR = {
   rimewoodfalls: "GU",
   contaminatedaquifer: "UB",
   geothermalbog: "BR",
+
+  // --- nonbasic sources that were missing, found by auditing every card in the
+  // corpus against Scryfall's produced_mana. Their absence made real two- and
+  // three-colour decks read as mono, because only basics counted: a Gruul Storm
+  // deck on Gruul Turf / Hickory Woodlot / Geothermal Crevice looked Mono-Red
+  // and got labelled RDW.
+  //
+  // Two deliberate exclusions:
+  //  * lands producing 3+ colours (Gates, Thriving, Crystal Grotto, the
+  //    Invasion sac-lands) — generic fixing that says nothing about a deck's
+  //    colours; counting them turns every deck 5c.
+  //  * lands played for an ETB/utility rather than their mana — Bojuka Bog,
+  //    Khalni Garden, Mortuary Mire, Witch's Cottage, Gingerbread Cabin, Sejiri
+  //    Steppe, Kabira Crossroads. Bojuka Bog alone is in 237 decklists; counting
+  //    it invented a black splash that turned a Simic fog deck into "3c".
+
+  // Karoo / bounce lands
+  azoriuschancery: "UW",
+  dimiraqueduct: "BU",
+  rakdoscarnarium: "BR",
+  golgarirotfarm: "BG",
+  gruulturf: "GR",
+  borosgarrison: "RW",
+  orzhovbasilica: "BW",
+  izzetboilerworks: "RU",
+  simicgrowthchamber: "GU",
+
+  // Artifact "Bridge" duals
+  drossforgebridge: "BR",
+  silverbluffbridge: "RU",
+  mistvaultbridge: "BU",
+  slagwoodsbridge: "GR",
+  rustvalebridge: "RW",
+  razortidebridge: "UW",
+  goldmirebridge: "BW",
+  darkmossbridge: "BG",
+  tanglepoolbridge: "GU",
+
+  // Other two-colour lands
+  hauntedmire: "BG",
+  jaggedbarrens: "BR",
+  woodedridgeline: "GR",
+  razortrapgorge: "BR",
+  tangledislet: "GU",
+  idyllicbeachfront: "UW",
+  moltentributary: "RU",
+  highlandforest: "GR",
+  kyoshivillage: "GW",
+  northpolegates: "UW",
+  silverquillcampus: "BW",
+  radiantgrove: "GW",
+  erodedcanyon: "RU",
+  lonelyarroyo: "UW",
+  forlornflats: "BW",
+  universitycampus: "UW",
+  dimensionx: "RW",
+
+  // Single-colour nonbasics (cycling lands, depletion lands, …)
+  idyllicgrange: "W",
+  hickorywoodlot: "G",
+  saprazzanskerry: "U",
+  sandstoneneedle: "R",
+  remoteisle: "U",
+  barrenmoor: "B",
+  peatbog: "B",
+  forgottencave: "R",
+  remotefarm: "W",
+  pollutedmire: "B",
+  sandstonebridge: "W",
+  loomingspires: "R",
+  skylinecascade: "U",
+  desertoftheglorified: "B",
 };
 
 const NAME = { W: "White", U: "Blue", B: "Black", R: "Red", G: "Green" };
@@ -88,22 +160,44 @@ export const isBasic = (s) =>
   /^(snowcovered)?(plains|island|swamp|mountain|forest)$/.test(s) ||
   s === "wastes";
 
-/** Colors present via >=3 land sources (so light off-color splashes don't count). */
-export function colorSet(cards) {
+/** Coloured land sources per color, e.g. { R: 16, B: 11 }. */
+export function colorSources(cards) {
   const src = {};
   for (const c of cards) {
     const cols = LAND_COLOR[c.slug];
     if (cols) for (const col of cols) src[col] = (src[col] || 0) + c.qty;
   }
+  return src;
+}
+
+/** Colors present via >=3 land sources (so light off-color splashes don't count). */
+export function colorSet(cards) {
+  const src = colorSources(cards);
   return new Set(Object.keys(src).filter((k) => src[k] >= 3));
 }
 
-/** Color prefix name for a set, e.g. "Mono-Blue", "Dimir", "Colorless". */
+// Three-colour names: the five shards (allied) and five wedges (enemy). Keys
+// are alphabetically sorted colour letters, matching GUILD above.
+const TRIAD = {
+  "G,U,W": "Bant",
+  "B,U,W": "Esper",
+  "B,R,U": "Grixis",
+  "B,G,R": "Jund",
+  "G,R,W": "Naya",
+  "B,G,W": "Abzan",
+  "R,U,W": "Jeskai",
+  "B,G,U": "Sultai",
+  "B,R,W": "Mardu",
+  "G,R,U": "Temur",
+};
+
+/** Color prefix name for a set, e.g. "Mono-Blue", "Dimir", "Sultai", "4c". */
 export function colorPrefix(set) {
   const a = [...set].sort();
   if (!a.length) return "Colorless";
   if (a.length === 1) return "Mono-" + NAME[a[0]];
   if (a.length === 2) return GUILD[a.join(",")] || a.join("");
+  if (a.length === 3) return TRIAD[a.join(",")] || a.join("");
   return a.length + "c";
 }
 
@@ -181,8 +275,27 @@ function isKilnFiend(cards) {
   return hasName(cards, "kiln fiend") || hasName(cards, "festival crasher");
 }
 
-// Gruul: Ponza (land destruction) vs Ramp (Utopia Sprawl ramp) vs Aggro.
+// Ruby / Gruul Storm: a combo deck that chains rituals and card-draw into a
+// lethal Storm turn — not an aggro deck, despite living in red. Its payoffs see
+// essentially no other play, so two of them is a reliable signal. Requiring two
+// matters: one "naya" deck runs Seething Song alone and is correctly excluded.
+const STORM_PAYOFFS = [
+  "seethingsong",
+  "glimpsetheimpossible",
+  "seizethestorm",
+  "firstdayofclass",
+];
+
+function isStorm(cards) {
+  const slugs = new Set(cards.map((c) => c.slug));
+  return STORM_PAYOFFS.filter((s) => slugs.has(s)).length >= 2;
+}
+
+// Gruul: Storm (combo) vs Ponza (land destruction) vs Ramp (Utopia Sprawl) vs
+// Aggro. Storm is checked first — it also runs mana dorks, so the aggro
+// fallthrough would otherwise swallow it.
 function gruulCore(cards) {
+  if (isStorm(cards)) return "Storm";
   const ld = [
     "thermokarst",
     "mwonvuli acid-moss",
@@ -203,6 +316,73 @@ function borosCore(cards) {
   return "Bully";
 }
 
+// Colour word a label can start with -> the colours it claims. Used to spot a
+// centroid label asserting a colour the deck produces no sources of.
+const LABEL_COLORS = (() => {
+  const m = {};
+  for (const [letter, name] of Object.entries(NAME))
+    m[`mono-${name.toLowerCase()}`] = letter;
+  for (const [key, name] of Object.entries(GUILD))
+    m[name.toLowerCase()] = key.replace(/,/g, "");
+  for (const [key, name] of Object.entries(TRIAD))
+    m[name.toLowerCase()] = key.replace(/,/g, "");
+  return m;
+})();
+
+const COLOR_WORDS = new Set([
+  ...Object.keys(LABEL_COLORS),
+  "colorless",
+  "2c",
+  "3c",
+  "4c",
+  "5c",
+]);
+
+/**
+ * Minimum coloured land sources before the computed colour set is trusted over
+ * the label a centroid carries.
+ *
+ * Colours are read from lands, so decks whose mana is mostly colourless or
+ * "any colour" — Tron (Urza lands), Caw-Gates (Gates), Bogles (Utopia Sprawl) —
+ * come out far lighter than they play. For those the plurality name players
+ * typed is the better signal, so leave it alone. A deck with a genuinely
+ * coloured mana base clears this easily (the Sultai affinity below has 29).
+ */
+const COLOR_CONFIDENCE = 8;
+
+/**
+ * Correct the colour word a learned centroid label starts with.
+ *
+ * Cluster labels come from the plurality name players typed, so they carry
+ * whatever colour that crowd wrote — which can contradict the cards. A Sultai
+ * (B/G/U) affinity deck was landing on the "grixis affinity" centroid and being
+ * labelled Grixis, a colour it plays none of, because no learned archetype has
+ * a Sultai centroid.
+ *
+ * Only applied when the mana base is coloured enough to trust (see above), and
+ * only to demote a colour the deck genuinely does not produce — never to
+ * *widen* a label, since a light splash shouldn't rename an archetype.
+ */
+function relabelColor(label, cards, cs) {
+  const parts = String(label).split(" ");
+  if (parts.length < 2 || !COLOR_WORDS.has(parts[0].toLowerCase())) return label;
+
+  const src = colorSources(cards);
+  const total = Object.values(src).reduce((a, b) => a + b, 0);
+  if (total < COLOR_CONFIDENCE) return label;
+
+  // Does the label claim a colour the deck produces no sources of at all?
+  const claimed = LABEL_COLORS[parts[0].toLowerCase()];
+  if (!claimed) return label;
+  const contradicted = [...claimed].some((c) => !src[c]);
+  if (!contradicted) return label;
+
+  const prefix = colorPrefix(cs);
+  return prefix.toLowerCase() === parts[0].toLowerCase()
+    ? label
+    : `${prefix} ${parts.slice(1).join(" ")}`;
+}
+
 /**
  * Classify one deck. `model` = { N, idf:{slug:weight}, archetypes:[{name,col,centroid}] }.
  * Returns an archetype name, or "rogue: <typedName>" when nothing matches.
@@ -216,6 +396,9 @@ export function classifyDeck(cards, typedName, model) {
   // 1. signature overrides
   let label = null;
   if (isKilnFiend(cards)) label = `${colorPrefix(cs)} Kiln Fiend`;
+  // Storm is a combo deck; decide it from its payoffs rather than letting the
+  // colour routing send it to an aggro label (it runs mana dorks and burn).
+  if (label === null && isStorm(cards)) label = `${colorPrefix(cs)} Storm`;
   if (label === null && cs.has("U")) {
     const core = blueCore(cards);
     if (core) label = `${colorPrefix(cs)} ${core}`;
@@ -237,6 +420,8 @@ export function classifyDeck(cards, typedName, model) {
     label = best && bs >= 0.36 ? best.name : `rogue: ${typedName || "unknown"}`;
     // gruul re-split by signature (color detection under-reads dork/ramp decks)
     if (/gruul/i.test(label)) label = `Gruul ${gruulCore(cards)}`;
+    // Demote a centroid label asserting a colour the deck cannot produce.
+    else label = relabelColor(label, cards, cs);
   }
 
   return label in DISPLAY ? DISPLAY[label] : label;
