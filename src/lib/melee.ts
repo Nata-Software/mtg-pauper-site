@@ -101,6 +101,27 @@ function deckId(decklists: unknown): string | null {
   return arr?.[0]?.DecklistId ?? null;
 }
 
+/**
+ * Decode the HTML entities in text scraped out of melee's markup. Card names
+ * are read straight from the page, so without this they are stored escaped
+ * ("Pirate&#39;s Pillage", "L&#243;rien Revealed") — which breaks Scryfall art
+ * lookups (they need the exact name) and any classifier rule matching a name
+ * containing an apostrophe.
+ */
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&#(\d+);/g, (_, d: string) => String.fromCharCode(Number(d)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h: string) =>
+      String.fromCharCode(parseInt(h, 16)),
+    )
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&"); // last, so "&amp;#39;" doesn't double-decode
+}
+
 /** Fetch and parse a decklist's cards from its melee page (no auth). */
 async function fetchDecklistCards(guid: string): Promise<Card[]> {
   const res = await fetch(`https://melee.gg/Decklist/View/${guid}`, {
@@ -113,7 +134,7 @@ async function fetchDecklistCards(guid: string): Promise<Card[]> {
   return [...html.matchAll(re)].map((m) => ({
     qty: Number(m[1]),
     slug: m[2],
-    name: m[3],
+    name: decodeEntities(m[3]),
   }));
 }
 
