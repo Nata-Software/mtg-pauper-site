@@ -15,7 +15,18 @@ const DIR = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(DIR, "..", "backups");
 fs.mkdirSync(OUT, { recursive: true });
 
-const TABLES = ["Match", "Standing"]; // RateLimit is transient, skip
+// Everything except RateLimit (transient). Decklist holds the scraped cards that
+// re-classification rewrites; the Mpl* tables are the yearly league. Omitting
+// any of them would leave a "backup" that can't restore what a migration or an
+// admin import actually changed.
+const TABLES = [
+  "Match",
+  "Standing",
+  "Decklist",
+  "MplStage",
+  "MplResult",
+  "MplSpot",
+];
 
 const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
 await client.connect();

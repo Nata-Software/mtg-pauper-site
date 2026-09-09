@@ -8,6 +8,7 @@ import {
   getMatchRows,
   listEvents,
   listStores,
+  resolveStore,
 } from "@/lib/queries";
 import { t } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n.server";
@@ -37,7 +38,7 @@ export default async function MatchupsPage({
   const locale = await getLocale();
   const sp = await searchParams;
   const stores = await listStores();
-  const store = first(sp.store) || stores[0] || "default";
+  const store = resolveStore(first(sp.store), stores);
 
   const event = first(sp.event) || undefined;
   // Default to the current year; an explicitly-cleared field ("") means all-time.

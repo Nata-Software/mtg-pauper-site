@@ -12,6 +12,7 @@ import {
   getMetagameData,
   type MetagameDeckRow,
   listStores,
+  resolveStore,
 } from "@/lib/queries";
 import { getCardArtUrls } from "@/lib/scryfall";
 
@@ -72,7 +73,7 @@ export default async function MetagamePage({
   const sp = await searchParams;
 
   const stores = await listStores();
-  const store = first(sp.store) || stores[0] || "default";
+  const store = resolveStore(first(sp.store), stores);
   const range = parseRange(first(sp.range));
   const selectedDeck = first(sp.deck) || "";
   const selectedPlayer = first(sp.player) || "";
