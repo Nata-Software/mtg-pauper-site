@@ -6,6 +6,7 @@ import {
   listMonths,
   listStores,
   monthRange,
+  resolveStore,
 } from "@/lib/queries";
 import { t, type TranslationKey } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n.server";
@@ -46,7 +47,7 @@ export default async function LeaguePage({
   const locale = await getLocale();
   const sp = await searchParams;
   const stores = await listStores();
-  const store = first(sp.store) || stores[0] || "default";
+  const store = resolveStore(first(sp.store), stores);
 
   const [tuesdayMonths, fridayMonths] = await Promise.all([
     listMonths(store, "Tuesday"),

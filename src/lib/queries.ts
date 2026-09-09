@@ -83,6 +83,18 @@ function normalizeDeckName(
   return canonicalDeck(null, fallbackDeck, resolve);
 }
 
+/**
+ * Store holding the MPL (yearly league) rows that the legacy CSV import mixed
+ * into the weekly data — see scripts/split-mpl-events.mjs. MPL games are not
+ * part of the weekly matchup statistics and must never be counted in them.
+ *
+ * Keeping them under their own store is what enforces that: every query below
+ * already filters by `store`, so they are excluded everywhere by construction
+ * rather than by a filter each new query has to remember. Hiding the store here
+ * keeps it out of the picker, so no page can select into it either.
+ */
+export const MPL_STORE = "mpl";
+
 export async function listStores(): Promise<string[]> {
   const [m, s] = await Promise.all([
     prisma.match.findMany({
@@ -97,7 +109,24 @@ export async function listStores(): Promise<string[]> {
 
   const set = new Set([...m, ...s].map((r) => r.store));
 
+  set.delete(MPL_STORE);
+
   return [...set].sort();
+}
+
+/**
+ * Resolve the ?store= query param against the selectable stores. An unknown or
+ * hidden store (notably MPL_STORE) falls back to the default rather than being
+ * trusted, so a hand-written URL can't pull yearly-league games into a weekly
+ * stats page.
+ */
+export function resolveStore(
+  requested: string | undefined,
+  stores: string[],
+): string {
+  if (requested && stores.includes(requested)) return requested;
+
+  return stores[0] || "default";
 }
 
 export async function listEvents(store: string): Promise<string[]> {

@@ -13,6 +13,7 @@ import {
   listEvents,
   listPlayersForData,
   listStores,
+  resolveStore,
 } from "@/lib/queries";
 import { prettyDeck } from "@/lib/stats";
 
@@ -308,7 +309,7 @@ export default async function DataPage({
 
   const view = parseView(first(sp.view));
   const stores = await listStores();
-  const store = first(sp.store) || stores[0] || "default";
+  const store = resolveStore(first(sp.store), stores);
   const event = first(sp.event) || "";
   const from = first(sp.from) || currentYearFrom();
   const to = first(sp.to) || toISODate(new Date());

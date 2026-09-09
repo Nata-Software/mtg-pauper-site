@@ -26,6 +26,7 @@ import {
   listMonths,
   listStores,
   monthRange,
+  resolveStore,
 } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -121,7 +122,7 @@ export default async function StandingsPage({
   const locale = await getLocale();
   const sp = await searchParams;
   const stores = await listStores();
-  const store = first(sp.store) || stores[0] || "default";
+  const store = resolveStore(first(sp.store), stores);
   const view = parseView(first(sp.view));
   const playerSort = parsePlayerSort(first(sp.sort));
   const standingSort = parseStandingSort(first(sp.sort));
