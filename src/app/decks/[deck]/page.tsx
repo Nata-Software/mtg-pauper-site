@@ -50,8 +50,8 @@ export default async function DeckPage({
   if (!row) notFound();
 
   const [featured, results] = await Promise.all([
-    getFeaturedDecklistId("default", row.archetype, from, to, MIN_WINS),
-    getDeckResults("default", row.archetype, from, to),
+    getFeaturedDecklistId("default", row.archetypes, from, to, MIN_WINS),
+    getDeckResults("default", row.archetypes, from, to),
   ]);
   if (!featured) notFound();
 

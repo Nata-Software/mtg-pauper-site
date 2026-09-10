@@ -8,12 +8,8 @@
  */
 import { prisma } from "@/lib/prisma";
 import { cardKey, cleanCardName } from "./resolve";
-import {
-  canonicalDeck,
-  clean,
-  colorKey,
-  isBare,
-} from "@/lib/archetype/normalize.mjs";
+import { canonicalDeck } from "@/lib/archetype/normalize.mjs";
+import { buildArchetypeLabels } from "@/lib/queries";
 import { isBasic, LAND_COLOR } from "@/lib/archetype/classify.mjs";
 import MODEL from "@/lib/archetype/model.json";
 import type { Card } from "@/lib/archetype";
@@ -34,8 +30,10 @@ export type DeckCard = {
 export type DeckListing = {
   /** Canonical display label. */
   deck: string;
-  /** Raw stored archetype, for querying. */
-  archetype: string;
+  /** Every stored archetype that displays under this label. Several can share
+   *  one name ("azorius cawgate" and "azorius caw-gates" are the same deck), so
+   *  queries must match them all or the tile shows a fraction of its data. */
+  archetypes: string[];
   decklists: number;
   matches: number;
   wins: number;
@@ -168,62 +166,6 @@ export async function getDecklist(id: string): Promise<{
   };
 }
 
-/**
- * Better display names for archetypes whose label is only a colour.
- *
- * Cluster labels come from the plurality name players typed, and sometimes the
- * plurality is the bare colour: "jeskai" was typed 77 times against "jeskai
- * ephemerate" 48, so a 145-match archetype ended up called just "Jeskai". The
- * clustering is right — only the name is uninformative.
- *
- * So rename it from its own members' typed names, without merging clusters:
- * take the most common NON-bare name inside that archetype, requiring it to
- *   - share the archetype's colours, which stops "naya" being renamed to
- *     "bant ephemerate" (a colour it doesn't play), and
- *   - cover at least MIN_SHARE of the archetype, so a one-off typed name can't
- *     rename a large cluster.
- */
-const MIN_LABEL_SHARE = 0.25;
-
-export async function resolveDeckLabels(
-  store: string,
-): Promise<Map<string, string>> {
-  const rows = await prisma.match.groupBy({
-    by: ["archetype", "deck"],
-    where: { store, archetype: { not: null }, deck: { not: "" } },
-    _count: { _all: true },
-  });
-
-  const byArchetype = new Map<string, { deck: string; n: number }[]>();
-  for (const r of rows) {
-    const a = r.archetype;
-    if (!a) continue;
-    if (!byArchetype.has(a)) byArchetype.set(a, []);
-    byArchetype.get(a)!.push({ deck: r.deck, n: r._count._all });
-  }
-
-  const labels = new Map<string, string>();
-  for (const [archetype, typed] of byArchetype) {
-    const cleaned = clean(archetype);
-    if (!isBare(cleaned)) continue;
-
-    const total = typed.reduce((n, t) => n + t.n, 0);
-    const wanted = colorKey(cleaned);
-
-    const best = typed
-      .filter((t) => {
-        const c = clean(t.deck);
-        return !isBare(c) && colorKey(c) === wanted;
-      })
-      .sort((a, b) => b.n - a.n)[0];
-
-    if (best && best.n / total >= MIN_LABEL_SHARE)
-      labels.set(archetype, canonicalDeck(null, best.deck));
-  }
-
-  return labels;
-}
-
 /** A past finish for a deck, for the "recent results" table. */
 export type DeckResult = {
   decklistId: string | null;
@@ -246,7 +188,7 @@ export type DeckResult = {
  */
 export async function getDeckResults(
   store: string,
-  archetype: string,
+  archetypes: string[],
   from: string,
   to: string,
   limit = 25,
@@ -279,7 +221,7 @@ export async function getDeckResults(
             AND s."tournamentId" = m."tournamentId"
             AND lower(s.nickname) = lower(m.player)
      WHERE m.store = ${store}
-       AND m.archetype = ${archetype}
+       AND m.archetype = ANY(${archetypes})
        AND m.date BETWEEN ${new Date(from)} AND ${new Date(to)}
      GROUP BY m."decklistId", m.player, s.position, m."eventName", m."tournamentName"
      ORDER BY max(m.date) DESC, wins DESC
@@ -303,7 +245,7 @@ export async function getDeckResults(
  */
 export async function getFeaturedDecklistId(
   store: string,
-  archetype: string,
+  archetypes: string[],
   from: string,
   to: string,
   minWins = 3,
@@ -315,7 +257,7 @@ export async function getFeaturedDecklistId(
            count(*) FILTER (WHERE m.result = 'win')::bigint wins
       FROM "Match" m
      WHERE m.store = ${store}
-       AND m.archetype = ${archetype}
+       AND m.archetype = ANY(${archetypes})
        AND m."decklistId" IS NOT NULL
        AND m.date BETWEEN ${new Date(from)} AND ${new Date(to)}
      GROUP BY m."decklistId"
@@ -367,7 +309,7 @@ export async function listDecks(
       where: { archetype: { not: "" } },
       select: { id: true, archetype: true, cards: true },
     }),
-    resolveDeckLabels(store),
+    buildArchetypeLabels(store),
   ]);
 
   // Group decklists by archetype so a signature card can be chosen.
@@ -401,11 +343,32 @@ export async function listDecks(
     : [];
   const artByKey = new Map(cached.map((c) => [c.key, c.imageArtCrop]));
 
-  return tally.map((r) => {
+  // Several archetypes can share a display label — merge them into one entry so
+  // a deck appears once with all of its data, not as duplicate partial tiles.
+  const merged = new Map<string, DeckListing>();
+
+  for (const r of tally) {
+    const deck = labels.get(r.archetype) ?? canonicalDeck(r.archetype, r.archetype);
+    const existing = merged.get(deck);
+
+    if (existing) {
+      existing.archetypes.push(r.archetype);
+      existing.decklists += Number(r.lists);
+      existing.matches += Number(r.matches);
+      existing.wins += Number(r.wins);
+      existing.pilots = Math.max(existing.pilots, Number(r.pilots));
+      if (!existing.signatureCard) {
+        const sig = signatures.get(r.archetype) ?? null;
+        existing.signatureCard = sig;
+        existing.artUrl = (sig && artByKey.get(cardKey(sig))) || null;
+      }
+      continue;
+    }
+
     const sig = signatures.get(r.archetype) ?? null;
-    return {
-      deck: labels.get(r.archetype) ?? canonicalDeck(r.archetype, r.archetype),
-      archetype: r.archetype,
+    merged.set(deck, {
+      deck,
+      archetypes: [r.archetype],
       // Distinct lists *within the range*, so it reads consistently with the
       // match count beside it.
       decklists: Number(r.lists),
@@ -414,8 +377,10 @@ export async function listDecks(
       pilots: Number(r.pilots),
       signatureCard: sig,
       artUrl: (sig && artByKey.get(cardKey(sig))) || null,
-    };
-  });
+    });
+  }
+
+  return [...merged.values()].sort((a, b) => b.matches - a.matches);
 }
 
 /**

@@ -61,10 +61,20 @@ function normalizeDeckName(
   archetype: string | null | undefined,
   deck: string | null | undefined,
   resolve?: (colorKey: string) => string | undefined,
+  archetypeLabels?: Map<string, string>,
 ): string {
   const fromArchetype = specificDisplayName(archetype);
 
   if (fromArchetype) return fromArchetype;
+
+  // A bare colour archetype ("jeskai") gets one canonical name for the whole
+  // cluster before we fall back to whatever this particular player typed —
+  // otherwise the same deck appears as "Jeskai Ephemerate" for the 48 rows
+  // typed that way and "Jeskai" for the 77 that weren't. See
+  // buildArchetypeLabels().
+  const renamed = archetype ? archetypeLabels?.get(archetype) : undefined;
+
+  if (renamed) return renamed;
 
   const fromDeck = specificDisplayName(deck);
 
@@ -82,6 +92,68 @@ function normalizeDeckName(
 
   return canonicalDeck(null, fallbackDeck, resolve);
 }
+
+/**
+ * One canonical name per archetype whose own label is only a colour.
+ *
+ * Cluster labels come from the plurality name players typed, and sometimes the
+ * plurality *is* the bare colour: "jeskai" was typed 77 times against "jeskai
+ * ephemerate" 48, so a 145-match archetype ended up called "Jeskai". The
+ * clustering is right — only the name is uninformative.
+ *
+ * So rename it from its own members' typed names, without merging clusters:
+ * the most common non-bare name inside that archetype, requiring it to
+ *   - share the archetype's colours, which stops "naya" being renamed to
+ *     "bant ephemerate", a colour it does not play, and
+ *   - cover at least MIN_LABEL_SHARE of the archetype, so a one-off typed name
+ *     cannot rename a large cluster.
+ *
+ * Cached per store per request, like buildDominantDeckLookup.
+ */
+const MIN_LABEL_SHARE = 0.25;
+
+export const buildArchetypeLabels = cache(
+  async (store: string): Promise<Map<string, string>> => {
+    const rows = await prisma.match.groupBy({
+      by: ["archetype", "deck"],
+      where: { store, archetype: { not: null }, deck: { not: "" } },
+      _count: { _all: true },
+    });
+
+    const byArchetype = new Map<string, { deck: string; n: number }[]>();
+
+    for (const r of rows) {
+      if (!r.archetype) continue;
+      if (!byArchetype.has(r.archetype)) byArchetype.set(r.archetype, []);
+      byArchetype.get(r.archetype)!.push({ deck: r.deck, n: r._count._all });
+    }
+
+    const labels = new Map<string, string>();
+
+    for (const [archetype, typed] of byArchetype) {
+      const cleaned = clean(archetype);
+
+      if (!isBare(cleaned)) continue;
+
+      const total = typed.reduce((n, t) => n + t.n, 0);
+      const wanted = colorKey(cleaned);
+
+      const best = typed
+        .filter((t) => {
+          const c = SYNONYMS[clean(t.deck)] ?? clean(t.deck);
+          return c && !isBare(c) && colorKey(c) === wanted;
+        })
+        .sort((a, b) => b.n - a.n)[0];
+
+      if (best && best.n / total >= MIN_LABEL_SHARE) {
+        const c = SYNONYMS[clean(best.deck)] ?? clean(best.deck);
+        labels.set(archetype, display(c));
+      }
+    }
+
+    return labels;
+  },
+);
 
 /**
  * Store holding the MPL (yearly league) rows that the legacy CSV import mixed
@@ -234,7 +306,7 @@ const buildDominantDeckLookup = cache(
 export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, dominantDeckFor] = await Promise.all([
+  const [rows, dominantDeckFor, archetypeLabels] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -253,14 +325,16 @@ export async function getMatchRows(f: Filters): Promise<MatchRow[]> {
       },
     }),
     buildDominantDeckLookup(f.store),
+    buildArchetypeLabels(f.store),
   ]);
 
   return rows.map((r) => ({
-    deck: normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player)),
+    deck: normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player), archetypeLabels),
     opponentDeck: normalizeDeckName(
       r.opponentArchetype,
       r.opponentDeck,
       dominantDeckFor(r.opponent),
+      archetypeLabels,
     ),
     result: r.result,
   }));
@@ -388,7 +462,7 @@ export async function getPlayerDeckRows(opts: {
 }): Promise<{ deck: string; result: string }[]> {
   const date = dateWhere(opts.from, opts.to);
 
-  const [rows, dominantDeckFor] = await Promise.all([
+  const [rows, dominantDeckFor, archetypeLabels] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: opts.store,
@@ -399,12 +473,13 @@ export async function getPlayerDeckRows(opts: {
       select: { deck: true, archetype: true, result: true },
     }),
     buildDominantDeckLookup(opts.store),
+    buildArchetypeLabels(opts.store),
   ]);
 
   const resolve = dominantDeckFor(opts.player);
 
   return rows.map((r) => ({
-    deck: normalizeDeckName(r.archetype, r.deck, resolve),
+    deck: normalizeDeckName(r.archetype, r.deck, resolve, archetypeLabels),
     result: r.result,
   }));
 }
@@ -575,7 +650,7 @@ function wilsonScore(row: {
 }
 
 export async function getTournamentData(store: string): Promise<TournamentData> {
-  const [standings, matches] = await Promise.all([
+  const [standings, matches, archetypeLabels] = await Promise.all([
     prisma.standing.findMany({
       where: { store },
       orderBy: [{ date: "desc" }, { position: "asc" }],
@@ -599,8 +674,10 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
         date: true,
         player: true,
         deck: true,
+        archetype: true,
       },
     }),
+    buildArchetypeLabels(store),
   ]);
 
   const uniquePlayers = new Set<string>();
@@ -631,7 +708,12 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
   for (const row of standings) {
     const key = tournamentKey(row);
     const player = normalizeName(row.nickname);
-    const archetype = normalizeName(row.deck);
+    const archetype = normalizeDeckName(
+      row.archetype,
+      row.deck,
+      undefined,
+      archetypeLabels,
+    );
 
     tournamentKeys.add(key);
 
@@ -664,7 +746,12 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
   for (const row of matches) {
     const key = tournamentKey(row);
     const player = normalizeName(row.player);
-    const archetype = normalizeName(row.deck);
+    const archetype = normalizeDeckName(
+      row.archetype,
+      row.deck,
+      undefined,
+      archetypeLabels,
+    );
 
     tournamentKeys.add(key);
 
@@ -765,7 +852,7 @@ export async function getMetagameData(
 ): Promise<MetagameDeckRow[]> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, dominantDeckFor] = await Promise.all([
+  const [rows, dominantDeckFor, archetypeLabels] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -784,6 +871,7 @@ export async function getMetagameData(
       },
     }),
     buildDominantDeckLookup(f.store),
+    buildArchetypeLabels(f.store),
   ]);
 
   type Tally = {
@@ -802,7 +890,7 @@ export async function getMetagameData(
   let totalEntrants = 0;
 
   for (const r of rows) {
-    const deck = normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player));
+    const deck = normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player), archetypeLabels);
 
     if (isByeDeck(deck)) continue;
 
@@ -917,7 +1005,7 @@ export async function getDeckMatchLog(
 ): Promise<DeckMatchLogRow[]> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, dominantDeckFor] = await Promise.all([
+  const [rows, dominantDeckFor, archetypeLabels] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -941,11 +1029,12 @@ export async function getDeckMatchLog(
       take: 5000,
     }),
     buildDominantDeckLookup(f.store),
+    buildArchetypeLabels(f.store),
   ]);
 
   return rows
     .filter(
-      (r) => normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player)) === deck,
+      (r) => normalizeDeckName(r.archetype, r.deck, dominantDeckFor(r.player), archetypeLabels) === deck,
     )
     .filter((r) => !isByeMatch(r))
     .map((r) => ({
@@ -957,6 +1046,7 @@ export async function getDeckMatchLog(
         r.opponentArchetype,
         r.opponentDeck,
         dominantDeckFor(r.opponent),
+        archetypeLabels,
       ),
       result: r.result,
       round: r.round,
@@ -1020,7 +1110,7 @@ export async function getDeckDrilldownData(
 ): Promise<DeckDrilldownData | null> {
   const date = dateWhere(f.from, f.to);
 
-  const [rows, standings, dominantDeckFor] = await Promise.all([
+  const [rows, standings, dominantDeckFor, archetypeLabels] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -1062,6 +1152,7 @@ export async function getDeckDrilldownData(
       },
     }),
     buildDominantDeckLookup(f.store),
+    buildArchetypeLabels(f.store),
   ]);
 
   const total = {
@@ -1114,7 +1205,7 @@ export async function getDeckDrilldownData(
       players.add(playerKey);
     }
 
-    const rowDeck = normalizeDeckName(row.archetype, row.deck, dominantDeckFor(row.player));
+    const rowDeck = normalizeDeckName(row.archetype, row.deck, dominantDeckFor(row.player), archetypeLabels);
 
     if (rowDeck !== deck) continue;
     if (isByeMatch(row)) continue;
@@ -1123,6 +1214,7 @@ export async function getDeckDrilldownData(
       row.opponentArchetype,
       row.opponentDeck,
       dominantDeckFor(row.opponent),
+      archetypeLabels,
     );
 
     if (isByeDeck(opponentDeck)) continue;
@@ -1223,7 +1315,7 @@ export async function getDeckDrilldownData(
         player: playerKey,
         playerDisplay: displayName(row.nickname),
         position: row.position,
-        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey)),
+        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey), archetypeLabels),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
         playerCount: 0,
@@ -1619,7 +1711,7 @@ export async function getSinglePlayerData(f: {
     return null;
   }
 
-  const [matches, fieldMatches, standings, dominantDeckFor] = await Promise.all([
+  const [matches, fieldMatches, standings, dominantDeckFor, archetypeLabels] = await Promise.all([
     prisma.match.findMany({
       where: {
         store: f.store,
@@ -1679,6 +1771,7 @@ export async function getSinglePlayerData(f: {
       },
     }),
     buildDominantDeckLookup(f.store),
+    buildArchetypeLabels(f.store),
   ]);
 
   const filteredMatches = matches.filter((row) => !isByeMatch(row));
@@ -1700,7 +1793,7 @@ export async function getSinglePlayerData(f: {
   for (const row of fieldMatches) {
     if (isByeMatch(row)) continue;
 
-    const deck = normalizeDeckName(row.archetype, row.deck, dominantDeckFor(row.player));
+    const deck = normalizeDeckName(row.archetype, row.deck, dominantDeckFor(row.player), archetypeLabels);
 
     if (isByeDeck(deck)) continue;
 
@@ -1773,11 +1866,12 @@ export async function getSinglePlayerData(f: {
 
   for (const row of filteredMatches) {
     const key = tournamentKey(row);
-    const deck = normalizeDeckName(row.archetype, row.deck, dominantDeckForPlayer);
+    const deck = normalizeDeckName(row.archetype, row.deck, dominantDeckForPlayer, archetypeLabels);
     const opponentDeck = normalizeDeckName(
       row.opponentArchetype,
       row.opponentDeck,
       dominantDeckFor(row.opponent),
+      archetypeLabels,
     );
 
     resultToTally(total, row.result);
@@ -1876,7 +1970,7 @@ export async function getSinglePlayerData(f: {
     if (playerKey === selectedPlayerKey) {
       playerStandings.set(key, {
         position: row.position,
-        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey)),
+        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey), archetypeLabels),
         tournamentName: fallbackTournamentName(row),
         date: toISODate(row.date),
       });
@@ -1890,7 +1984,7 @@ export async function getSinglePlayerData(f: {
       tournamentWinners.set(key, {
         player: playerKey,
         position: row.position,
-        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey)),
+        deck: normalizeDeckName(row.archetype, row.deck, dominantDeckFor(playerKey), archetypeLabels),
       });
     }
   }
