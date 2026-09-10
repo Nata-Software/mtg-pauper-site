@@ -80,7 +80,7 @@ export default async function DeckPage({
   return (
     <div className="mx-auto max-w-6xl">
       <Link
-        href={`/decks?range=${range}`}
+        href={`/?range=${range}`}
         className="text-sm text-violet-600 hover:underline dark:text-violet-400"
       >
         ← {pt ? "Todos os decks" : "All decks"}
