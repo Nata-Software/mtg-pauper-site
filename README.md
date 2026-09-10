@@ -150,7 +150,13 @@ Roughly in priority order:
 - `src/lib/queries.ts` — Prisma queries + filters.
 - `src/lib/auth.ts` + `src/lib/ratelimit.ts` — admin password + rate limiting.
 - `src/app/api/scrape/route.ts` + `api/upload/route.ts` — import endpoints.
-- `src/app/page.tsx` + `src/components/MatrixTable.tsx` — matchup matrix.
+- `src/app/page.tsx` — landing page: metagame grid, a decklist behind every
+  tile. `src/app/matchups/page.tsx` + `src/components/MatrixTable.tsx` — the
+  matchup matrix (moved off `/`).
+- `src/app/decks/[deck]/page.tsx` + `src/app/cards/[key]/page.tsx` +
+  `src/lib/cards/` — decklists, card previews, per-card pages.
+- `src/lib/melee.ts` — melee scraping (matches, standings, decklists, MPL).
 - `src/app/standings/page.tsx` + `PlayerTable` / `StandingsTable` /
   `DeckBreakdownTable` — standings and drill-down.
-- `prisma/schema.prisma` — `Match`, `Standing`, `RateLimit` models.
+- `prisma/schema.prisma` — `Match`, `Standing`, `Decklist`, `Card`, `RateLimit`
+  and the `Mpl*` models.

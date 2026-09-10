@@ -23,7 +23,8 @@ After each Tuesday/Friday event:
 1. Open **`/admin/upload`** on the live site.
 2. Paste the **melee.gg tournament URL** (e.g.
    `https://melee.gg/Tournament/View/440596`).
-3. Choose the **league** it belongs to (**Tuesday** or **Friday**).
+3. Choose the **league** it belongs to (**Tuesday**, **Friday**, or **MPL
+   Open** for a yearly-league stage).
 4. Enter the **password** (the `UPLOAD_PASSWORD` value — ask an admin; it's in
    Vercel, not this repo) and click **Import**.
 5. Done — the site updates immediately.
@@ -31,6 +32,45 @@ After each Tuesday/Friday event:
 > **Re-importing is safe.** Each tournament is keyed by its melee id, so
 > importing the same URL again just refreshes it — it never duplicates. If you
 > pick the wrong league, just re-import into the right one (last import wins).
+
+### After an import: two scripts that do NOT run themselves
+
+An import writes only what it scraped. These two fill in the rest, and both are
+easy to forget because nothing breaks visibly when you skip them — the site just
+quietly shows less than it could.
+
+Run from a checkout with `DATABASE_URL` pointing at **prod** (see
+`LOCAL_CONTEXT.md`). Both are dry-run by default; add `--apply` to write.
+
+```bash
+node scripts/sync-cards.mjs --apply              # new cards -> Card table
+node scripts/apply-decklist-overrides.mjs --apply # re-assert manual decks
+```
+
+**`sync-cards.mjs`** caches any card nobody has played before, so it gets a
+hover preview and a card page. It only looks up names not already cached, so
+running it after every import is cheap. Skip it and new cards render as plain
+text with no image.
+
+**`apply-decklist-overrides.mjs`** re-applies the decks recorded in
+`scripts/decklist-overrides.json` — players who confirmed what they played at an
+event where melee has no decklist at all. **An import replaces that
+tournament's rows, so a re-import silently reverts those decks to "Unknown
+Deck".** Re-run it after re-importing any tournament listed in that file.
+
+### Re-importing older events to fill decklist gaps
+
+melee doesn't always attach a decklist to every match record — one event carried
+one on 107 of 123 entries. The scraper now fills a player's missing rows from
+their other matches in the same event, and reads decklist ids from the standings
+too, but **only for imports made after that fix**. Older tournaments keep their
+gaps until re-imported.
+
+If a player shows "Unknown Deck" for an event they did register a list for,
+re-import that tournament — it's safe (keyed on melee id) and closes the gap.
+If melee genuinely has no list for them (empty in both the matches *and* the
+standings), leave it unknown, or add an entry to
+`scripts/decklist-overrides.json` if the player confirms what they played.
 
 ### Bulk CSV upload (fallback only)
 
