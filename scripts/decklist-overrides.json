@@ -1,0 +1,13 @@
+{
+  "_comment": "Decks a player confirms they played, where melee has no decklist attached to the event. Only for gaps that cannot be recovered from melee (empty in both the match records and the standings) — scripts/backfill-match-decklists.mjs handles everything that can. Re-run apply-decklist-overrides.mjs after re-importing an affected tournament: an import replaces that tournament's rows and would drop these.",
+  "overrides": [
+    {
+      "tournamentId": "451038",
+      "event": "2ª Etapa CLM Pauper, 2026-09-09",
+      "player": "boletoagiota",
+      "deck": "grixis affinity",
+      "archetype": "grixis affinity",
+      "note": "Finished #8 at 3-1-0. melee has no list attached for him at this event (Decklists: [] in matches and standings; RamosMTG, ElvisMachado and Rodolfoalvesdealmeida are affected too). Player confirms it was the same 75-card Grixis Affinity list he registered for 451390 on 2026-09-04 (decklist c44bee0f-57b6-4890-be5b-b4bb016f03ee)."
+    }
+  ]
+}
