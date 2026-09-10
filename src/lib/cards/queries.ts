@@ -68,7 +68,12 @@ export function groupDeckCards(cards: DeckCard[]): [string, DeckCard[]][] {
   return TYPE_ORDER.filter((g) => by.has(g)).map((g) => [g, by.get(g)!]);
 }
 
-/** One decklist, joined to the card cache. */
+/** Flat sideboard ordering: most copies first, then alphabetical. */
+export function sortSideboard(cards: DeckCard[]): DeckCard[] {
+  return [...cards].sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name));
+}
+
+/** One decklist, joined to the card cache and split by board. */
 export async function getDecklist(id: string): Promise<{
   id: string;
   player: string;
@@ -77,28 +82,36 @@ export async function getDecklist(id: string): Promise<{
   tournamentId: string | null;
   tournamentName: string | null;
   date: Date | null;
-  cards: DeckCard[];
+  main: DeckCard[];
+  side: DeckCard[];
 } | null> {
   const dl = await prisma.decklist.findUnique({ where: { id } });
   if (!dl) return null;
 
-  const raw = dl.cards as { qty: number; name: string }[];
+  const raw = dl.cards as {
+    qty: number;
+    name: string;
+    board?: "main" | "side";
+  }[];
   const keys = [...new Set(raw.map((c) => cardKey(c.name)))];
   const cached = await prisma.card.findMany({ where: { key: { in: keys } } });
   const byKey = new Map(cached.map((c) => [c.key, c]));
 
-  // Melee lists a card once per section, so the same card can appear twice
-  // (maindeck + sideboard). Merge them — we don't store which board it was in.
-  const merged = new Map<string, DeckCard>();
+  // Merge duplicates *within* a board — melee lists a card once per category,
+  // so a card can legitimately appear in both maindeck and sideboard and those
+  // must stay separate. Rows scraped before boards were captured have no
+  // `board`; treat those as maindeck.
+  const boards = { main: new Map<string, DeckCard>(), side: new Map<string, DeckCard>() };
   for (const c of raw) {
     const key = cardKey(c.name);
     const hit = byKey.get(key);
-    const existing = merged.get(key);
+    const into = boards[c.board === "side" ? "side" : "main"];
+    const existing = into.get(key);
     if (existing) {
       existing.qty += c.qty;
       continue;
     }
-    merged.set(key, {
+    into.set(key, {
       qty: c.qty,
       key,
       name: hit?.resolved ? hit.name : cleanCardName(c.name),
@@ -127,7 +140,8 @@ export async function getDecklist(id: string): Promise<{
     tournamentId: dl.tournamentId,
     tournamentName: m?.tournamentName ?? null,
     date: m?.date ?? null,
-    cards: [...merged.values()],
+    main: [...boards.main.values()],
+    side: sortSideboard([...boards.side.values()]),
   };
 }
 

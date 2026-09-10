@@ -2,7 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CardLink } from "@/components/CardLink";
-import { getDecklist, groupDeckCards, listDecks } from "@/lib/cards/queries";
+import {
+  getDecklist,
+  groupDeckCards,
+  listDecks,
+  type DeckCard,
+} from "@/lib/cards/queries";
 import { getLocale } from "@/lib/i18n.server";
 import { toISODate } from "@/lib/dates";
 
@@ -34,10 +39,11 @@ export default async function DeckPage({
   const list = await getDecklist(row.latestDecklistId);
   if (!list) notFound();
 
-  const groups = groupDeckCards(list.cards);
-  const total = list.cards.reduce((n, c) => n + c.qty, 0);
+  const groups = groupDeckCards(list.main);
+  const mainTotal = list.main.reduce((n, c) => n + c.qty, 0);
+  const sideTotal = list.side.reduce((n, c) => n + c.qty, 0);
   const winPct = row.matches ? (100 * row.wins) / row.matches : 0;
-  const unresolved = list.cards.filter((c) => !c.resolved).length;
+  const unresolved = [...list.main, ...list.side].filter((c) => !c.resolved).length;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -65,7 +71,11 @@ export default async function DeckPage({
         <Stat label={pt ? "Partidas" : "Matches"} value={row.matches.toLocaleString()} />
         <Stat label={pt ? "Vitórias" : "Win%"} value={`${winPct.toFixed(1)}%`} />
         <Stat label={pt ? "Listas" : "Lists"} value={String(row.decklists)} />
-        <Stat label={pt ? "Cartas" : "Cards"} value={String(total)} />
+        <Stat
+          label={pt ? "Principal" : "Maindeck"}
+          value={String(mainTotal)}
+        />
+        <Stat label="Sideboard" value={String(sideTotal)} />
       </div>
 
       {unresolved > 0 && (
@@ -77,31 +87,24 @@ export default async function DeckPage({
         </p>
       )}
 
+      {/* Maindeck, grouped by card type. */}
       <div className="mt-6 columns-1 gap-6 sm:columns-2 lg:columns-3">
         {groups.map(([group, cards]) => (
-          <section
+          <CardBlock
             key={group}
-            className="mb-6 break-inside-avoid rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-          >
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">
-              {group} ({cards.reduce((n, c) => n + c.qty, 0)})
-            </h2>
-            <ul>
-              {cards.map((c) => (
-                <li key={c.key}>
-                  <CardLink
-                    name={c.name}
-                    cardKey={c.key}
-                    qty={c.qty}
-                    imageNormal={c.imageNormal}
-                    resolved={c.resolved}
-                  />
-                </li>
-              ))}
-            </ul>
-          </section>
+            title={group}
+            count={cards.reduce((n, c) => n + c.qty, 0)}
+            cards={cards}
+          />
         ))}
       </div>
+
+      {/* Sideboard is one flat list — card types don't matter for 15 cards. */}
+      {list.side.length > 0 && (
+        <div className="mt-2 max-w-sm">
+          <CardBlock title="Sideboard" count={sideTotal} cards={list.side} />
+        </div>
+      )}
 
       {list.tournamentId && (
         <a
@@ -114,6 +117,37 @@ export default async function DeckPage({
         </a>
       )}
     </div>
+  );
+}
+
+function CardBlock({
+  title,
+  count,
+  cards,
+}: {
+  title: string;
+  count: number;
+  cards: DeckCard[];
+}) {
+  return (
+    <section className="mb-6 break-inside-avoid rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">
+        {title} ({count})
+      </h2>
+      <ul>
+        {cards.map((c) => (
+          <li key={c.key}>
+            <CardLink
+              name={c.name}
+              cardKey={c.key}
+              qty={c.qty}
+              imageNormal={c.imageNormal}
+              resolved={c.resolved}
+            />
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
