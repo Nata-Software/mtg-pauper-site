@@ -10,6 +10,7 @@ import {
   groupDeckCards,
   listDecks,
   type DeckCard,
+  type DeckResult,
 } from "@/lib/cards/queries";
 import { getLocale } from "@/lib/i18n.server";
 import { monthsAgoISO, toISODate } from "@/lib/dates";
@@ -55,7 +56,13 @@ export default async function DeckPage({
   ]);
   if (!featured) notFound();
 
-  const list = await getDecklist(featured.id);
+  // ?list= picks a specific pilot's list from the results table. Only honoured
+  // when that list actually belongs to this deck, so a hand-edited URL can't
+  // render someone else's archetype under this deck's name and stats.
+  const asked = first(sp.list);
+  const picked = asked && results.some((r) => r.decklistId === asked) ? asked : null;
+
+  const list = await getDecklist(picked ?? featured.id);
   if (!list) notFound();
 
   const groups = groupDeckCards(list.main);
@@ -65,6 +72,10 @@ export default async function DeckPage({
   const unresolved = [...list.main, ...list.side].filter(
     (c) => !c.resolved,
   ).length;
+
+  const events = groupByEvent(results);
+  const hrefFor = (listId: string | null) =>
+    `/decks/${encodeURIComponent(row.deck)}?range=${range}${listId ? `&list=${listId}` : ""}`;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -79,18 +90,30 @@ export default async function DeckPage({
         {row.deck}
       </h1>
       <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-        {featured.featured
+        {picked
           ? pt
-            ? `Lista com ${featured.wins} vitórias, por `
-            : `${featured.wins}-win list by `
-          : pt
-            ? "Lista mais recente por "
-            : "Latest list by "}
+            ? "Lista de "
+            : "List by "
+          : featured.featured
+            ? pt
+              ? `Lista com ${featured.wins} vitórias, por `
+              : `${featured.wins}-win list by `
+            : pt
+              ? "Lista mais recente por "
+              : "Latest list by "}
         <span className="font-medium text-neutral-700 dark:text-neutral-300">
           {list.player}
         </span>
         {list.date ? ` · ${toISODate(list.date)}` : ""}
         {list.tournamentName ? ` · ${list.tournamentName}` : ""}
+        {picked && (
+          <>
+            {" · "}
+            <Link href={hrefFor(null)} className="text-violet-600 hover:underline dark:text-violet-400">
+              {pt ? "voltar à lista destaque" : "back to featured list"}
+            </Link>
+          </>
+        )}
       </p>
 
       <div className="mt-4 flex flex-wrap gap-3 text-sm">
@@ -98,8 +121,6 @@ export default async function DeckPage({
         <Stat label={pt ? "Vitórias" : "Win%"} value={`${winPct.toFixed(1)}%`} />
         <Stat label={pt ? "Listas" : "Lists"} value={String(row.decklists)} />
         <Stat label={pt ? "Pilotos" : "Pilots"} value={String(row.pilots)} />
-        <Stat label={pt ? "Principal" : "Maindeck"} value={String(mainTotal)} />
-        <Stat label="Sideboard" value={String(sideTotal)} />
       </div>
 
       {unresolved > 0 && (
@@ -111,72 +132,104 @@ export default async function DeckPage({
         </p>
       )}
 
-      {/* Maindeck, grouped by card type. */}
-      <div className="mt-6 columns-1 gap-6 sm:columns-2 lg:columns-3">
-        {groups.map(([group, cards]) => (
-          <CardBlock
-            key={group}
-            title={group}
-            count={cards.reduce((n, c) => n + c.qty, 0)}
-            cards={cards}
-          />
-        ))}
-      </div>
+      {/* One panel for the maindeck, one for the sideboard. A plain grid, not
+          CSS columns: multi-column re-balances its blocks when anything changes
+          height, which made the list jump around under the hover preview. */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <Panel title={pt ? "Deck principal" : "Maindeck"} count={mainTotal}>
+          <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            {groups.map(([group, cards]) => (
+              <div key={group}>
+                <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">
+                  {group} ({cards.reduce((n, c) => n + c.qty, 0)})
+                </h3>
+                <CardList cards={cards} />
+              </div>
+            ))}
+          </div>
+        </Panel>
 
-      {/* Sideboard is one flat list — card types don't matter for 15 cards. */}
-      {list.side.length > 0 && (
-        <div className="mt-2 max-w-sm">
-          <CardBlock title="Sideboard" count={sideTotal} cards={list.side} />
-        </div>
-      )}
+        {list.side.length > 0 && (
+          <Panel title="Sideboard" count={sideTotal}>
+            <CardList cards={list.side} />
+          </Panel>
+        )}
+      </div>
 
       <a
         href={`https://melee.gg/Decklist/View/${list.id}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2 inline-block text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
+        className="mt-3 inline-block text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
       >
         {pt ? "Ver no melee.gg" : "View on melee.gg"} ↗
       </a>
 
-      {results.length > 0 && (
+      {events.length > 0 && (
         <section className="mt-10">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             {pt ? "Resultados recentes" : "Recent results"}
           </h2>
-          <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
-            <table className="min-w-full text-sm">
-              <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
-                <tr>
-                  <th className="px-3 py-2 text-left">{pt ? "Pos." : "Pl"}</th>
-                  <th className="px-3 py-2 text-left">{pt ? "Jogador" : "Player"}</th>
-                  <th className="px-3 py-2 text-left">{pt ? "Evento" : "Event"}</th>
-                  <th className="px-3 py-2 text-right">{pt ? "Data" : "Date"}</th>
-                  <th className="px-3 py-2 text-right">V-D-E</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100 dark:divide-neutral-900">
-                {results.map((r, i) => (
-                  <tr key={`${r.decklistId ?? "x"}-${i}`}>
-                    <td className="px-3 py-2 tabular-nums text-neutral-500 dark:text-neutral-400">
-                      {r.position ?? "—"}
-                    </td>
-                    <td className="px-3 py-2 font-medium text-neutral-900 dark:text-neutral-100">
-                      {r.player}
-                    </td>
-                    <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400">
-                      {r.tournamentName ?? r.eventName}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-neutral-500 dark:text-neutral-400">
-                      {r.date ? toISODate(r.date) : "—"}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-neutral-700 dark:text-neutral-300">
-                      {r.wins}-{r.losses}-{r.draws}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          <div className="mt-3 space-y-5">
+            {events.map((ev) => (
+              <div key={ev.key}>
+                <h3 className="text-sm font-medium text-violet-700 dark:text-violet-400">
+                  {ev.name}
+                  <span className="ml-2 text-xs font-normal text-neutral-500 dark:text-neutral-400">
+                    {ev.date}
+                  </span>
+                </h3>
+
+                <div className="mt-1 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+                      <tr>
+                        <th className="px-3 py-2 text-left">{pt ? "Pos." : "Pl"}</th>
+                        <th className="px-3 py-2 text-left">{pt ? "Jogador" : "Player"}</th>
+                        <th className="px-3 py-2 text-right">V-D-E</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-100 dark:divide-neutral-900">
+                      {ev.rows.map((r, i) => {
+                        const isShown = r.decklistId === list.id;
+                        return (
+                          <tr
+                            key={`${r.decklistId ?? "x"}-${i}`}
+                            className={
+                              isShown
+                                ? "bg-violet-50 dark:bg-violet-950/40"
+                                : "hover:bg-neutral-50 dark:hover:bg-neutral-900"
+                            }
+                          >
+                            <td className="px-3 py-2 tabular-nums text-neutral-500 dark:text-neutral-400">
+                              {r.position ?? "—"}
+                            </td>
+                            <td className="px-3 py-2 font-medium">
+                              {r.decklistId ? (
+                                <Link
+                                  href={hrefFor(r.decklistId)}
+                                  className="text-violet-700 hover:underline dark:text-violet-400"
+                                >
+                                  {r.player}
+                                </Link>
+                              ) : (
+                                <span className="text-neutral-900 dark:text-neutral-100">
+                                  {r.player}
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums text-neutral-700 dark:text-neutral-300">
+                              {r.wins}-{r.losses}-{r.draws}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}
@@ -184,36 +237,67 @@ export default async function DeckPage({
   );
 }
 
-function CardBlock({
+/** Results split per event, newest first — the way a deck site reads. */
+function groupByEvent(
+  results: DeckResult[],
+): { key: string; name: string; date: string; rows: DeckResult[] }[] {
+  const out = new Map<
+    string,
+    { key: string; name: string; date: string; rows: DeckResult[] }
+  >();
+
+  for (const r of results) {
+    const date = r.date ? toISODate(r.date) : "—";
+    const name = r.tournamentName ?? r.eventName;
+    const key = `${name}|${date}`;
+
+    if (!out.has(key)) out.set(key, { key, name, date, rows: [] });
+    out.get(key)!.rows.push(r);
+  }
+
+  for (const ev of out.values())
+    ev.rows.sort((a, b) => (a.position ?? 9999) - (b.position ?? 9999));
+
+  return [...out.values()];
+}
+
+function CardList({ cards }: { cards: DeckCard[] }) {
+  return (
+    <ul>
+      {cards.map((c) => (
+        <li key={c.key} className="flex items-center gap-2">
+          <span className="min-w-0 flex-1">
+            <CardLink
+              name={c.name}
+              cardKey={c.key}
+              qty={c.qty}
+              imageNormal={c.imageNormal}
+              resolved={c.resolved}
+            />
+          </span>
+          <ManaCost cost={c.manaCost} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Panel({
   title,
   count,
-  cards,
+  children,
 }: {
   title: string;
   count: number;
-  cards: DeckCard[];
+  children: React.ReactNode;
 }) {
   return (
-    <section className="mb-6 break-inside-avoid rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">
-        {title} ({count})
+    <section className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+      <h2 className="mb-3 flex items-baseline justify-between text-sm font-semibold uppercase tracking-wide text-neutral-950 dark:text-white">
+        <span>{title}</span>
+        <span className="text-neutral-400 dark:text-neutral-500">{count}</span>
       </h2>
-      <ul>
-        {cards.map((c) => (
-          <li key={c.key} className="flex items-center gap-2">
-            <span className="min-w-0 flex-1">
-              <CardLink
-                name={c.name}
-                cardKey={c.key}
-                qty={c.qty}
-                imageNormal={c.imageNormal}
-                resolved={c.resolved}
-              />
-            </span>
-            <ManaCost cost={c.manaCost} />
-          </li>
-        ))}
-      </ul>
+      {children}
     </section>
   );
 }
