@@ -312,9 +312,16 @@ function gruulCore(cards) {
 // Candy Trail, so the centroid can't tell the variants apart — it was calling a
 // Ghostly Flicker deck "altar tron" despite it holding no Ashnod's Altar. The
 // engine card decides:
-//   Ashnod's Altar          -> Altar    (sacrifice/drain engine)
-//   Ghostly Flicker/Ephemerate -> Ephemerate (blink value engine)
-//   neither                 -> Monster  (just big creatures)
+//   Ashnod's Altar             -> Altar   (sacrifice/drain engine)
+//   Ghostly Flicker/Ephemerate -> Flicker (blink value engine)
+//   neither                    -> Monster (just big creatures)
+//
+// Tron labels carry NO colour word. A Tron mana base is Urza lands plus a
+// little fixing, so reading colours off the lands is meaningless, and reading
+// them off the spells is no better: only 6 of 44 decks the crowd called "Temur
+// Monster Tron" play a single blue card, and that card is Blue Elemental Blast
+// out of the sideboard. Every naming attempt was arguing about which wrong
+// colour to use, so the colour is simply dropped.
 function isTron(cards) {
   const slugs = new Set(cards.map((c) => c.slug));
   return (
@@ -325,27 +332,8 @@ function isTron(cards) {
 function tronCore(cards) {
   const slugs = new Set(cards.filter((c) => c.board !== "side").map((c) => c.slug));
   if (slugs.has("ashnodsaltar")) return "altar";
-  if (slugs.has("ghostlyflicker") || slugs.has("ephemerate")) return "ephemerate";
+  if (slugs.has("ghostlyflicker") || slugs.has("ephemerate")) return "flicker";
   return "monster";
-}
-
-/**
- * Swap the variant word in a Tron label, keeping whatever colour word the
- * centroid produced. Tron mana bases are mostly colourless, so our colour read
- * is unreliable for them (see COLOR_CONFIDENCE) and the crowd's colour naming
- * is the better of the two.
- */
-function relabelTron(label, cards) {
-  const variant = tronCore(cards);
-  const l = String(label).trim();
-
-  const withVariant = l.match(/^(.*?)\s+(monster|altar|ephemerate)\s+tron$/i);
-  if (withVariant) return `${withVariant[1]} ${variant} tron`;
-
-  const bare = l.match(/^(.*?)\s*tron$/i);
-  if (bare) return `${bare[1] ? `${bare[1]} ` : ""}${variant} tron`;
-
-  return l;
 }
 
 // Boros (R/W): Tribe (Tireless Tribe combo) vs Synthesizer (Experimental
@@ -461,7 +449,7 @@ export function classifyDeck(cards, typedName, model) {
     // gruul re-split by signature (color detection under-reads dork/ramp decks)
     if (/gruul/i.test(label)) label = `Gruul ${gruulCore(cards)}`;
     // Tron variants are decided by their engine card, not by similarity.
-    else if (isTron(cards)) label = relabelTron(label, cards);
+    else if (isTron(cards)) label = `${tronCore(cards)} tron`;
     // Demote a centroid label asserting a colour the deck cannot produce.
     else label = relabelColor(label, cards, cs);
   }
