@@ -14,11 +14,14 @@ function Bilingual({ en, pt }: { en: string; pt: string }) {
 }
 
 const NAV_ITEMS = [
-  { href: "/", en: "Matchups", pt: "Confrontos" },
+  { href: "/", en: "Decks", pt: "Decks" },
+  // Superseded by the landing page, which shows the same metagame with a
+  // decklist behind every tile. Left routable, out of the nav.
   // { href: "/metagame", en: "Metagame", pt: "Metagame" },
   { href: "/league", en: "Monthly League", pt: "Liga Mensal" },
   { href: "/mpl", en: "MPL", pt: "MPL" },
   { href: "/data", en: "Data", pt: "Dados" },
+  { href: "/matchups", en: "Matchups", pt: "Confrontos" },
   {
     href: "/next-tournaments",
     en: "Next Tournaments",
