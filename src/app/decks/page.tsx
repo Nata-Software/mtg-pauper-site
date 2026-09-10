@@ -87,7 +87,9 @@ export default async function DecksPage({
               href={`/decks/${encodeURIComponent(d.deck)}?range=${range}`}
               className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-950"
             >
-              <div className="relative h-24 w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+              {/* Scryfall's art_crop is roughly 4:3, so match it — a short
+                  letterbox strip cropped most of the art away. */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
                 {d.artUrl ? (
                   <div
                     className="h-full w-full bg-cover bg-center transition group-hover:scale-105"
