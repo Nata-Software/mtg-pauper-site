@@ -122,20 +122,58 @@ function decodeEntities(s: string): string {
     .replace(/&amp;/g, "&"); // last, so "&amp;#39;" doesn't double-decode
 }
 
+const DECKLIST_CARD_RE =
+  /<span class="decklist-record-quantity">(\d+)<\/span>\s*<a class="decklist-record-name" href="\/Card\/View\/([^?"]+)[^"]*">([^<]+)<\/a>/g;
+const DECKLIST_CATEGORY_RE =
+  /<div class="decklist-category-title"[^>]*>([\s\S]*?)<\/div>/g;
+
+/**
+ * Parse a decklist page into cards tagged with the board they were registered
+ * in.
+ *
+ * melee groups the list under category headings — "Creature (11)", "Land (19)",
+ * "Sideboard (15)" — so the board is recovered by finding which heading each
+ * card falls under, by document position. "Sideboard" is the only heading that
+ * means sideboard; everything else (including an occasional generic "Deck") is
+ * maindeck. A list with no Sideboard heading is simply all maindeck.
+ *
+ * Exported for the backfill in scripts/backfill-decklist-boards.mjs.
+ */
+export function parseDecklistHtml(html: string): Card[] {
+  const marks = [...html.matchAll(DECKLIST_CATEGORY_RE)].map((m) => ({
+    title: m[1]
+      .replace(/<[^>]+>/g, "")
+      .replace(/\s*\(\d+\)\s*$/, "") // drop the trailing count
+      .replace(/\s+/g, " ")
+      .trim(),
+    idx: m.index ?? 0,
+  }));
+
+  return [...html.matchAll(DECKLIST_CARD_RE)].map((m) => {
+    const at = m.index ?? 0;
+    let category = "";
+    for (const mk of marks) {
+      if (mk.idx < at) category = mk.title;
+      else break;
+    }
+    return {
+      qty: Number(m[1]),
+      slug: m[2],
+      name: decodeEntities(m[3]),
+      board: /sideboard/i.test(category) ? ("side" as const) : ("main" as const),
+      category,
+    };
+  });
+}
+
 /** Fetch and parse a decklist's cards from its melee page (no auth). */
 async function fetchDecklistCards(guid: string): Promise<Card[]> {
   const res = await fetch(`https://melee.gg/Decklist/View/${guid}`, {
     headers: { "user-agent": UA },
   });
   if (res.status !== 200) return [];
-  const html = await res.text();
-  const re =
-    /<span class="decklist-record-quantity">(\d+)<\/span>\s*<a class="decklist-record-name" href="\/Card\/View\/([^?"]+)[^"]*">([^<]+)<\/a>/g;
-  return [...html.matchAll(re)].map((m) => ({
-    qty: Number(m[1]),
-    slug: m[2],
-    name: decodeEntities(m[3]),
-  }));
+
+  return parseDecklistHtml(await res.text());
 }
 
 function dataTablesColumns(names: string[]): URLSearchParams {
