@@ -2,53 +2,74 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CardLink } from "@/components/CardLink";
+import { ManaCost } from "@/components/ManaCost";
 import {
+  getDeckResults,
   getDecklist,
+  getFeaturedDecklistId,
   groupDeckCards,
   listDecks,
   type DeckCard,
 } from "@/lib/cards/queries";
 import { getLocale } from "@/lib/i18n.server";
-import { toISODate } from "@/lib/dates";
+import { monthsAgoISO, toISODate } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
-/**
- * One archetype's most recent decklist.
- *
- * Hidden while we evaluate it: reachable by URL, deliberately absent from
- * ResponsiveNav (same as /admin/upload). The plan is for this to become the
- * landing page once it's proven.
- */
+type SP = Record<string, string | string[] | undefined>;
+const first = (v: string | string[] | undefined) =>
+  Array.isArray(v) ? v[0] : v;
+
+const RANGES = { "2m": 2, "6m": 6, "12m": 12, all: 600 } as const;
+type RangeKey = keyof typeof RANGES;
+const parseRange = (v: string | undefined): RangeKey =>
+  v && v in RANGES ? (v as RangeKey) : "2m";
+
+/** Minimum match wins for a list to be worth featuring over the newest one. */
+const MIN_WINS = 3;
+
 export default async function DeckPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ deck: string }>;
+  searchParams: Promise<SP>;
 }) {
   const { deck } = await params;
+  const sp = await searchParams;
   const wanted = decodeURIComponent(deck);
   const locale = await getLocale();
   const pt = locale === "pt-BR";
 
-  const decks = await listDecks("default");
-  const row = decks.find(
-    (d) => d.deck.toLowerCase() === wanted.toLowerCase(),
-  );
-  if (!row?.latestDecklistId) notFound();
+  const range = parseRange(first(sp.range));
+  const to = toISODate(new Date());
+  const from = monthsAgoISO(RANGES[range]);
 
-  const list = await getDecklist(row.latestDecklistId);
+  const decks = await listDecks("default", from, to);
+  const row = decks.find((d) => d.deck.toLowerCase() === wanted.toLowerCase());
+  if (!row) notFound();
+
+  const [featured, results] = await Promise.all([
+    getFeaturedDecklistId("default", row.archetype, from, to, MIN_WINS),
+    getDeckResults("default", row.archetype, from, to),
+  ]);
+  if (!featured) notFound();
+
+  const list = await getDecklist(featured.id);
   if (!list) notFound();
 
   const groups = groupDeckCards(list.main);
   const mainTotal = list.main.reduce((n, c) => n + c.qty, 0);
   const sideTotal = list.side.reduce((n, c) => n + c.qty, 0);
   const winPct = row.matches ? (100 * row.wins) / row.matches : 0;
-  const unresolved = [...list.main, ...list.side].filter((c) => !c.resolved).length;
+  const unresolved = [...list.main, ...list.side].filter(
+    (c) => !c.resolved,
+  ).length;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-6xl">
       <Link
-        href="/decks"
+        href={`/decks?range=${range}`}
         className="text-sm text-violet-600 hover:underline dark:text-violet-400"
       >
         ← {pt ? "Todos os decks" : "All decks"}
@@ -58,23 +79,26 @@ export default async function DeckPage({
         {row.deck}
       </h1>
       <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-        {pt ? "Última lista por" : "Latest list by"}{" "}
+        {featured.featured
+          ? pt
+            ? `Lista com ${featured.wins} vitórias, por `
+            : `${featured.wins}-win list by `
+          : pt
+            ? "Lista mais recente por "
+            : "Latest list by "}
         <span className="font-medium text-neutral-700 dark:text-neutral-300">
           {list.player}
         </span>
         {list.date ? ` · ${toISODate(list.date)}` : ""}
         {list.tournamentName ? ` · ${list.tournamentName}` : ""}
-        {list.rawName ? ` · "${list.rawName}"` : ""}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-4 text-sm">
+      <div className="mt-4 flex flex-wrap gap-3 text-sm">
         <Stat label={pt ? "Partidas" : "Matches"} value={row.matches.toLocaleString()} />
         <Stat label={pt ? "Vitórias" : "Win%"} value={`${winPct.toFixed(1)}%`} />
         <Stat label={pt ? "Listas" : "Lists"} value={String(row.decklists)} />
-        <Stat
-          label={pt ? "Principal" : "Maindeck"}
-          value={String(mainTotal)}
-        />
+        <Stat label={pt ? "Pilotos" : "Pilots"} value={String(row.pilots)} />
+        <Stat label={pt ? "Principal" : "Maindeck"} value={String(mainTotal)} />
         <Stat label="Sideboard" value={String(sideTotal)} />
       </div>
 
@@ -106,15 +130,55 @@ export default async function DeckPage({
         </div>
       )}
 
-      {list.tournamentId && (
-        <a
-          href={`https://melee.gg/Decklist/View/${list.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 inline-block text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
-        >
-          {pt ? "Ver no melee.gg" : "View on melee.gg"} ↗
-        </a>
+      <a
+        href={`https://melee.gg/Decklist/View/${list.id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-2 inline-block text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
+      >
+        {pt ? "Ver no melee.gg" : "View on melee.gg"} ↗
+      </a>
+
+      {results.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            {pt ? "Resultados recentes" : "Recent results"}
+          </h2>
+          <div className="mt-2 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
+            <table className="min-w-full text-sm">
+              <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+                <tr>
+                  <th className="px-3 py-2 text-left">{pt ? "Pos." : "Pl"}</th>
+                  <th className="px-3 py-2 text-left">{pt ? "Jogador" : "Player"}</th>
+                  <th className="px-3 py-2 text-left">{pt ? "Evento" : "Event"}</th>
+                  <th className="px-3 py-2 text-right">{pt ? "Data" : "Date"}</th>
+                  <th className="px-3 py-2 text-right">V-D-E</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100 dark:divide-neutral-900">
+                {results.map((r, i) => (
+                  <tr key={`${r.decklistId ?? "x"}-${i}`}>
+                    <td className="px-3 py-2 tabular-nums text-neutral-500 dark:text-neutral-400">
+                      {r.position ?? "—"}
+                    </td>
+                    <td className="px-3 py-2 font-medium text-neutral-900 dark:text-neutral-100">
+                      {r.player}
+                    </td>
+                    <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400">
+                      {r.tournamentName ?? r.eventName}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums text-neutral-500 dark:text-neutral-400">
+                      {r.date ? toISODate(r.date) : "—"}
+                    </td>
+                    <td className="px-3 py-2 text-right tabular-nums text-neutral-700 dark:text-neutral-300">
+                      {r.wins}-{r.losses}-{r.draws}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
     </div>
   );
@@ -136,14 +200,17 @@ function CardBlock({
       </h2>
       <ul>
         {cards.map((c) => (
-          <li key={c.key}>
-            <CardLink
-              name={c.name}
-              cardKey={c.key}
-              qty={c.qty}
-              imageNormal={c.imageNormal}
-              resolved={c.resolved}
-            />
+          <li key={c.key} className="flex items-center gap-2">
+            <span className="min-w-0 flex-1">
+              <CardLink
+                name={c.name}
+                cardKey={c.key}
+                qty={c.qty}
+                imageNormal={c.imageNormal}
+                resolved={c.resolved}
+              />
+            </span>
+            <ManaCost cost={c.manaCost} />
           </li>
         ))}
       </ul>

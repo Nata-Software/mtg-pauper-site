@@ -5,6 +5,7 @@ export function classifyDeck(
   typedName: string,
   model: unknown,
 ): string;
+export const LAND_COLOR: Record<string, string>;
 export function isBasic(slug: string): boolean;
 export function colorSet(cards: Card[]): Set<string>;
 export function colorSources(cards: Card[]): Record<string, number>;
