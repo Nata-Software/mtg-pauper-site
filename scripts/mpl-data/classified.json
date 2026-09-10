@@ -49,6 +49,30 @@
  },
  {
   "ordinal": 7,
+  "player": "Vinícius Borghetti",
+  "source": "Imperium TCG - Vaga 6",
+  "date": "2026-08-06",
+  "standingsRef": "Imperium TCG - Vaga 6",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 8,
+  "player": "Rafael dos Santos",
+  "source": "Imperium TCG - Vaga 7",
+  "date": "2026-09-03",
+  "standingsRef": "Imperium TCG - Vaga 7",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 9,
+  "player": "Filipe Primo",
+  "source": "Imperium TCG - Vaga 8",
+  "date": "2026-09-06",
+  "standingsRef": "Imperium TCG - Vaga 8",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 10,
   "player": "Elvis Machado",
   "source": "Taverna Games - Vaga 1",
   "date": "2026-02-28",
@@ -56,15 +80,15 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 8,
+  "ordinal": 11,
   "player": "Rodolfo",
   "source": "Taverna Games - Vaga 2",
   "date": "2026-03-28",
-  "standingsRef": "",
+  "standingsRef": null,
   "mural": "SIM"
  },
  {
-  "ordinal": 9,
+  "ordinal": 12,
   "player": "Rodrigo Oboli",
   "source": "Coliseu - Vaga 1",
   "date": "2026-03-17",
@@ -72,7 +96,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 10,
+  "ordinal": 13,
   "player": "João Camata",
   "source": "Magic Invest - Vaga 1",
   "date": "2026-07-01",
@@ -80,7 +104,15 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 11,
+  "ordinal": 14,
+  "player": "Igor Santarosa",
+  "source": "Gold House - Vaga 1",
+  "date": "2026-08-29",
+  "standingsRef": "Gold House - Vaga 1",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 15,
   "player": "Francisco Pontin",
   "source": "Ranking Paralelo Fevereiro Mont - Terça",
   "date": "2026-02-24",
@@ -88,7 +120,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 12,
+  "ordinal": 16,
   "player": "Rafael Franco",
   "source": "Ranking Paralelo Março Mont - Terça",
   "date": "2026-03-31",
@@ -96,7 +128,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 13,
+  "ordinal": 17,
   "player": "Yutha",
   "source": "Ranking Paralelo Abril Mont - Terça",
   "date": "2026-04-14",
@@ -104,7 +136,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 14,
+  "ordinal": 18,
   "player": "Tim",
   "source": "Ranking Paralelo Maio Mont - Terça",
   "date": "2026-05-26",
@@ -112,7 +144,7 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 15,
+  "ordinal": 19,
   "player": "Shira",
   "source": "Ranking Paralelo Junho Mont - Terça",
   "date": "2026-06-30",
@@ -120,7 +152,23 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 16,
+  "ordinal": 20,
+  "player": "Matheus Oliveira",
+  "source": "Ranking Paralelo Julho Mont - Terça",
+  "date": "2026-07-28",
+  "standingsRef": "Ranking Paralelo Julho Mont - Terça",
+  "mural": null
+ },
+ {
+  "ordinal": 21,
+  "player": "Stefano",
+  "source": "Ranking Paralelo Agosto Mont - Terça",
+  "date": "2026-08-25",
+  "standingsRef": "Ranking Paralelo Agosto Mont - Terça",
+  "mural": null
+ },
+ {
+  "ordinal": 22,
   "player": "Tiago Gutiérrez",
   "source": "Ranking Paralelo Fevereiro Mont - Sexta",
   "date": "2026-02-27",
@@ -128,7 +176,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 17,
+  "ordinal": 23,
   "player": "Lucas Kendi",
   "source": "Ranking Paralelo Março Mont - Sexta",
   "date": "2026-03-27",
@@ -136,7 +184,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 18,
+  "ordinal": 24,
   "player": "Buzon",
   "source": "Ranking Paralelo Abril Mont - Sexta",
   "date": "2026-04-24",
@@ -144,7 +192,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 19,
+  "ordinal": 25,
   "player": "Boleto",
   "source": "Ranking Paralelo Maio Mont - Sexta",
   "date": "2026-05-29",
@@ -152,7 +200,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 20,
+  "ordinal": 26,
   "player": "Maurício Júnior",
   "source": "Ranking Paralelo Maio Mont - Sexta",
   "date": "2026-05-29",
@@ -160,7 +208,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 21,
+  "ordinal": 27,
   "player": "Gustavo Sousa",
   "source": "Ranking Paralelo Junho Mont - Sexta",
   "date": "2026-06-26",
@@ -168,7 +216,23 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 22,
+  "ordinal": 28,
+  "player": "Vinícius Sordi",
+  "source": "Ranking Paralelo Julho Mont - Sexta",
+  "date": "2026-07-31",
+  "standingsRef": "Ranking Paralelo Julho Mont - Sexta",
+  "mural": null
+ },
+ {
+  "ordinal": 29,
+  "player": "Paulo Darbello",
+  "source": "Ranking Paralelo Agosto Mont - Sexta",
+  "date": "2026-08-28",
+  "standingsRef": "Ranking Paralelo Agosto Mont - Sexta",
+  "mural": null
+ },
+ {
+  "ordinal": 30,
   "player": "José Guilherme de Almeida Ramos",
   "source": "1º Open MPL - Mont",
   "date": "2026-02-28",
@@ -176,7 +240,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 23,
+  "ordinal": 31,
   "player": "Guilherme Machado",
   "source": "1º Open MPL - Mont",
   "date": "2026-02-28",
@@ -184,7 +248,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 24,
+  "ordinal": 32,
   "player": "Felipe Barreto",
   "source": "2º Open MPL - Mont",
   "date": "2026-03-28",
@@ -192,7 +256,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 25,
+  "ordinal": 33,
   "player": "Marcelo Miziara",
   "source": "2º Open MPL - Mont",
   "date": "2026-03-28",
@@ -200,7 +264,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 26,
+  "ordinal": 34,
   "player": "Guilherme Gomes",
   "source": "3º Open MPL - Trios - Mont",
   "date": "2026-04-25",
@@ -208,7 +272,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 27,
+  "ordinal": 35,
   "player": "Lucciano",
   "source": "3º Open MPL - Trios - Mont",
   "date": "2026-04-25",
@@ -216,7 +280,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 28,
+  "ordinal": 36,
   "player": "Gabriel Pinheiro",
   "source": "3º Open MPL - Trios - Mont",
   "date": "2026-04-25",
@@ -224,7 +288,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 29,
+  "ordinal": 37,
   "player": "Bruno Nogueira",
   "source": "5º Open MPL - Mont",
   "date": "2026-06-20",
@@ -232,7 +296,7 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 30,
+  "ordinal": 38,
   "player": "Thyago de Carvalho Reis",
   "source": "5º Open MPL - Mont",
   "date": "2026-06-20",
@@ -240,7 +304,7 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 31,
+  "ordinal": 39,
   "player": "Eduardo Goethe",
   "source": "6º Open MPL - Mont",
   "date": "2026-07-25",
@@ -248,7 +312,7 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 32,
+  "ordinal": 40,
   "player": "Bruno do Carmo",
   "source": "6º Open MPL - Mont",
   "date": "2026-07-25",
@@ -256,7 +320,23 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 33,
+  "ordinal": 41,
+  "player": "Felipe Darbello",
+  "source": "7º Open MPL - Mont",
+  "date": "2026-08-29",
+  "standingsRef": "Standings 7º Open MPL",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 42,
+  "player": "Vinícius Panaroni",
+  "source": "7º Open MPL - Mont",
+  "date": "2026-08-29",
+  "standingsRef": "Standings 7º Open MPL",
+  "mural": "Pedido"
+ },
+ {
+  "ordinal": 43,
   "player": "Lucas Dantas Simoes",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -264,7 +344,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 34,
+  "ordinal": 44,
   "player": "Erick Esteves Jones",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -272,7 +352,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 35,
+  "ordinal": 45,
   "player": "Diego Carvalho",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -280,7 +360,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 36,
+  "ordinal": 46,
   "player": "Alessandro Queiroz",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -288,7 +368,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 37,
+  "ordinal": 47,
   "player": "PEDRO JUNIOR",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -296,7 +376,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 38,
+  "ordinal": 48,
   "player": "Eric Goldszmidt Gerevini",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -304,7 +384,7 @@
   "mural": "Pedido"
  },
  {
-  "ordinal": 39,
+  "ordinal": 49,
   "player": "Victor Hugo",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -312,7 +392,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 40,
+  "ordinal": 50,
   "player": "Valter Alexsandro",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -320,7 +400,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 41,
+  "ordinal": 51,
   "player": "Robson luiz manoel",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
@@ -328,7 +408,7 @@
   "mural": "SIM"
  },
  {
-  "ordinal": 42,
+  "ordinal": 52,
   "player": "Daniel Jung",
   "source": "Super Pauper 35k - Mont",
   "date": "2026-05-23",
