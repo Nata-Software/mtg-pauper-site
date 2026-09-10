@@ -1,0 +1,18 @@
+{
+  "_comment": "Card names Scryfall cannot resolve, mapped to their English name. Keyed by the normalized cardKey() form (lowercase, accents and punctuation stripped). Most are Portuguese registrations typed without accents — Scryfall's name search is accent-sensitive, so 'Po ao Po' misses while 'Pó ao Pó' hits. A few are misspellings. Add a row when scripts/sync-cards.mjs reports an unresolved name, then re-run it.",
+
+  "beiramar idilica": "Idyllic Beachfront",
+  "bruxuleio fantasmagorico": "Ghostly Flicker",
+  "lodacal mortuario": "Mortuary Mire",
+  "negar": "Negate",
+  "vendaval glorioso": "Glorious Gale",
+  "explosao elemental do azul": "Blue Elemental Blast",
+  "po ao po": "Dust to Dust",
+  "amuleto de thraben": "Thraben Charm",
+  "sentinela leal": "Loyal Sentry",
+  "dignitario cornodepedra": "Stonehorn Dignitary",
+  "explosao hidrica": "Hydroblast",
+
+  "clockwork percusionist": "Clockwork Percussionist",
+  "thormods crypt": "Tormod's Crypt"
+}
