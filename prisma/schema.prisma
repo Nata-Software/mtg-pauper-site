@@ -55,6 +55,44 @@ model Decklist {
   @@index([tournamentId])
 }
 
+// A Magic card, resolved against Scryfall and cached locally.
+//
+// Keyed by `key` — the *normalized* form of the name as it appears in our
+// decklists — because that is what a decklist row gives us to look up. Players
+// register lists with set prefixes ("[LRW] Spellstutter Sprite"), double-faced
+// names ("Lunarch Veteran // Luminous Phantom") and, at this store, Portuguese
+// names ("Chancelaria Azorius"), so the raw name is not a reliable key; see
+// src/lib/cards/resolve.ts.
+//
+// Cached rather than fetched per render: a hover preview has to be instant, and
+// Scryfall asks apps to cache rather than re-fetch. Only URLs are stored, never
+// image bytes — the images stay on Scryfall's CDN.
+model Card {
+  key          String   @id // normalized lookup key
+  name         String // canonical Scryfall name
+  scryfallId   String?
+  oracleId     String?
+  typeLine     String? // "Creature — Vampire" — also how a decklist is grouped
+  manaCost     String?
+  cmc          Float?
+  colors       String? // "R", "UB", "" for colorless
+  rarity       String?
+  setCode      String?
+  oracleText   String?
+  power        String?
+  toughness    String?
+  imageSmall   String?
+  imageNormal  String?
+  imageArtCrop String?
+  scryfallUri  String?
+  /// False when Scryfall had no match — recorded so we don't retry it on every
+  /// import, and so unresolved names are reportable instead of silently absent.
+  resolved     Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+
+  @@index([name])
+}
+
 // Fixed-window rate limiting for admin endpoints, keyed by "action:ip".
 // DB-backed so it holds across serverless instances (in-memory would not).
 model RateLimit {
