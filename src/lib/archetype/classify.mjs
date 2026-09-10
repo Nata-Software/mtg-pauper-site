@@ -308,6 +308,19 @@ function gruulCore(cards) {
   return "Aggro";
 }
 
+// Cat Food: Cauldron Familiar recurred with Golden Egg (plus Ashnod's Altar and
+// Myr Retriever) to drain the opponent out. The centroid filed these as "altar
+// tron" — they hold Ashnod's Altar but not a single Urza land, so they are not
+// Tron at all.
+//
+// Cauldron Familiar on its own is NOT the signal: 21 of the 33 decks that play
+// it are Golgari Gardens / Pestilence decks running it as a value creature.
+// Pairing it with Golden Egg is what identifies the combo.
+function isCatFood(cards) {
+  const slugs = new Set(cards.filter((c) => c.board !== "side").map((c) => c.slug));
+  return slugs.has("cauldronfamiliar") && slugs.has("goldenegg");
+}
+
 // Tron: every build runs the same twelve Urza lands plus Expedition Map and
 // Candy Trail, so the centroid can't tell the variants apart — it was calling a
 // Ghostly Flicker deck "altar tron" despite it holding no Ashnod's Altar. The
@@ -449,6 +462,7 @@ export function classifyDeck(cards, typedName, model) {
     // gruul re-split by signature (color detection under-reads dork/ramp decks)
     if (/gruul/i.test(label)) label = `Gruul ${gruulCore(cards)}`;
     // Tron variants are decided by their engine card, not by similarity.
+    else if (isCatFood(cards)) label = "cat food combo";
     else if (isTron(cards)) label = `${tronCore(cards)} tron`;
     // Demote a centroid label asserting a colour the deck cannot produce.
     else label = relabelColor(label, cards, cs);
