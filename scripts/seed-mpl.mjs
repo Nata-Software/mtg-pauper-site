@@ -1,14 +1,27 @@
 /**
- * Seed the MPL tables (MplStage / MplResult / MplSpot) for one season.
+ * Seed the MPL classified-players list (MplSpot) for one season.
  *
  *   node scripts/seed-mpl.mjs            # uses DATABASE_URL from .env
  *   DATABASE_URL="$PROD" node scripts/seed-mpl.mjs
  *
- * Idempotent: replaces the season's rows only. Touches no other tables, so it
+ * STAGES ARE NOT TOUCHED. They used to be rebuilt here from opens.json, which
+ * became actively destructive once /admin/upload could import an Open: a reseed
+ * deleted the 7th Open entirely and reverted every stage date to the
+ * midnight-UTC values that land a day early. Stages and results now belong to
+ * the admin import alone; this script owns only the spots. Pass --stages to get
+ * the old behaviour, which is only correct if opens.json is genuinely ahead of
+ * the database.
+ *
+ * Idempotent: replaces the season's spots only. Touches no other tables, so it
  * is safe against prod. Inputs come from scripts/mpl-data/ (opens.json is the
  * melee scrape from scripts/mpl-scrape.mjs; classified.json is the store's
  * "classified players" sheet; aliases.json bridges a sheet row to its Opens
  * `username` where a handle could be confidently matched).
+ *
+ * aliases.json is keyed by PLAYER NAME, not by sheet row number. It used to be
+ * keyed by ordinal, which silently broke the moment the sheet grew: adding ten
+ * spots mid-list shifted every later row, and 29 of the 30 bridges would have
+ * pointed at the wrong player.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -17,13 +30,14 @@ import pg from "pg";
 import "dotenv/config";
 
 const SEASON = 2026;
+const WITH_STAGES = process.argv.includes("--stages");
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const DATA = path.join(DIR, "mpl-data");
 const load = (f) => JSON.parse(fs.readFileSync(path.join(DATA, f), "utf8"));
 
 const opens = load("opens.json");
 const classified = load("classified.json");
-const aliases = load("aliases.json"); // { "<ordinal>": "<username>" }
+const aliases = load("aliases.json"); // { "<player name>": "<melee username>" }
 
 const norm = (s) => String(s ?? "").trim().toLowerCase();
 
@@ -58,12 +72,14 @@ if (hadRows) {
 
 await client.query("BEGIN");
 try {
-  // Clear this season (MplResult cascades from MplStage).
-  await client.query(`DELETE FROM "MplStage" WHERE "season" = $1`, [SEASON]);
+  if (WITH_STAGES) {
+    // MplResult cascades from MplStage.
+    await client.query(`DELETE FROM "MplStage" WHERE "season" = $1`, [SEASON]);
+  }
   await client.query(`DELETE FROM "MplSpot" WHERE "season" = $1`, [SEASON]);
 
   let nStages = 0, nResults = 0;
-  for (const o of opens) {
+  for (const o of WITH_STAGES ? opens : []) {
     const countsForRanking = o.format !== "trios";
     const { rows } = await client.query(
       `INSERT INTO "MplStage"
@@ -112,7 +128,7 @@ try {
         SEASON,
         c.ordinal,
         c.player,
-        aliases[String(c.ordinal)] ?? null,
+        aliases[c.player] ?? null,
         c.source,
         sourceType,
         store,
@@ -125,7 +141,11 @@ try {
   }
 
   await client.query("COMMIT");
-  console.log(`seeded season ${SEASON}: ${nStages} stages, ${nResults} results, ${nSpots} spots (${Object.keys(aliases).length} classified↔Opens bridges)`);
+  console.log(
+    WITH_STAGES
+      ? `seeded season ${SEASON}: ${nStages} stages, ${nResults} results, ${nSpots} spots (${Object.keys(aliases).length} bridges)`
+      : `seeded season ${SEASON}: ${nSpots} spots (${Object.keys(aliases).length} bridges). Stages left alone — import those via /admin/upload.`,
+  );
 } catch (e) {
   await client.query("ROLLBACK");
   throw e;
