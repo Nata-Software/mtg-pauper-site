@@ -398,11 +398,57 @@ export async function scrapeTournament(input: string): Promise<ScrapeResult> {
   // Standings from the last round.
   const standings = await fetchStandings(roundIds[roundIds.length - 1]);
 
-  // Fetch + classify every unique decklist referenced by the matches.
+  // A player plays one deck per tournament, but melee doesn't always attach it
+  // to every match record — for one event it carried a decklist on 107 of 123
+  // competitor entries. Left alone, the same player shows their deck in some
+  // rounds and "Unknown Deck" in others, and any per-tournament view can pick
+  // the empty one. Standings often carry a decklist the match rows lack, so
+  // both sources feed the lookup.
+  const deckByPlayer = new Map<string, { deck: string; decklistId: string }>();
+
+  const remember = (player: string, deck: string, decklistId: string | null) => {
+    if (!player || !decklistId || deckByPlayer.has(player)) return;
+    deckByPlayer.set(player, { deck, decklistId });
+  };
+
+  for (const m of matches) remember(m.player, m.deck, m.decklistId);
+  for (const s of standings) remember(s.nickname, s.deck, s.decklistId);
+
+  for (const m of matches) {
+    if (!m.decklistId) {
+      const known = deckByPlayer.get(m.player);
+      if (known) {
+        m.deck = known.deck;
+        m.decklistId = known.decklistId;
+      }
+    }
+    if (!m.opponentDecklistId) {
+      const known = deckByPlayer.get(m.opponent);
+      if (known) {
+        m.opponentDeck = known.deck;
+        m.opponentDecklistId = known.decklistId;
+      }
+    }
+  }
+  for (const s of standings) {
+    if (s.decklistId) continue;
+    const known = deckByPlayer.get(s.nickname);
+    if (known) {
+      s.deck = known.deck;
+      s.decklistId = known.decklistId;
+    }
+  }
+
+  // Fetch + classify every unique decklist referenced by the matches or the
+  // standings — a decklist can appear in one and not the other.
   const idToPlayer = new Map<string, { player: string; rawName: string }>();
   for (const m of matches) {
     if (m.decklistId && !idToPlayer.has(m.decklistId))
       idToPlayer.set(m.decklistId, { player: m.player, rawName: m.deck });
+  }
+  for (const s of standings) {
+    if (s.decklistId && !idToPlayer.has(s.decklistId))
+      idToPlayer.set(s.decklistId, { player: s.nickname, rawName: s.deck });
   }
   const ids = [...idToPlayer.keys()];
 
