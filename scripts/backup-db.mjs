@@ -23,6 +23,7 @@ const TABLES = [
   "Match",
   "Standing",
   "Decklist",
+  "Card",
   "MplStage",
   "MplResult",
   "MplSpot",
