@@ -6,6 +6,7 @@ import { TournamentDataTab } from "@/components/TournamentDataTab";
 import { toISODate } from "@/lib/dates";
 import { getLocale } from "@/lib/i18n.server";
 import type { Locale } from "@/lib/i18n";
+import { meleeDecklistUrl, meleeTournamentUrl } from "@/lib/links";
 import {
   getAllPlayersData,
   getSinglePlayerData,
@@ -88,6 +89,10 @@ function copy(locale: Locale) {
       finish: "Colocação",
       lowSample: "Amostra baixa",
       noData: "Nenhum dado encontrado.",
+      tournamentUnavailable:
+        "Link indisponível: este torneio não possui um ID importado.",
+      deckUnavailable:
+        "Link indisponível: este deck não possui uma lista importada.",
     };
   }
 
@@ -129,6 +134,9 @@ function copy(locale: Locale) {
     finish: "Finish",
     lowSample: "Low Sample",
     noData: "No data found.",
+    tournamentUnavailable:
+      "Link unavailable: this tournament has no imported ID.",
+    deckUnavailable: "Link unavailable: this deck has no imported decklist.",
   };
 }
 
@@ -142,7 +150,7 @@ function wld(row: { wins: number; losses: number; draws: number }): string {
   return `${row.wins}-${row.losses}-${row.draws}`;
 }
 
-function card(label: string, value: string | number) {
+function card(label: string, value: React.ReactNode) {
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/80">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -585,7 +593,25 @@ async function SinglePlayerSection({
           {card(c.tournamentsWon, data.tournamentsWon)}
           {card(c.uniqueOpponents, data.uniqueOpponents)}
           {card(c.uniqueArchetypes, data.uniqueArchetypesPlayed)}
-          {card(c.bestDeck, data.bestDeck ? prettyDeck(data.bestDeck) : "—")}
+          {card(
+            c.bestDeck,
+            data.bestDeck ? (
+              data.bestDeckHref ? (
+                <Link
+                  href={data.bestDeckHref}
+                  className="text-violet-600 hover:underline dark:text-violet-400"
+                >
+                  {prettyDeck(data.bestDeck)}
+                </Link>
+              ) : (
+                <span className="cursor-help" title={c.deckUnavailable}>
+                  {prettyDeck(data.bestDeck)}
+                </span>
+              )
+            ) : (
+              "—"
+            ),
+          )}
         </div>
       </div>
 
@@ -611,20 +637,18 @@ async function SinglePlayerSection({
               {data.decks.map((row) => (
                 <tr key={row.deck}>
                   <td className="px-4 py-3 font-semibold">
-                    <Link
-                      href={href({
-                        view: "single-player",
-                        store,
-                        event,
-                        from,
-                        to,
-                        player,
-                        focus: row.deck,
-                      })}
-                      className="text-violet-600 hover:underline dark:text-violet-400"
-                    >
-                      {prettyDeck(row.deck)}
-                    </Link>
+                    {row.deckHref ? (
+                      <Link
+                        href={row.deckHref}
+                        className="text-violet-600 hover:underline dark:text-violet-400"
+                      >
+                        {prettyDeck(row.deck)}
+                      </Link>
+                    ) : (
+                      <span className="cursor-help" title={c.deckUnavailable}>
+                        {prettyDeck(row.deck)}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {row.matches.toLocaleString()}
@@ -692,16 +716,46 @@ async function SinglePlayerSection({
             </thead>
 
             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-              {data.tournamentHistory.map((row) => (
+              {data.tournamentHistory.map((row) => {
+                const tournamentUrl = meleeTournamentUrl(row.tournamentId);
+                const decklistUrl = meleeDecklistUrl(row.decklistId);
+
+                return (
                 <tr key={row.tournamentKey}>
                   <td className="h-12 px-4 py-0 text-sm text-neutral-600 dark:text-neutral-300">
                     {row.date || "—"}
                   </td>
                   <td className="h-12 px-4 py-0 text-sm font-semibold text-neutral-950 dark:text-white">
-                    {row.tournamentName}
+                    {tournamentUrl ? (
+                      <a
+                        href={tournamentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-violet-600 hover:underline dark:text-violet-400"
+                      >
+                        {row.tournamentName} ↗
+                      </a>
+                    ) : (
+                      <span className="cursor-help" title={c.tournamentUnavailable}>
+                        {row.tournamentName}
+                      </span>
+                    )}
                   </td>
                   <td className="h-12 px-4 py-0 text-sm text-neutral-600 dark:text-neutral-300">
-                    {prettyDeck(row.deck)}
+                    {decklistUrl ? (
+                      <a
+                        href={decklistUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-violet-600 hover:underline dark:text-violet-400"
+                      >
+                        {prettyDeck(row.deck)} ↗
+                      </a>
+                    ) : (
+                      <span className="cursor-help" title={c.deckUnavailable}>
+                        {prettyDeck(row.deck)}
+                      </span>
+                    )}
                   </td>
                   <td className="h-12 px-4 py-0 text-right text-sm text-neutral-600 dark:text-neutral-300">
                     {row.position ? `#${row.position}` : "—"}
@@ -716,7 +770,8 @@ async function SinglePlayerSection({
                     {pct(row.winPct)}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

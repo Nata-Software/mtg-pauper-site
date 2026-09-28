@@ -14,6 +14,7 @@ import {
 } from "@/lib/cards/queries";
 import { getLocale } from "@/lib/i18n.server";
 import { monthsAgoISO, toISODate } from "@/lib/dates";
+import { meleeTournamentUrl } from "@/lib/links";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,11 @@ export default async function DeckPage({
   const events = groupByEvent(results);
   const hrefFor = (listId: string | null) =>
     `/decks/${encodeURIComponent(row.deck)}?range=${range}${listId ? `&list=${listId}` : ""}`;
+  const currentDeckHref = hrefFor(list.id);
+  const tournamentUnavailable = pt
+    ? "Link indisponível: este torneio não possui um ID importado."
+    : "Link unavailable: this tournament has no imported ID.";
+  const featuredTournamentUrl = meleeTournamentUrl(list.tournamentId);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -105,7 +111,25 @@ export default async function DeckPage({
           {list.player}
         </span>
         {list.date ? ` · ${toISODate(list.date)}` : ""}
-        {list.tournamentName ? ` · ${list.tournamentName}` : ""}
+        {list.tournamentName && (
+          <>
+            {" · "}
+            {featuredTournamentUrl ? (
+              <a
+                href={featuredTournamentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-violet-600 hover:underline dark:text-violet-400"
+              >
+                {list.tournamentName} ↗
+              </a>
+            ) : (
+              <span className="cursor-help" title={tournamentUnavailable}>
+                {list.tournamentName}
+              </span>
+            )}
+          </>
+        )}
         {picked && (
           <>
             {" · "}
@@ -143,7 +167,7 @@ export default async function DeckPage({
                 <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">
                   {group} ({cards.reduce((n, c) => n + c.qty, 0)})
                 </h3>
-                <CardList cards={cards} />
+                <CardList cards={cards} returnHref={currentDeckHref} />
               </div>
             ))}
           </div>
@@ -151,7 +175,7 @@ export default async function DeckPage({
 
         {list.side.length > 0 && (
           <Panel title="Sideboard" count={sideTotal}>
-            <CardList cards={list.side} />
+            <CardList cards={list.side} returnHref={currentDeckHref} />
           </Panel>
         )}
       </div>
@@ -175,7 +199,20 @@ export default async function DeckPage({
             {events.map((ev) => (
               <div key={ev.key}>
                 <h3 className="text-sm font-medium text-violet-700 dark:text-violet-400">
-                  {ev.name}
+                  {meleeTournamentUrl(ev.tournamentId) ? (
+                    <a
+                      href={meleeTournamentUrl(ev.tournamentId)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {ev.name} ↗
+                    </a>
+                  ) : (
+                    <span className="cursor-help" title={tournamentUnavailable}>
+                      {ev.name}
+                    </span>
+                  )}
                   <span className="ml-2 text-xs font-normal text-neutral-500 dark:text-neutral-400">
                     {ev.date}
                   </span>
@@ -240,18 +277,38 @@ export default async function DeckPage({
 /** Results split per event, newest first — the way a deck site reads. */
 function groupByEvent(
   results: DeckResult[],
-): { key: string; name: string; date: string; rows: DeckResult[] }[] {
+): {
+  key: string;
+  tournamentId: string | null;
+  name: string;
+  date: string;
+  rows: DeckResult[];
+}[] {
   const out = new Map<
     string,
-    { key: string; name: string; date: string; rows: DeckResult[] }
+    {
+      key: string;
+      tournamentId: string | null;
+      name: string;
+      date: string;
+      rows: DeckResult[];
+    }
   >();
 
   for (const r of results) {
     const date = r.date ? toISODate(r.date) : "—";
     const name = r.tournamentName ?? r.eventName;
-    const key = `${name}|${date}`;
+    const key = r.tournamentId ? `id:${r.tournamentId}` : `${name}|${date}`;
 
-    if (!out.has(key)) out.set(key, { key, name, date, rows: [] });
+    if (!out.has(key)) {
+      out.set(key, {
+        key,
+        tournamentId: r.tournamentId,
+        name,
+        date,
+        rows: [],
+      });
+    }
     out.get(key)!.rows.push(r);
   }
 
@@ -261,7 +318,13 @@ function groupByEvent(
   return [...out.values()];
 }
 
-function CardList({ cards }: { cards: DeckCard[] }) {
+function CardList({
+  cards,
+  returnHref,
+}: {
+  cards: DeckCard[];
+  returnHref: string;
+}) {
   return (
     <ul>
       {cards.map((c) => (
@@ -273,6 +336,7 @@ function CardList({ cards }: { cards: DeckCard[] }) {
               qty={c.qty}
               imageNormal={c.imageNormal}
               resolved={c.resolved}
+              returnHref={returnHref}
             />
           </span>
           <ManaCost cost={c.manaCost} />

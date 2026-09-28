@@ -9,6 +9,7 @@ import type {
 } from "@/lib/queries";
 import { prettyDeck } from "@/lib/stats";
 import type { Locale } from "@/lib/i18n";
+import { meleeTournamentUrl } from "@/lib/links";
 
 type Copy = ReturnType<typeof copy>;
 
@@ -45,6 +46,8 @@ function copy(locale: Locale) {
       apply: "Aplicar",
       reset: "Limpar",
       none: "—",
+      tournamentUnavailable:
+        "Link indisponível: este torneio não possui um ID importado.",
     };
   }
 
@@ -79,6 +82,8 @@ function copy(locale: Locale) {
     apply: "Apply",
     reset: "Reset",
     none: "—",
+    tournamentUnavailable:
+      "Link unavailable: this tournament has no imported ID.",
   };
 }
 
@@ -129,9 +134,11 @@ function biggestTournamentCard({
   playersLabel,
   winnerLabel,
   none,
+  unavailable,
 }: {
   label: string;
   tournament: {
+    tournamentId: string | null;
     tournamentName: string;
     date: string;
     player: string;
@@ -140,7 +147,10 @@ function biggestTournamentCard({
   playersLabel: string;
   winnerLabel: string;
   none: string;
+  unavailable: string;
 }) {
+  const tournamentUrl = meleeTournamentUrl(tournament?.tournamentId);
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -150,7 +160,20 @@ function biggestTournamentCard({
       {tournament ? (
         <div className="mt-2 space-y-1">
           <div className="text-lg font-bold leading-snug text-neutral-950 dark:text-white">
-            {tournament.tournamentName}
+            {tournamentUrl ? (
+              <a
+                href={tournamentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-violet-600 hover:underline dark:text-violet-400"
+              >
+                {tournament.tournamentName} ↗
+              </a>
+            ) : (
+              <span className="cursor-help" title={unavailable}>
+                {tournament.tournamentName}
+              </span>
+            )}
           </div>
           <div className="text-sm text-neutral-500 dark:text-neutral-400">
             {winnerLabel}: {tournament.player}
@@ -377,6 +400,7 @@ export function DeckDrilldown({
               playersLabel: c.players,
               winnerLabel: c.winner,
               none: c.none,
+              unavailable: c.tournamentUnavailable,
             })}
 
             {bestPilotCard({ row: data.bestPilot, c })}
