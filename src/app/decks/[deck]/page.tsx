@@ -14,7 +14,7 @@ import {
 } from "@/lib/cards/queries";
 import { getLocale } from "@/lib/i18n.server";
 import { monthsAgoISO, toISODate } from "@/lib/dates";
-import { meleeTournamentUrl } from "@/lib/links";
+import { meleeDecklistUrl, meleeTournamentUrl } from "@/lib/links";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +82,7 @@ export default async function DeckPage({
     ? "Link indisponível: este torneio não possui um ID importado."
     : "Link unavailable: this tournament has no imported ID.";
   const featuredTournamentUrl = meleeTournamentUrl(list.tournamentId);
+  const originalDecklistUrl = meleeDecklistUrl(list.id);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -180,14 +181,16 @@ export default async function DeckPage({
         )}
       </div>
 
-      <a
-        href={`https://melee.gg/Decklist/View/${list.id}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-3 inline-block text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
-      >
-        {pt ? "Ver no melee.gg" : "View on melee.gg"} ↗
-      </a>
+      {originalDecklistUrl && (
+        <a
+          href={originalDecklistUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-block text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
+        >
+          {pt ? "Ver lista original no melee.gg" : "View original decklist on melee.gg"} ↗
+        </a>
+      )}
 
       {events.length > 0 && (
         <section className="mt-10">

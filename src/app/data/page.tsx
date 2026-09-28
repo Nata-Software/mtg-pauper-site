@@ -6,7 +6,7 @@ import { TournamentDataTab } from "@/components/TournamentDataTab";
 import { toISODate } from "@/lib/dates";
 import { getLocale } from "@/lib/i18n.server";
 import type { Locale } from "@/lib/i18n";
-import { meleeDecklistUrl, meleeTournamentUrl } from "@/lib/links";
+import { meleeTournamentUrl } from "@/lib/links";
 import {
   getAllPlayersData,
   getSinglePlayerData,
@@ -718,7 +718,6 @@ async function SinglePlayerSection({
             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
               {data.tournamentHistory.map((row) => {
                 const tournamentUrl = meleeTournamentUrl(row.tournamentId);
-                const decklistUrl = meleeDecklistUrl(row.decklistId);
 
                 return (
                 <tr key={row.tournamentKey}>
@@ -742,15 +741,13 @@ async function SinglePlayerSection({
                     )}
                   </td>
                   <td className="h-12 px-4 py-0 text-sm text-neutral-600 dark:text-neutral-300">
-                    {decklistUrl ? (
-                      <a
-                        href={decklistUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    {row.deckHref ? (
+                      <Link
+                        href={row.deckHref}
                         className="text-violet-600 hover:underline dark:text-violet-400"
                       >
-                        {prettyDeck(row.deck)} ↗
-                      </a>
+                        {prettyDeck(row.deck)}
+                      </Link>
                     ) : (
                       <span className="cursor-help" title={c.deckUnavailable}>
                         {prettyDeck(row.deck)}
