@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { prettyDeck } from "@/lib/stats";
 import type { TournamentData } from "@/lib/queries";
 import type { Locale } from "@/lib/i18n";
+import { meleeDecklistUrl, meleeTournamentUrl } from "@/lib/links";
 
 type Props = {
   data: TournamentData;
@@ -33,6 +36,12 @@ function copy(locale: Locale) {
       archetype: "Arquétipo",
       playerCount: "Nº de Jogadores",
       wins: "Vitórias",
+      tournamentUnavailable:
+        "Link indisponível: este torneio não possui um ID importado.",
+      deckUnavailable:
+        "Link indisponível: este deck não possui uma lista importada.",
+      playerUnavailable:
+        "Link indisponível: não há partidas importadas para este jogador.",
     };
   }
 
@@ -59,6 +68,11 @@ function copy(locale: Locale) {
     archetype: "Archetype",
     playerCount: "# of Players",
     wins: "Wins",
+    tournamentUnavailable:
+      "Link unavailable: this tournament has no imported ID.",
+    deckUnavailable: "Link unavailable: this deck has no imported decklist.",
+    playerUnavailable:
+      "Link unavailable: this player has no imported matches.",
   };
 }
 
@@ -140,21 +154,56 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                {data.tournamentWins.map((row) => (
-                  <tr key={row.tournamentKey}>
-                    <td className={tableBodyCellStrong}>
-                      {row.tournamentName}
-                    </td>
-                    <td className={tableBodyCell}>{row.date || "—"}</td>
-                    <td className={tableBodyCell}>{row.player}</td>
-                    <td className={tableBodyCell}>
-                      {row.archetype ? prettyDeck(row.archetype) : "—"}
-                    </td>
-                    <td className={`${tableBodyCell} text-right`}>
-                      {row.playerCount.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
+                {data.tournamentWins.map((row) => {
+                  const tournamentUrl = meleeTournamentUrl(row.tournamentId);
+                  const decklistUrl = meleeDecklistUrl(row.decklistId);
+
+                  return (
+                    <tr key={row.tournamentKey}>
+                      <td className={tableBodyCellStrong}>
+                        {tournamentUrl ? (
+                          <a
+                            href={tournamentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-violet-600 hover:underline dark:text-violet-400"
+                          >
+                            {row.tournamentName} ↗
+                          </a>
+                        ) : (
+                          <span className="cursor-help" title={c.tournamentUnavailable}>
+                            {row.tournamentName}
+                          </span>
+                        )}
+                      </td>
+                      <td className={tableBodyCell}>{row.date || "—"}</td>
+                      <td className={tableBodyCell}>{row.player}</td>
+                      <td className={tableBodyCell}>
+                        {row.archetype ? (
+                          decklistUrl ? (
+                            <a
+                              href={decklistUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-violet-600 hover:underline dark:text-violet-400"
+                            >
+                              {prettyDeck(row.archetype)} ↗
+                            </a>
+                          ) : (
+                            <span className="cursor-help" title={c.deckUnavailable}>
+                              {prettyDeck(row.archetype)}
+                            </span>
+                          )
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className={`${tableBodyCell} text-right`}>
+                        {row.playerCount.toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -187,7 +236,18 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
                   {data.archetypeWins.map((row) => (
                     <tr key={row.archetype}>
                       <td className={tableBodyCellStrong}>
-                        {prettyDeck(row.archetype)}
+                        {row.deckHref ? (
+                          <Link
+                            href={row.deckHref}
+                            className="text-violet-600 hover:underline dark:text-violet-400"
+                          >
+                            {prettyDeck(row.archetype)}
+                          </Link>
+                        ) : (
+                          <span className="cursor-help" title={c.deckUnavailable}>
+                            {prettyDeck(row.archetype)}
+                          </span>
+                        )}
                       </td>
                       <td className={`${tableBodyCell} text-right`}>
                         {row.wins.toLocaleString()}
@@ -224,7 +284,20 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                   {data.playerWins.map((row) => (
                     <tr key={row.player}>
-                      <td className={tableBodyCellStrong}>{row.player}</td>
+                      <td className={tableBodyCellStrong}>
+                        {row.playerHref ? (
+                          <Link
+                            href={row.playerHref}
+                            className="text-violet-600 hover:underline dark:text-violet-400"
+                          >
+                            {row.player}
+                          </Link>
+                        ) : (
+                          <span className="cursor-help" title={c.playerUnavailable}>
+                            {row.player}
+                          </span>
+                        )}
+                      </td>
                       <td className={`${tableBodyCell} text-right`}>
                         {row.wins.toLocaleString()}
                       </td>

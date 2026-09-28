@@ -10,10 +10,15 @@ export const dynamic = "force-dynamic";
 /** A single card: image, oracle text, and which of our decks play it. */
 export default async function CardPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ key: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { key } = await params;
+  const sp = await searchParams;
+  const fromValue = Array.isArray(sp.from) ? sp.from[0] : sp.from;
+  const backHref = fromValue?.startsWith("/decks/") ? fromValue : null;
   const locale = await getLocale();
   const pt = locale === "pt-BR";
 
@@ -43,6 +48,15 @@ export default async function CardPage({
 
   return (
     <div className="mx-auto max-w-4xl">
+      {backHref && (
+        <Link
+          href={backHref}
+          className="mb-4 inline-flex rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+        >
+          ← {pt ? "Voltar ao deck" : "Back to deck"}
+        </Link>
+      )}
+
       <h1 className="text-2xl font-bold tracking-tight text-neutral-950 dark:text-white">
         {card.name}
       </h1>

@@ -169,6 +169,7 @@ export async function getDecklist(id: string): Promise<{
 /** A past finish for a deck, for the "recent results" table. */
 export type DeckResult = {
   decklistId: string | null;
+  tournamentId: string | null;
   player: string;
   position: number | null;
   eventName: string;
@@ -196,6 +197,7 @@ export async function getDeckResults(
   const rows = await prisma.$queryRaw<
     {
       decklistId: string | null;
+      tournamentId: string | null;
       player: string;
       position: number | null;
       eventName: string;
@@ -207,6 +209,7 @@ export async function getDeckResults(
     }[]
   >`
     SELECT m."decklistId",
+           m."tournamentId",
            m.player,
            s.position,
            m."eventName",
@@ -223,7 +226,7 @@ export async function getDeckResults(
      WHERE m.store = ${store}
        AND m.archetype = ANY(${archetypes})
        AND m.date BETWEEN ${new Date(from)} AND ${new Date(to)}
-     GROUP BY m."decklistId", m.player, s.position, m."eventName", m."tournamentName"
+     GROUP BY m."decklistId", m."tournamentId", m.player, s.position, m."eventName", m."tournamentName"
      ORDER BY max(m.date) DESC, wins DESC
      LIMIT ${limit}`;
 

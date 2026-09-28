@@ -30,12 +30,14 @@ export function CardLink({
   qty,
   imageNormal,
   resolved,
+  returnHref,
 }: {
   name: string;
   cardKey: string;
   qty: number;
   imageNormal: string | null;
   resolved: boolean;
+  returnHref?: string;
 }) {
   const [at, setAt] = useState<{ x: number; y: number } | null>(null);
 
@@ -80,7 +82,9 @@ export function CardLink({
   return (
     <>
       <Link
-        href={`/cards/${encodeURIComponent(cardKey)}`}
+        href={`/cards/${encodeURIComponent(cardKey)}${
+          returnHref ? `?from=${encodeURIComponent(returnHref)}` : ""
+        }`}
         onMouseEnter={show}
         onMouseLeave={hide}
         onFocus={show}
