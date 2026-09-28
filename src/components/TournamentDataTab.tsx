@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prettyDeck } from "@/lib/stats";
 import type { TournamentData } from "@/lib/queries";
 import type { Locale } from "@/lib/i18n";
-import { meleeDecklistUrl, meleeTournamentUrl } from "@/lib/links";
+import { meleeTournamentUrl } from "@/lib/links";
 
 type Props = {
   data: TournamentData;
@@ -156,7 +156,6 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {data.tournamentWins.map((row) => {
                   const tournamentUrl = meleeTournamentUrl(row.tournamentId);
-                  const decklistUrl = meleeDecklistUrl(row.decklistId);
 
                   return (
                     <tr key={row.tournamentKey}>
@@ -180,15 +179,13 @@ export function TournamentDataTab({ data, locale = "en" }: Props) {
                       <td className={tableBodyCell}>{row.player}</td>
                       <td className={tableBodyCell}>
                         {row.archetype ? (
-                          decklistUrl ? (
-                            <a
-                              href={decklistUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                          row.deckHref ? (
+                            <Link
+                              href={row.deckHref}
                               className="text-violet-600 hover:underline dark:text-violet-400"
                             >
-                              {prettyDeck(row.archetype)} ↗
-                            </a>
+                              {prettyDeck(row.archetype)}
+                            </Link>
                           ) : (
                             <span className="cursor-help" title={c.deckUnavailable}>
                               {prettyDeck(row.archetype)}

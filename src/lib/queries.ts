@@ -2,7 +2,7 @@ import { cache } from "react";
 
 import { prisma } from "./prisma";
 import { monthsAgoISO, toISODate } from "./dates";
-import { deckPageHref } from "./links";
+import { deckPageHref, specificDeckPageHref } from "./links";
 import {
   computeMatrix,
   isByeDeck,
@@ -160,9 +160,14 @@ export const buildArchetypeLabels = cache(
  * Resolve each canonical deck name to the narrowest deck-page range that
  * actually contains a stored decklist: 2m, then 6m, then 12m, then all.
  */
+const buildStoredDecklistIdSet = cache(async (): Promise<Set<string>> => {
+  const decklists = await prisma.decklist.findMany({ select: { id: true } });
+  return new Set(decklists.map((row) => row.id));
+});
+
 const buildPreferredDeckHrefLookup = cache(
   async (store: string): Promise<Map<string, string>> => {
-    const [rows, decklists, dominantDeckFor, archetypeLabels] =
+    const [rows, validIds, dominantDeckFor, archetypeLabels] =
       await Promise.all([
         prisma.match.findMany({
           where: {
@@ -178,12 +183,11 @@ const buildPreferredDeckHrefLookup = cache(
             date: true,
           },
         }),
-        prisma.decklist.findMany({ select: { id: true } }),
+        buildStoredDecklistIdSet(),
         buildDominantDeckLookup(store),
         buildArchetypeLabels(store),
       ]);
 
-    const validIds = new Set(decklists.map((row) => row.id));
     const newest = new Map<string, string>();
     const aliases = new Map<string, Set<string>>();
 
@@ -606,7 +610,7 @@ export type TournamentWinRow = {
   date: string;
   player: string;
   archetype: string;
-  decklistId: string | null;
+  deckHref: string | null;
   playerCount: number;
 };
 
@@ -745,7 +749,13 @@ function wilsonScore(row: {
 }
 
 export async function getTournamentData(store: string): Promise<TournamentData> {
-  const [standings, matches, archetypeLabels, preferredDeckHrefs] =
+  const [
+    standings,
+    matches,
+    archetypeLabels,
+    preferredDeckHrefs,
+    storedDecklistIds,
+  ] =
     await Promise.all([
       prisma.standing.findMany({
       where: { store },
@@ -776,6 +786,7 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
       }),
       buildArchetypeLabels(store),
       buildPreferredDeckHrefLookup(store),
+      buildStoredDecklistIdSet(),
     ]);
 
   const uniquePlayers = new Set<string>();
@@ -896,6 +907,16 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
     const matchGroup = matchGroups.get(key);
     const playerCount = group.players.size || matchGroup?.players.size || 0;
 
+    const decklistId =
+      matchGroup?.decklistByPlayer.get(group.winner.player) ?? null;
+    const deckHref =
+      decklistId && storedDecklistIds.has(decklistId)
+        ? specificDeckPageHref(
+            preferredDeckHrefs.get(group.winner.archetype),
+            decklistId,
+          )
+        : null;
+
     tournamentWins.push({
       tournamentKey: key,
       tournamentId: group.tournamentId ?? matchGroup?.tournamentId ?? null,
@@ -903,8 +924,7 @@ export async function getTournamentData(store: string): Promise<TournamentData> 
       date: group.date,
       player: group.winner.player,
       archetype: group.winner.archetype,
-      decklistId:
-        matchGroup?.decklistByPlayer.get(group.winner.player) ?? null,
+      deckHref,
       playerCount,
     });
 
@@ -1645,7 +1665,7 @@ export type SinglePlayerOpponentRow = {
 export type SinglePlayerTournamentHistoryRow = {
   tournamentKey: string;
   tournamentId: string | null;
-  decklistId: string | null;
+  deckHref: string | null;
   date: string;
   tournamentName: string;
   deck: string;
@@ -1852,6 +1872,7 @@ export async function getSinglePlayerData(f: {
     dominantDeckFor,
     archetypeLabels,
     preferredDeckHrefs,
+    storedDecklistIds,
   ] = await Promise.all([
     prisma.match.findMany({
       where: {
@@ -1915,6 +1936,7 @@ export async function getSinglePlayerData(f: {
     buildDominantDeckLookup(f.store),
     buildArchetypeLabels(f.store),
     buildPreferredDeckHrefLookup(f.store),
+    buildStoredDecklistIdSet(),
   ]);
 
   const filteredMatches = matches.filter((row) => !isByeMatch(row));
@@ -2246,7 +2268,13 @@ export async function getSinglePlayerData(f: {
       return {
         tournamentKey: row.tournamentKey,
         tournamentId: row.tournamentId,
-        decklistId,
+        deckHref:
+          decklistId && storedDecklistIds.has(decklistId)
+            ? specificDeckPageHref(
+                preferredDeckHrefs.get(deck),
+                decklistId,
+              )
+            : null,
         date: standing?.date || row.date,
         tournamentName: standing?.tournamentName || row.tournamentName,
         deck,
