@@ -51,19 +51,25 @@ export default async function DeckPage({
   const row = decks.find((d) => d.deck.toLowerCase() === wanted.toLowerCase());
   if (!row) notFound();
 
-  const [featured, results] = await Promise.all([
+  const asked = first(sp.list);
+  const [featured, results, askedList] = await Promise.all([
     getFeaturedDecklistId("default", row.archetypes, from, to, MIN_WINS),
     getDeckResults("default", row.archetypes, from, to),
+    asked ? getDecklist(asked) : Promise.resolve(null),
   ]);
   if (!featured) notFound();
 
   // ?list= picks a specific pilot's list from the results table. Only honoured
-  // when that list actually belongs to this deck, so a hand-edited URL can't
-  // render someone else's archetype under this deck's name and stats.
-  const asked = first(sp.list);
-  const picked = asked && results.some((r) => r.decklistId === asked) ? asked : null;
+  // when that stored list actually belongs to this archetype. Do not validate
+  // against `results`: that query is intentionally limited to 25 recent rows,
+  // which made older exact-list links silently fall back to another player's
+  // featured list.
+  const picked =
+    askedList && row.archetypes.includes(askedList.archetype)
+      ? askedList.id
+      : null;
 
-  const list = await getDecklist(picked ?? featured.id);
+  const list = picked ? askedList : await getDecklist(featured.id);
   if (!list) notFound();
 
   const groups = groupDeckCards(list.main);
@@ -83,6 +89,12 @@ export default async function DeckPage({
     : "Link unavailable: this tournament has no imported ID.";
   const featuredTournamentUrl = meleeTournamentUrl(list.tournamentId);
   const originalDecklistUrl = meleeDecklistUrl(list.id);
+  const playerDataHref = (player: string) =>
+    `/data?${new URLSearchParams({
+      view: "single-player",
+      store: "default",
+      player,
+    }).toString()}`;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -108,9 +120,12 @@ export default async function DeckPage({
             : pt
               ? "Lista mais recente por "
               : "Latest list by "}
-        <span className="font-medium text-neutral-700 dark:text-neutral-300">
+        <Link
+          href={playerDataHref(list.player)}
+          className="font-medium text-violet-600 hover:underline dark:text-violet-400"
+        >
           {list.player}
-        </span>
+        </Link>
         {list.date ? ` · ${toISODate(list.date)}` : ""}
         {list.tournamentName && (
           <>
@@ -225,7 +240,9 @@ export default async function DeckPage({
                   <table className="min-w-full text-sm">
                     <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
                       <tr>
-                        <th className="px-3 py-2 text-left">{pt ? "Pos." : "Pl"}</th>
+                        <th className="px-3 py-2 text-left">
+                          {pt ? "Colocação" : "Place"}
+                        </th>
                         <th className="px-3 py-2 text-left">{pt ? "Jogador" : "Player"}</th>
                         <th className="px-3 py-2 text-right">V-D-E</th>
                       </tr>
@@ -243,7 +260,7 @@ export default async function DeckPage({
                             }
                           >
                             <td className="px-3 py-2 tabular-nums text-neutral-500 dark:text-neutral-400">
-                              {r.position ?? "—"}
+                              {formatPlacement(r.position, pt)}
                             </td>
                             <td className="px-3 py-2 font-medium">
                               {r.decklistId ? (
@@ -254,7 +271,14 @@ export default async function DeckPage({
                                   {r.player}
                                 </Link>
                               ) : (
-                                <span className="text-neutral-900 dark:text-neutral-100">
+                                <span
+                                  className="cursor-help text-neutral-900 dark:text-neutral-100"
+                                  title={
+                                    pt
+                                      ? "Link indisponível: este jogador não possui uma lista importada neste torneio."
+                                      : "Link unavailable: this player has no imported decklist for this tournament."
+                                  }
+                                >
                                   {r.player}
                                 </span>
                               )}
@@ -275,6 +299,25 @@ export default async function DeckPage({
       )}
     </div>
   );
+}
+
+function formatPlacement(position: number | null, pt: boolean): string {
+  if (position == null) return "—";
+  if (pt) return `${position}º`;
+
+  const lastTwo = position % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${position}th`;
+
+  const suffix =
+    position % 10 === 1
+      ? "st"
+      : position % 10 === 2
+        ? "nd"
+        : position % 10 === 3
+          ? "rd"
+          : "th";
+
+  return `${position}${suffix}`;
 }
 
 /** Results split per event, newest first — the way a deck site reads. */
