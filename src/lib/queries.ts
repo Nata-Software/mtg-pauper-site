@@ -1872,7 +1872,6 @@ export async function getSinglePlayerData(f: {
     dominantDeckFor,
     archetypeLabels,
     preferredDeckHrefs,
-    storedDecklistIds,
   ] = await Promise.all([
     prisma.match.findMany({
       where: {
@@ -1936,12 +1935,90 @@ export async function getSinglePlayerData(f: {
     buildDominantDeckLookup(f.store),
     buildArchetypeLabels(f.store),
     buildPreferredDeckHrefLookup(f.store),
-    buildStoredDecklistIdSet(),
   ]);
 
   const filteredMatches = matches.filter((row) => !isByeMatch(row));
 
   if (filteredMatches.length === 0) {
+    return null;
+  }
+
+  const candidateDecklistIds = [
+    ...new Set(
+      filteredMatches
+        .map((row) => row.decklistId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const tournamentIds = [
+    ...new Set(
+      filteredMatches
+        .map((row) => row.tournamentId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const decklistSelect = {
+    id: true,
+    tournamentId: true,
+    player: true,
+    archetype: true,
+  } as const;
+  const [directDecklists, tournamentDecklists] = await Promise.all([
+    candidateDecklistIds.length
+      ? prisma.decklist.findMany({
+          where: { id: { in: candidateDecklistIds } },
+          select: decklistSelect,
+        })
+      : Promise.resolve([]),
+    tournamentIds.length
+      ? prisma.decklist.findMany({
+          where: { tournamentId: { in: tournamentIds } },
+          select: decklistSelect,
+        })
+      : Promise.resolve([]),
+  ]);
+
+  type PlayerDecklist = (typeof directDecklists)[number];
+  const playerDecklists = new Map<string, PlayerDecklist>();
+
+  for (const decklist of [...directDecklists, ...tournamentDecklists]) {
+    if (normalizeName(decklist.player) === selectedPlayerKey) {
+      playerDecklists.set(decklist.id, decklist);
+    }
+  }
+
+  const decklistsByTournament = new Map<string, PlayerDecklist[]>();
+
+  for (const decklist of playerDecklists.values()) {
+    if (!decklist.tournamentId) continue;
+    const key = `id:${decklist.tournamentId}`;
+    const rows = decklistsByTournament.get(key) ?? [];
+    rows.push(decklist);
+    decklistsByTournament.set(key, rows);
+  }
+
+  function exactDecklistIdFor(row: (typeof filteredMatches)[number]): string | null {
+    const direct = row.decklistId
+      ? playerDecklists.get(row.decklistId)
+      : undefined;
+
+    if (
+      direct &&
+      (direct.tournamentId === row.tournamentId ||
+        (!direct.tournamentId && !row.tournamentId))
+    ) {
+      return direct.id;
+    }
+
+    if (!row.tournamentId) return null;
+
+    const candidates = decklistsByTournament.get(`id:${row.tournamentId}`) ?? [];
+    const matchingArchetype = candidates.filter(
+      (decklist) => decklist.archetype === row.archetype,
+    );
+
+    if (matchingArchetype.length === 1) return matchingArchetype[0].id;
+    if (candidates.length === 1) return candidates[0].id;
     return null;
   }
 
@@ -2030,6 +2107,7 @@ export async function getSinglePlayerData(f: {
   >();
 
   const matrixRows: MatchRow[] = [];
+  const latestDeckHrefs = new Map<string, string>();
 
   for (const row of filteredMatches) {
     const key = tournamentKey(row);
@@ -2067,11 +2145,20 @@ export async function getSinglePlayerData(f: {
     }
 
     tournament.deckCounts.set(deck, (tournament.deckCounts.get(deck) ?? 0) + 1);
-    if (row.decklistId) {
+    const exactDecklistId = exactDecklistIdFor(row);
+    if (exactDecklistId) {
       tournament.decklistCounts.set(
-        row.decklistId,
-        (tournament.decklistCounts.get(row.decklistId) ?? 0) + 1,
+        exactDecklistId,
+        (tournament.decklistCounts.get(exactDecklistId) ?? 0) + 1,
       );
+
+      if (!latestDeckHrefs.has(deck)) {
+        const exactHref = specificDeckPageHref(
+          preferredDeckHrefs.get(deck),
+          exactDecklistId,
+        );
+        if (exactHref) latestDeckHrefs.set(deck, exactHref);
+      }
     }
     resultToTally(tournament, row.result);
 
@@ -2189,7 +2276,7 @@ export async function getSinglePlayerData(f: {
 
       return {
         deck: row.deck,
-        deckHref: preferredDeckHrefs.get(row.deck) ?? null,
+        deckHref: latestDeckHrefs.get(row.deck) ?? null,
         matches: row.matches,
         wins: row.wins,
         losses: row.losses,
@@ -2269,7 +2356,7 @@ export async function getSinglePlayerData(f: {
         tournamentKey: row.tournamentKey,
         tournamentId: row.tournamentId,
         deckHref:
-          decklistId && storedDecklistIds.has(decklistId)
+          decklistId
             ? specificDeckPageHref(
                 preferredDeckHrefs.get(deck),
                 decklistId,
@@ -2336,7 +2423,7 @@ export async function getSinglePlayerData(f: {
       winPct: matchWinPct(total.wins, total.losses, total.draws) ?? 0,
     },
     mostPlayedDeck,
-    bestDeckHref: bestDeck ? preferredDeckHrefs.get(bestDeck) ?? null : null,
+    bestDeckHref: bestDeck ? latestDeckHrefs.get(bestDeck) ?? null : null,
     mostPlayedOpponent,
     bestDeck,
     bestOpponent,
