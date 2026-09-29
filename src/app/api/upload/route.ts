@@ -45,6 +45,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (mode === "bulk" && form.get("confirmed") !== "true") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Bulk replacement must be explicitly confirmed.",
+        },
+        { status: 400 },
+      );
+    }
+
     const roundsFile = form.get("rounds");
     const rankingFile = form.get("ranking");
 
