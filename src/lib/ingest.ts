@@ -136,6 +136,96 @@ export async function replaceStoreData(opts: {
   return { matches: matches?.length ?? 0, standings: standings?.length ?? 0 };
 }
 
+export type TournamentDataCounts = {
+  matches: number;
+  standings: number;
+  exists: boolean;
+};
+
+/** Count the rows belonging to one tournament in one store. */
+export async function getTournamentDataCounts(opts: {
+  store: string;
+  tournamentId: string;
+}): Promise<TournamentDataCounts> {
+  const { store, tournamentId } = opts;
+  const [matches, standings] = await Promise.all([
+    prisma.match.count({ where: { store, tournamentId } }),
+    prisma.standing.count({ where: { store, tournamentId } }),
+  ]);
+
+  return { matches, standings, exists: matches > 0 || standings > 0 };
+}
+
+/**
+ * Guard the tournament-scoped importer against accidentally assigning an
+ * entire multi-tournament CSV export to one tournament ID.
+ */
+export function validateSingleTournamentData(opts: {
+  matches?: MatchInput[] | null;
+  standings?: StandingInput[] | null;
+}): string {
+  const names = new Set(
+    [...(opts.matches ?? []), ...(opts.standings ?? [])]
+      .map((row) => row.eventName.trim())
+      .filter(Boolean),
+  );
+
+  if (names.size === 0) {
+    throw new Error("The CSV must contain an event_name for this tournament.");
+  }
+  if (names.size > 1) {
+    throw new Error(
+      "Tournament upload CSVs must contain exactly one event_name. Use bulk upload for files containing multiple tournaments.",
+    );
+  }
+
+  return [...names][0];
+}
+
+/**
+ * Replace only one tournament in a store. Categories not included in the
+ * request are preserved, matching the partial-upload behavior of bulk import.
+ */
+export async function replaceTournamentData(opts: {
+  store: string;
+  tournamentId: string;
+  tournamentName: string;
+  matches?: MatchInput[] | null;
+  standings?: StandingInput[] | null;
+}): Promise<{ matches: number; standings: number }> {
+  const { store, tournamentId, tournamentName, matches, standings } = opts;
+
+  if (matches) {
+    await prisma.match.deleteMany({ where: { store, tournamentId } });
+    await chunkedCreate(matches, (chunk) =>
+      prisma.match.createMany({
+        data: chunk.map((m) => ({
+          ...m,
+          store,
+          tournamentId,
+          tournamentName,
+        })),
+      }),
+    );
+  }
+
+  if (standings) {
+    await prisma.standing.deleteMany({ where: { store, tournamentId } });
+    await chunkedCreate(standings, (chunk) =>
+      prisma.standing.createMany({
+        data: chunk.map((s) => ({
+          ...s,
+          store,
+          tournamentId,
+          tournamentName,
+        })),
+      }),
+    );
+  }
+
+  return { matches: matches?.length ?? 0, standings: standings?.length ?? 0 };
+}
+
 /**
  * Add one scraped melee tournament to a store, tagged with the chosen event
  * (e.g. "Tuesday"). Re-importing the same tournament replaces just its rows,

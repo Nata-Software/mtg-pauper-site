@@ -206,6 +206,41 @@ const dict = {
     "pt-BR":
       "Upload de CSV em lote (abas Ranking + Rounds) — substitui todos os dados",
   },
+  "upload.tournamentSummary": {
+    en: "Tournament CSV upload — replaces only one tournament",
+    "pt-BR": "Upload de CSV de torneio — substitui apenas um torneio",
+  },
+  "upload.tournamentHelp": {
+    en: "Both CSVs must contain data for only one tournament and use the same event_name.",
+    "pt-BR":
+      "Os dois CSVs devem conter dados de apenas um torneio e usar o mesmo event_name.",
+  },
+  "upload.tournamentIdLabel": {
+    en: "Tournament ID",
+    "pt-BR": "ID do torneio",
+  },
+  "upload.tournamentUploadBtn": {
+    en: "Check and upload tournament",
+    "pt-BR": "Verificar e enviar torneio",
+  },
+  "upload.tournamentExistsConfirm": {
+    en: "Tournament ID {id} already exists in store {store} ({matches} match rows and {standings} standings). Replace only this tournament?",
+    "pt-BR":
+      "O torneio de ID {id} já existe na loja {store} ({matches} linhas de partidas e {standings} classificações). Substituir apenas este torneio?",
+  },
+  "upload.tournamentNewConfirm": {
+    en: "No tournament with ID {id} exists in store {store}. Add {name} as a new tournament?",
+    "pt-BR":
+      "Não existe torneio com o ID {id} na loja {store}. Adicionar {name} como um novo torneio?",
+  },
+  "upload.tournamentReplaced": {
+    en: "Replaced tournament",
+    "pt-BR": "Torneio substituído:",
+  },
+  "upload.tournamentAdded": {
+    en: "Added tournament",
+    "pt-BR": "Torneio adicionado:",
+  },
   "upload.storeLabel": { en: "Store", "pt-BR": "Loja" },
   "upload.roundsCsvLabel": { en: "Rounds CSV", "pt-BR": "CSV de Rounds" },
   "upload.rankingCsvLabel": { en: "Ranking CSV", "pt-BR": "CSV de Ranking" },

@@ -25,6 +25,26 @@ type Result =
     }
   | {
       ok: true;
+      kind: "upload-check";
+      store: string;
+      tournamentId: string;
+      tournamentName: string;
+      exists: boolean;
+      matches: number;
+      standings: number;
+    }
+  | {
+      ok: true;
+      kind: "tournament-upload";
+      store: string;
+      tournamentId: string;
+      tournamentName: string;
+      replaced: boolean;
+      matches: number;
+      standings: number;
+    }
+  | {
+      ok: true;
       kind: "mpl";
       tournamentName: string;
       date: string | null;
@@ -47,7 +67,9 @@ const btnCls =
   "rounded-md bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-50";
 
 export function UploadForm({ locale }: { locale: Locale }) {
-  const [busy, setBusy] = useState<"scrape" | "upload" | null>(null);
+  const [busy, setBusy] = useState<
+    "scrape" | "upload" | "tournament-upload" | null
+  >(null);
   const [result, setResult] = useState<Result | null>(null);
   const [event, setEvent] = useState("");
 
@@ -64,6 +86,54 @@ export function UploadForm({ locale }: { locale: Locale }) {
       const res = await fetch(endpoint, { method: "POST", body: form });
       const json = (await res.json()) as Result;
       setResult(json);
+    } catch (err) {
+      setResult({ ok: false, error: (err as Error).message });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function submitTournament(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setBusy("tournament-upload");
+    setResult(null);
+
+    try {
+      const form = new FormData(e.currentTarget);
+      form.set("mode", "tournament");
+
+      const checkResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: form,
+      });
+      const check = (await checkResponse.json()) as Result;
+
+      if (!check.ok || check.kind !== "upload-check") {
+        setResult(check);
+        return;
+      }
+
+      const message = check.exists
+        ? t(locale, "upload.tournamentExistsConfirm", {
+            id: check.tournamentId,
+            store: check.store,
+            matches: check.matches,
+            standings: check.standings,
+          })
+        : t(locale, "upload.tournamentNewConfirm", {
+            id: check.tournamentId,
+            store: check.store,
+            name: check.tournamentName,
+          });
+
+      if (!window.confirm(message)) return;
+
+      form.set("confirmed", "true");
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: form,
+      });
+      setResult((await uploadResponse.json()) as Result);
     } catch (err) {
       setResult({ ok: false, error: (err as Error).message });
     } finally {
@@ -171,6 +241,69 @@ export function UploadForm({ locale }: { locale: Locale }) {
         </button>
       </form>
 
+      {/* --- Tournament-scoped CSV upload --- */}
+      <details className="mt-8">
+        <summary className="cursor-pointer text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+          {t(locale, "upload.tournamentSummary")}
+        </summary>
+        <form
+          onSubmit={submitTournament}
+          className="mt-4 space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/70 p-5 dark:border-neutral-800 dark:bg-neutral-900/50"
+        >
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            {t(locale, "upload.tournamentHelp")}
+          </p>
+          <label className="block">
+            <span className={labelSpan}>{t(locale, "upload.storeLabel")}</span>
+            <input name="store" defaultValue="default" className={inputCls} />
+          </label>
+          <label className="block">
+            <span className={labelSpan}>
+              {t(locale, "upload.tournamentIdLabel")}
+            </span>
+            <input name="tournamentId" required className={inputCls} />
+          </label>
+          <label className="block">
+            <span className={labelSpan}>
+              {t(locale, "upload.passwordLabel")}
+            </span>
+            <input
+              type="password"
+              name="password"
+              autoComplete="off"
+              className={inputCls}
+            />
+          </label>
+          <label className="block">
+            <span className={labelSpan}>
+              {t(locale, "upload.roundsCsvLabel")}
+            </span>
+            <input
+              type="file"
+              name="rounds"
+              accept=".csv,text/csv"
+              className={fileCls}
+            />
+          </label>
+          <label className="block">
+            <span className={labelSpan}>
+              {t(locale, "upload.rankingCsvLabel")}
+            </span>
+            <input
+              type="file"
+              name="ranking"
+              accept=".csv,text/csv"
+              className={fileCls}
+            />
+          </label>
+          <button type="submit" disabled={busy !== null} className={btnCls}>
+            {busy === "tournament-upload"
+              ? t(locale, "upload.uploading")
+              : t(locale, "upload.tournamentUploadBtn")}
+          </button>
+        </form>
+      </details>
+
       {/* --- Bulk CSV upload (fallback) --- */}
       <details className="mt-8">
         <summary className="cursor-pointer text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
@@ -274,6 +407,22 @@ export function UploadForm({ locale }: { locale: Locale }) {
                   </ul>
                 </div>
               )}
+            </>
+          ) : result.ok && result.kind === "tournament-upload" ? (
+            <>
+              {t(
+                locale,
+                result.replaced
+                  ? "upload.tournamentReplaced"
+                  : "upload.tournamentAdded",
+              )}{" "}
+              <strong>{result.tournamentName}</strong> (ID {result.tournamentId}){" "}
+              {t(locale, "upload.into")} <strong>{result.store}</strong>:{" "}
+              {result.matches.toLocaleString()} {t(locale, "upload.matchRows")},{" "}
+              {result.standings.toLocaleString()} {t(locale, "upload.standingsRows")}.{" "}
+              <Link href="/" className="underline">
+                {t(locale, "upload.viewMatchups")}
+              </Link>
             </>
           ) : result.ok ? (
             <>
