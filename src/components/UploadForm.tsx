@@ -79,10 +79,21 @@ export function UploadForm({ locale }: { locale: Locale }) {
     kind: "scrape" | "upload",
   ) {
     e.preventDefault();
+    const form = new FormData(e.currentTarget);
+
+    if (kind === "upload") {
+      const store = String(form.get("store") || "default").trim() || "default";
+      const confirmed = window.confirm(
+        t(locale, "upload.bulkConfirm", { store }),
+      );
+
+      if (!confirmed) return;
+      form.set("confirmed", "true");
+    }
+
     setBusy(kind);
     setResult(null);
     try {
-      const form = new FormData(e.currentTarget);
       const res = await fetch(endpoint, { method: "POST", body: form });
       const json = (await res.json()) as Result;
       setResult(json);
@@ -313,6 +324,9 @@ export function UploadForm({ locale }: { locale: Locale }) {
           onSubmit={(e) => submit(e, "/api/upload", "upload")}
           className="mt-4 space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/70 p-5 dark:border-neutral-800 dark:bg-neutral-900/50"
         >
+          <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+            {t(locale, "upload.bulkWarning")}
+          </p>
           <label className="block">
             <span className={labelSpan}>{t(locale, "upload.storeLabel")}</span>
             <input name="store" defaultValue="default" className={inputCls} />

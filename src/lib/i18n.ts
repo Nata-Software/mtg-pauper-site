@@ -206,6 +206,16 @@ const dict = {
     "pt-BR":
       "Upload de CSV em lote (abas Ranking + Rounds) — substitui todos os dados",
   },
+  "upload.bulkWarning": {
+    en: "Warning: each CSV provided will replace all existing data of that type in the selected store. Use the tournament upload above when updating only one tournament.",
+    "pt-BR":
+      "Atenção: cada CSV enviado substituirá todos os dados existentes daquele tipo na loja selecionada. Use o upload de torneio acima para atualizar apenas um torneio.",
+  },
+  "upload.bulkConfirm": {
+    en: "This bulk upload will replace all corresponding CSV data in store {store}, not just one tournament. Are you sure you want to continue?",
+    "pt-BR":
+      "Este upload em lote substituirá todos os dados correspondentes aos CSVs na loja {store}, não apenas um torneio. Tem certeza de que deseja continuar?",
+  },
   "upload.tournamentSummary": {
     en: "Tournament CSV upload — replaces only one tournament",
     "pt-BR": "Upload de CSV de torneio — substitui apenas um torneio",
