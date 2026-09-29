@@ -250,6 +250,126 @@ const buildPreferredDeckHrefLookup = cache(
   },
 );
 
+type DeckRange = "2m" | "6m" | "12m" | "all";
+
+/**
+ * Exact list links for Single Player Data.
+ *
+ * Prefer that player's newest list in the narrowest useful window (2m, 6m,
+ * 12m, all). If the player has never supplied a list for the archetype, keep a
+ * second lookup containing the newest exact list from any player.
+ */
+const buildPrioritizedExactDeckHrefLookups = cache(
+  async (
+    store: string,
+    selectedPlayerKey: string,
+  ): Promise<{
+    player: Map<string, string>;
+    anyPlayer: Map<string, string>;
+  }> => {
+    const [rows, decklists, dominantDeckFor, archetypeLabels] =
+      await Promise.all([
+        prisma.match.findMany({
+          where: {
+            store,
+            decklistId: { not: null },
+          },
+          select: {
+            player: true,
+            deck: true,
+            archetype: true,
+            decklistId: true,
+            tournamentId: true,
+            date: true,
+          },
+        }),
+        prisma.decklist.findMany({
+          select: {
+            id: true,
+            player: true,
+            tournamentId: true,
+          },
+        }),
+        buildDominantDeckLookup(store),
+        buildArchetypeLabels(store),
+      ]);
+
+    const storedById = new Map(decklists.map((row) => [row.id, row]));
+    const cutoffs = {
+      "2m": monthsAgoISO(2),
+      "6m": monthsAgoISO(6),
+      "12m": monthsAgoISO(12),
+    };
+    const rangeForDate = (date: string): DeckRange =>
+      date >= cutoffs["2m"]
+        ? "2m"
+        : date >= cutoffs["6m"]
+          ? "6m"
+          : date >= cutoffs["12m"]
+            ? "12m"
+            : "all";
+
+    const ordered = rows
+      .filter((row) => {
+        if (!row.decklistId || !row.archetype) return false;
+        const stored = storedById.get(row.decklistId);
+
+        return Boolean(
+          stored &&
+            normalizeName(stored.player) === normalizeName(row.player) &&
+            (stored.tournamentId === row.tournamentId ||
+              (!stored.tournamentId && !row.tournamentId)),
+        );
+      })
+      .sort(
+        (a, b) =>
+          toISODate(b.date).localeCompare(toISODate(a.date)) ||
+          String(a.decklistId).localeCompare(String(b.decklistId)),
+      );
+
+    const player = new Map<string, string>();
+    const anyPlayer = new Map<string, string>();
+
+    for (const row of ordered) {
+      if (!row.decklistId || !row.archetype) continue;
+
+      const pageDeck =
+        archetypeLabels.get(row.archetype) ??
+        canonicalDeck(row.archetype, row.archetype);
+      if (!isRealArchetype(pageDeck)) continue;
+
+      const displayDeck = normalizeDeckName(
+        row.archetype,
+        row.deck,
+        dominantDeckFor(row.player),
+        archetypeLabels,
+      );
+      const aliases = new Set([pageDeck]);
+      if (isRealArchetype(displayDeck)) aliases.add(displayDeck);
+
+      const range = rangeForDate(toISODate(row.date));
+      const exactHref = specificDeckPageHref(
+        deckPageHref(pageDeck, range),
+        row.decklistId,
+        range,
+      );
+      if (!exactHref) continue;
+
+      for (const alias of aliases) {
+        if (!anyPlayer.has(alias)) anyPlayer.set(alias, exactHref);
+        if (
+          normalizeName(row.player) === selectedPlayerKey &&
+          !player.has(alias)
+        ) {
+          player.set(alias, exactHref);
+        }
+      }
+    }
+
+    return { player, anyPlayer };
+  },
+);
+
 /**
  * Store holding the MPL (yearly league) rows that the legacy CSV import mixed
  * into the weekly data — see scripts/split-mpl-events.mjs. MPL games are not
@@ -1872,6 +1992,7 @@ export async function getSinglePlayerData(f: {
     dominantDeckFor,
     archetypeLabels,
     preferredDeckHrefs,
+    prioritizedDeckHrefs,
   ] = await Promise.all([
     prisma.match.findMany({
       where: {
@@ -1935,6 +2056,7 @@ export async function getSinglePlayerData(f: {
     buildDominantDeckLookup(f.store),
     buildArchetypeLabels(f.store),
     buildPreferredDeckHrefLookup(f.store),
+    buildPrioritizedExactDeckHrefLookups(f.store, selectedPlayerKey),
   ]);
 
   const filteredMatches = matches.filter((row) => !isByeMatch(row));
@@ -2107,7 +2229,6 @@ export async function getSinglePlayerData(f: {
   >();
 
   const matrixRows: MatchRow[] = [];
-  const latestDeckHrefs = new Map<string, string>();
 
   for (const row of filteredMatches) {
     const key = tournamentKey(row);
@@ -2152,13 +2273,6 @@ export async function getSinglePlayerData(f: {
         (tournament.decklistCounts.get(exactDecklistId) ?? 0) + 1,
       );
 
-      if (!latestDeckHrefs.has(deck)) {
-        const exactHref = specificDeckPageHref(
-          preferredDeckHrefs.get(deck),
-          exactDecklistId,
-        );
-        if (exactHref) latestDeckHrefs.set(deck, exactHref);
-      }
     }
     resultToTally(tournament, row.result);
 
@@ -2276,7 +2390,10 @@ export async function getSinglePlayerData(f: {
 
       return {
         deck: row.deck,
-        deckHref: latestDeckHrefs.get(row.deck) ?? null,
+        deckHref:
+          prioritizedDeckHrefs.player.get(row.deck) ??
+          prioritizedDeckHrefs.anyPlayer.get(row.deck) ??
+          null,
         matches: row.matches,
         wins: row.wins,
         losses: row.losses,
@@ -2296,9 +2413,17 @@ export async function getSinglePlayerData(f: {
         a.deck.localeCompare(b.deck),
     );
 
-  const bestDeckPool = decks.some((row) => row.matches >= LOW_SAMPLE_MATCHES)
-    ? decks.filter((row) => row.matches >= LOW_SAMPLE_MATCHES)
-    : decks;
+  // A placeholder must never outrank a real deck. First prefer any named
+  // archetype the player used, then apply the usual sample-size threshold.
+  // Keep the complete list only as a last resort for players whose entire
+  // history is unknown.
+  const realDecks = decks.filter((row) => isRealArchetype(row.deck));
+  const bestDeckCandidates = realDecks.length > 0 ? realDecks : decks;
+  const bestDeckPool = bestDeckCandidates.some(
+    (row) => row.matches >= LOW_SAMPLE_MATCHES,
+  )
+    ? bestDeckCandidates.filter((row) => row.matches >= LOW_SAMPLE_MATCHES)
+    : bestDeckCandidates;
 
   const bestDeck =
     bestDeckPool.length > 0
@@ -2423,7 +2548,11 @@ export async function getSinglePlayerData(f: {
       winPct: matchWinPct(total.wins, total.losses, total.draws) ?? 0,
     },
     mostPlayedDeck,
-    bestDeckHref: bestDeck ? latestDeckHrefs.get(bestDeck) ?? null : null,
+    bestDeckHref: bestDeck
+      ? prioritizedDeckHrefs.player.get(bestDeck) ??
+        prioritizedDeckHrefs.anyPlayer.get(bestDeck) ??
+        null
+      : null,
     mostPlayedOpponent,
     bestDeck,
     bestOpponent,
