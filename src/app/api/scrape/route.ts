@@ -4,6 +4,7 @@ import { limitAdmin } from "@/lib/ratelimit";
 import { addTournamentData } from "@/lib/ingest";
 import { scrapeTournament, scrapeMplStandings } from "@/lib/melee";
 import { addMplOpen } from "@/lib/mpl/ingest";
+import { checkLeagueDay } from "@/lib/league-day";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -107,6 +108,29 @@ export async function POST(req: NextRequest) {
     }
 
     const scraped = await scrapeTournament(url);
+
+    // An import replaces this tournament's rows, so the wrong league here
+    // silently relabels the whole event — a Friday FNM became a Tuesday night
+    // that way. Events do move for holidays, hence the override rather than a
+    // hard stop.
+    const dayCheck = checkLeagueDay(event, scraped.date);
+    if (!dayCheck.ok && String(form.get("allowOtherDay") || "") === "") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            `"${scraped.tournamentName}" was played on a ${dayCheck.weekday}, ` +
+            `which doesn't belong to the ${event} league` +
+            (dayCheck.expected ? `. Did you mean ${dayCheck.expected}?` : ".") +
+            ` If the event really did move, tick "event moved" and import again.`,
+          wrongDay: true,
+          weekday: dayCheck.weekday,
+          expected: dayCheck.expected,
+        },
+        { status: 400 },
+      );
+    }
+
     if (scraped.matches.length === 0 && scraped.standings.length === 0) {
       return NextResponse.json(
         {

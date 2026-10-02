@@ -243,6 +243,23 @@ export function UploadForm({ locale }: { locale: Locale }) {
           />
         </label>
 
+        {/* Weekly leagues only: the import is rejected when the event's weekday
+            belongs to the other league, since re-importing under the wrong one
+            relabels the whole event. Events do move for holidays, so this lets
+            you say so deliberately. */}
+        {(event === "Tuesday" || event === "Friday") && (
+          <label className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              name="allowOtherDay"
+              className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700"
+            />
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              {t(locale, "upload.allowOtherDay")}
+            </span>
+          </label>
+        )}
+
         <input type="hidden" name="store" value="default" />
 
         <button type="submit" disabled={busy !== null} className={btnCls}>
