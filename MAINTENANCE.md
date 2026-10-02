@@ -33,6 +33,14 @@ After each Tuesday/Friday event:
 > importing the same URL again just refreshes it — it never duplicates. If you
 > pick the wrong league, just re-import into the right one (last import wins).
 
+> **The league is checked against the event's weekday.** Because an import
+> *replaces* that tournament's rows, choosing the wrong league silently
+> relabels the whole event — that is how a Friday FNM once spent a while
+> counted as a Tuesday night. A Friday event offered to the Tuesday league is
+> rejected, and vice versa. Wednesday counts as Tuesday, since the CLM Etapa
+> series runs midweek. When an event genuinely moves for a holiday, tick
+> **"event moved"** and import again.
+
 ### After an import: two scripts that do NOT run themselves
 
 An import writes only what it scraped. These two fill in the rest, and both are

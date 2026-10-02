@@ -194,6 +194,11 @@ const dict = {
     "pt-BR":
       "⚠ Este é um evento por equipes (Trios) — registrado como etapa, mas fora do ranking individual de pontos.",
   },
+  "upload.allowOtherDay": {
+    en: "Event moved (holiday, reschedule) — import even though the weekday doesn't match this league.",
+    "pt-BR":
+      "Evento remarcado (feriado, mudança) — importar mesmo com o dia da semana não batendo com a liga.",
+  },
   "upload.passwordLabel": { en: "Password", "pt-BR": "Senha" },
   "upload.passwordPlaceholder": {
     en: "Required on the live site",
