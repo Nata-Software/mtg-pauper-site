@@ -615,32 +615,43 @@ export async function scrapeMplStandings(
   }
   const tournamentName = tournamentNameFromPage(html);
 
-  const body = dataTablesColumns([
-    "Rank",
-    "Player",
-    "Decklists",
-    "MatchRecord",
-    "GameRecord",
-    "Points",
-    "OpponentMatchWinPercentage",
-    "TeamGameWinPercentage",
-    "OpponentGameWinPercentage",
-    "FinalTiebreaker",
-    "OpponentCount",
-  ]);
-  body.set("start", "0");
-  body.set("length", "1000");
-  body.set("roundId", roundIds[roundIds.length - 1]);
+  // Walk back from the final round until one actually has standings. melee can
+  // leave a trailing empty round — the Super Pauper 50K has 16, and the last is
+  // a bracket round with zero rows — so taking the last one unconditionally
+  // reported "no standings found" for a 247-player event.
+  let json: { data?: MeleeMplStanding[] } = {};
+  for (let i = roundIds.length - 1; i >= 0; i--) {
+    const body = dataTablesColumns([
+      "Rank",
+      "Player",
+      "Decklists",
+      "MatchRecord",
+      "GameRecord",
+      "Points",
+      "OpponentMatchWinPercentage",
+      "TeamGameWinPercentage",
+      "OpponentGameWinPercentage",
+      "FinalTiebreaker",
+      "OpponentCount",
+    ]);
+    body.set("start", "0");
+    body.set("length", "1000");
+    body.set("roundId", roundIds[i]);
 
-  const res = await fetch("https://melee.gg/Standing/GetRoundStandings", {
-    method: "POST",
-    headers: JSON_HEADERS,
-    body,
-  });
-  if (res.status !== 200) {
-    throw new Error(`GetRoundStandings returned HTTP ${res.status}`);
+    const res = await fetch("https://melee.gg/Standing/GetRoundStandings", {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body,
+    });
+    if (res.status !== 200) {
+      throw new Error(`GetRoundStandings returned HTTP ${res.status}`);
+    }
+    const page = (await res.json()) as { data?: MeleeMplStanding[] };
+    if ((page.data ?? []).length > 0) {
+      json = page;
+      break;
+    }
   }
-  const json = (await res.json()) as { data?: MeleeMplStanding[] };
 
   const results: ScrapedMplResult[] = [];
   for (const rec of json.data ?? []) {

@@ -80,6 +80,30 @@ If melee genuinely has no list for them (empty in both the matches *and* the
 standings), leave it unknown, or add an entry to
 `scripts/decklist-overrides.json` if the player confirms what they played.
 
+### MPL: Opens and Final spots
+
+**`/admin/mpl`** (off-menu, same admin password) does the whole yearly league:
+
+1. **Import an Open** — paste the melee URL. The stage number is read from the
+   name (`10º Open MPL` → 10); type it in for events whose name carries none,
+   like the Super Pauper.
+2. **Award the spots** — pick the Open and its standings appear. The top
+   finishers who don't already hold a spot come pre-ticked, so the cascade the
+   regulamento describes is applied for you; untick anyone who declines and tick
+   the next player down. Saving replaces that Open's winners, so correcting a
+   list never stacks a second set on top.
+3. **A spot won elsewhere** — partner stores and parallel rankings, name and
+   source only, no melee involved.
+
+Everything appears under **`/mpl?view=classified`**, separate from the ranking.
+Awarding from an Open also records the player's melee handle, which is what lets
+the Opens Ranking know they're already in and skip past them.
+
+Bulk-loading a fresh spreadsheet export is `scripts/import-classified-sheet.mjs`
+(additive, dry-run by default). Do **not** use `seed-mpl.mjs` for that: it
+deletes the season's spots and rebuilds them from `classified.json`, discarding
+stage links and anything added through the screen.
+
 ### Bulk CSV upload (fallback only)
 
 `/admin/upload` also has a collapsible **CSV upload** (the sheet's `Ranking` +

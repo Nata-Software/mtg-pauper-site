@@ -141,6 +141,7 @@ model MplStage {
   countsForRanking Boolean     @default(true) // trios/team events are excluded from the points ranking
   playerCount      Int?
   results          MplResult[]
+  spots            MplSpot[]
   createdAt        DateTime    @default(now())
 
   @@unique([season, kind, ordinal])
@@ -177,6 +178,13 @@ model MplSpot {
   ordinal       Int // row # in the sheet
   player        String // real name from the sheet
   meleeUsername String? // bridge to the Opens `username`, when determinable
+  /// The Open this spot was won at, when it was won at one. Spots used to be
+  /// linked to their stage by matching `source` against a regex ("^9º"), with a
+  /// hardcoded exception for the Super Pauper — which already failed for the
+  /// 50K, whose source reads "Pauper 50k - Mont". Awarding a spot through
+  /// /admin/mpl knows the stage, so it records it instead of inferring it.
+  stageId       Int?
+  stage         MplStage? @relation(fields: [stageId], references: [id], onDelete: SetNull)
   source        String // e.g. "1º Open MPL - Mont", "Arcade - Vaga 1"
   sourceType    String // "open" | "parallel_mont" | "partner_store" | "last_chance"
   store         String?
@@ -187,4 +195,5 @@ model MplSpot {
 
   @@index([season])
   @@index([meleeUsername])
+  @@index([stageId])
 }
