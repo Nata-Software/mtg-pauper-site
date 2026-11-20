@@ -168,7 +168,14 @@ export type MplStageView = MplStageMeta & {
   spotWinners: { player: string; ordinal: number }[];
 };
 
-/** Does a classified "open" spot belong to the given Open stage? */
+/**
+ * Does a classified "open" spot belong to the given Open stage?
+ *
+ * Fallback only, for spots recorded before MplSpot.stageId existed. Inferring
+ * the link from the source text was always brittle — the Super Pauper needed a
+ * hardcoded exception and the 50K ("Pauper 50k - Mont") matches neither rule.
+ * Spots awarded through /admin/mpl carry stageId and never reach this.
+ */
 function spotMatchesStage(source: string, ordinal: number): boolean {
   const lower = source.toLowerCase();
   if (ordinal === 4 && /super pauper/.test(lower)) return true;
@@ -199,7 +206,11 @@ export async function getStages(season = MPL_SEASON): Promise<MplStageView[]> {
       points: r.points,
     })),
     spotWinners: openSpots
-      .filter((sp) => spotMatchesStage(sp.source, s.ordinal))
+      .filter((sp) =>
+        sp.stageId != null
+          ? sp.stageId === s.id
+          : spotMatchesStage(sp.source, s.ordinal),
+      )
       .map((sp) => ({ player: sp.player, ordinal: sp.ordinal })),
   }));
 }
