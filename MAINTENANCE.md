@@ -23,8 +23,8 @@ After each Tuesday/Friday event:
 1. Open **`/admin/upload`** on the live site.
 2. Paste the **melee.gg tournament URL** (e.g.
    `https://melee.gg/Tournament/View/440596`).
-3. Choose the **league** it belongs to (**Tuesday**, **Friday**, or **MPL
-   Open** for a yearly-league stage).
+3. Choose the **league** it belongs to (**Tuesday** or **Friday**). MPL Opens
+   have their own screen — see below.
 4. Enter the **password** (the `UPLOAD_PASSWORD` value — ask an admin; it's in
    Vercel, not this repo) and click **Import**.
 5. Done — the site updates immediately.

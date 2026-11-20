@@ -156,43 +156,15 @@ const dict = {
     "pt-BR":
       "Cole a URL de um torneio do melee.gg, escolha a qual liga ele pertence, e ele será coletado e adicionado automaticamente. Reimportar o mesmo torneio apenas o atualiza.",
   },
+  "upload.mplMoved": {
+    en: "MPL Opens have their own screen, with spot selection:",
+    "pt-BR": "Os Opens do MPL têm uma tela própria, com seleção de vagas:",
+  },
   "upload.meleeUrlLabel": { en: "Melee URL", "pt-BR": "URL do Melee" },
   "upload.addToLeague": { en: "Add to league", "pt-BR": "Adicionar à liga" },
   "upload.chooseLeague": {
     en: "Choose a league…",
     "pt-BR": "Escolha uma liga…",
-  },
-  "upload.mplOpen": {
-    en: "MPL Open (yearly league)",
-    "pt-BR": "Open MPL (liga anual)",
-  },
-  "upload.mplStageLabel": { en: "Stage number", "pt-BR": "Número da etapa" },
-  "upload.mplStagePlaceholder": {
-    en: "Auto-detected from the name (e.g. 7)",
-    "pt-BR": "Detectado pelo nome (ex.: 7)",
-  },
-  "upload.mplTeamEventLabel": {
-    en: "Team event (Trios) — exclude from the individual points ranking. Detected automatically when the name says so.",
-    "pt-BR":
-      "Evento por equipes (Trios) — fora do ranking individual de pontos. Detectado automaticamente quando o nome indica.",
-  },
-  "upload.mplNote": {
-    en: "Standings only — MPL Opens are never added to the weekly statistics.",
-    "pt-BR":
-      "Somente classificação — Opens do MPL nunca entram nas estatísticas semanais.",
-  },
-  "upload.mplImported": { en: "Imported MPL Open", "pt-BR": "Open MPL importado:" },
-  "upload.mplRefreshed": {
-    en: "Refreshed MPL Open",
-    "pt-BR": "Open MPL atualizado:",
-  },
-  "upload.mplStageWord": { en: "stage", "pt-BR": "etapa" },
-  "upload.mplResultRows": { en: "standings rows", "pt-BR": "linhas de classificação" },
-  "upload.mplView": { en: "View the MPL page", "pt-BR": "Ver a página do MPL" },
-  "upload.mplTeamEvent": {
-    en: "⚠ This is a team event (Trios) — recorded as a stage, but excluded from the individual points ranking.",
-    "pt-BR":
-      "⚠ Este é um evento por equipes (Trios) — registrado como etapa, mas fora do ranking individual de pontos.",
   },
   "upload.allowOtherDay": {
     en: "Event moved (holiday, reschedule) — import even though the weekday doesn't match this league.",

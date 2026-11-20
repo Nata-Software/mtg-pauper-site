@@ -43,20 +43,7 @@ type Result =
       matches: number;
       standings: number;
     }
-  | {
-      ok: true;
-      kind: "mpl";
-      tournamentName: string;
-      date: string | null;
-      ordinal: number;
-      results: number;
-      replaced: boolean;
-      isTeamEvent: boolean;
-    }
   | { ok: false; error: string };
-
-/** Must match MPL_EVENT in src/app/api/scrape/route.ts. */
-const MPL_EVENT = "MPL Open";
 
 const inputCls =
   "block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-violet-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100";
@@ -165,6 +152,12 @@ export function UploadForm({ locale }: { locale: Locale }) {
       <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
         {t(locale, "upload.meleeDesc")}
       </p>
+      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        {t(locale, "upload.mplMoved")}{" "}
+        <Link href="/admin/mpl" className="text-violet-600 hover:underline dark:text-violet-400">
+          /admin/mpl
+        </Link>
+      </p>
 
       <form
         onSubmit={(e) => submit(e, "/api/scrape", "scrape")}
@@ -194,43 +187,8 @@ export function UploadForm({ locale }: { locale: Locale }) {
               {t(locale, "standings.tab.tuesday")}
             </option>
             <option value="Friday">{t(locale, "standings.tab.friday")}</option>
-            <option value={MPL_EVENT}>{t(locale, "upload.mplOpen")}</option>
           </select>
         </label>
-
-        {/* MPL only: the stage number. Left blank it is read from the melee
-            name ("7º Open MPL" -> 7); names like "Super Pauper 30K" carry no
-            number, so it can be typed in. */}
-        {event === MPL_EVENT && (
-          <>
-            <label className="block">
-              <span className={labelSpan}>
-                {t(locale, "upload.mplStageLabel")}
-              </span>
-              <input
-                name="ordinal"
-                type="number"
-                min="1"
-                inputMode="numeric"
-                placeholder={t(locale, "upload.mplStagePlaceholder")}
-                className={inputCls}
-              />
-            </label>
-            <label className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                name="teamEvent"
-                className="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-neutral-700"
-              />
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                {t(locale, "upload.mplTeamEventLabel")}
-              </span>
-            </label>
-            <p className="-mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {t(locale, "upload.mplNote")}
-            </p>
-          </>
-        )}
 
         <label className="block">
           <span className={labelSpan}>{t(locale, "upload.passwordLabel")}</span>
@@ -397,24 +355,7 @@ export function UploadForm({ locale }: { locale: Locale }) {
               : "border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"
           }`}
         >
-          {result.ok && result.kind === "mpl" ? (
-            <>
-              {t(locale, result.replaced ? "upload.mplRefreshed" : "upload.mplImported")}{" "}
-              <strong>{result.tournamentName}</strong>
-              {result.date ? ` (${result.date})` : ""} —{" "}
-              {t(locale, "upload.mplStageWord")} {result.ordinal},{" "}
-              {result.results.toLocaleString()}{" "}
-              {t(locale, "upload.mplResultRows")}.{" "}
-              <Link href="/mpl" className="underline">
-                {t(locale, "upload.mplView")}
-              </Link>
-              {result.isTeamEvent && (
-                <div className="mt-3 rounded-md border border-amber-400 bg-amber-50 p-3 text-amber-900 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-200">
-                  {t(locale, "upload.mplTeamEvent")}
-                </div>
-              )}
-            </>
-          ) : result.ok && result.kind === "scrape" ? (
+          {result.ok && result.kind === "scrape" ? (
             <>
               {t(locale, "upload.imported")}{" "}
               <strong>{result.tournamentName}</strong>
